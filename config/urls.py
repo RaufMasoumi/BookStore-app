@@ -20,7 +20,7 @@ from django.conf import settings
 
 urlpatterns = [
     # Django Admin
-    path('anything_but_admin/', admin.site.urls),
+    path('anything-but-admin/', admin.site.urls),
 
     # User Registration
     path('accounts/', include('allauth.urls')),
