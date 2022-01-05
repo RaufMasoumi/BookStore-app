@@ -11,6 +11,7 @@ django-allauth = "*"
 pillow = "*"
 environs = {extras = ["django"], version = "*"}
 whitenoise = "*"
+gunicorn = "*"
 
 [dev-packages]
 
