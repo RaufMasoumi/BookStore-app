@@ -3,6 +3,7 @@
 {% block title %}Books{% endblock %}
 
 {% block content %}
+    <h1>Books List</h1>
     {% for book in book_list %}
         <div>
             <h2><a href="{{ book.get_absolute_url }}">{{ book.title }}</a> </h2>
