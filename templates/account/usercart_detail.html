@@ -1,0 +1,27 @@
+{% extends '_base.html' %}
+
+
+{% block title %}User Cart{% endblock %}
+
+{% block content %}
+    <h1>Shopping Cart</h1>
+    <hr>
+    {% for book in cart.cart.all %}
+        <p>
+            <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a>
+                {% for number in cart.books_numbers.all %}
+                    {% if number.book == book %}
+                        | number:{{ number.number }}
+                        <form method="post" action="{% url 'account_usercart_edit' %}">
+                            {% csrf_token %}
+                            <button name="add" value="{{ number.pk }}" type="submit">Add</button>
+                            <button name="disadd" value="{{ number.pk }}" type="submit">DisAdd</button>
+                        </form>
+                    {% endif %}
+                {% endfor %}
+            </h3>
+        </p>
+        <hr>
+    {% endfor %}
+    <h2>Total Price:{{ total_price }}</h2>
+{% endblock %}

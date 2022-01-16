@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import UserCart
+from .models import UserCart, UserCartBooksNumber
 # Register your models here.
 
 CustomUser = get_user_model()
@@ -28,3 +28,5 @@ class UserCartAdmin(admin.ModelAdmin):
 
 
 admin.site.register(UserCart, UserCartAdmin)
+
+admin.site.register(UserCartBooksNumber)

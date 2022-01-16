@@ -19,4 +19,8 @@
             </ul>
         </div>
     </div>
+    {% if 'books.change_book' in user.get_all_permissions %}
+        <hr>
+        <h4><a href="{% url 'book_update' book.pk %}">Update</a></h4>
+    {% endif %}
 {% endblock %}

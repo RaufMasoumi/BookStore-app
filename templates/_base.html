@@ -21,10 +21,14 @@
           <a class="p-2 text-dark" href="{% url 'about' %}">About</a>
         {% if user.is_authenticated %}
           <a class="p-2 text-dark" href="{% url 'account_logout' %}">Log Out</a>
+          <a class="p-2 text-dark" href="{% url 'account_change_password' %}">Change Password</a>
+          <a class="p-2 text-dark" href="{% url 'account_user_update' user.pk %}">Profile</a>
+            {% if  'books.add_book' in user.get_all_permissions %}
+                <a class="p-2 text-dark" href="{% url 'book_create' %}">Add Book</a>
+            {% endif %}
         {% else %}
           <a class="p-2 text-dark" href="{% url 'account_login' %}">Log In</a>
-          <a class="btn btn-outline-primary"
-            href="{% url 'account_signup' %}">Sign Up</a>
+          <a class="btn btn-outline-primary" href="{% url 'account_signup' %}">Sign Up</a>
         {% endif %}
       </nav>
     </div>
