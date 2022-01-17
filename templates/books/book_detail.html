@@ -10,6 +10,41 @@
         <h2><a href="">{{ book.title }}</a></h2>
         <p>Author: {{ book.author }}</p>
         <p>Price: {{ book.price }}</p>
+        <p>Stock: {{ book.stock }}</p>
+        {% if book in user.carts.cart.all %}
+            {% for number in user.carts.books_numbers.all %}
+                    {% if number.book == book %}
+                        <p>
+                            <form method="post" action="{% url 'account_usercart_edit' %}">
+                                {% csrf_token %}
+                                <h3>
+                                    {% if book.stock > 0 %}
+                                        <button name="add" class="btn btn-success" value="{{ number.id }}"
+                                                type="submit">Add</button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-dark">Add</button>
+                                    {% endif %}
+                                    |   number:{{ number.number }}   |
+                                    <button name="reduce" class="btn btn-danger" value="{{ number.id }}" type="submit">Reduce</button>
+                                </h3>
+                            </form>
+                        </p>
+                    {% endif %}
+            {% endfor %}
+        {% else %}
+            {% if book.stock > 0 %}
+                <p>
+                    <form method="post" action="{% url 'account_usercart_edit' %}">
+                        {% csrf_token %}
+                        <button name="book_add" type="submit" value="{{ book.id }}" class="btn btn-success">Add to Cart</button>
+                    </form>
+                </p>
+            {% else %}
+                <p>
+                    <button type="button" class="btn btn-danger">Unavailable</button>
+                </p>
+            {% endif %}
+        {% endif %}
         <div>
             <h3>Reviews</h3>
             <ul>

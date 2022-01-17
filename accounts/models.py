@@ -18,12 +18,6 @@ class CustomUser(AbstractUser):
     card_number = models.CharField(max_length=200, blank=True, null=True)
     cash = models.DecimalField(max_digits=10, decimal_places=2, default=00.00)
 
-    def get_url(self, image):
-        try:
-            return image.url
-        except IOError:
-            return None
-
 
 from books.models import Book
 
@@ -43,7 +37,7 @@ class UserCart(models.Model):
 class UserCartBooksNumber(models.Model):
     cart = models.ForeignKey(UserCart, on_delete=models.CASCADE, related_name='books_numbers')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='carts_numbers')
-    number = models.IntegerField(default=1)
+    number = models.PositiveIntegerField(default=1, max_length=2)
 
     def __str__(self):
         return f'{self.cart.user.username}\'s cart{self.cart.pk} number of {self.book.title}'
@@ -96,14 +90,14 @@ def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
 
 
 @receiver(post_save, sender=UserCartBooksNumber)
-def update_user_cart_books_number_number(instance, created, **kwargs):
+def update_user_cart_books_number_number_and_stock(instance, created, **kwargs):
     if not created:
         number = UserCartBooksNumber.objects.get(id=instance.id)
-        if number.number < 1:
-            cart = UserCart.objects.get(id=number.cart.id)
+        if number.number == 0:
             book = Book.objects.get(id=number.book.id)
+            cart = UserCart.objects.get(id=number.cart.id)
             cart.cart.remove(book)
-            return
+            return print('the book deleted from cart cause its number is zero!')
 
 # @receiver(m2m_changed, sender=UserCart.cart.through)
 # def update_user_cart_total_price(instance, action, pk_set, model, **kwargs):
