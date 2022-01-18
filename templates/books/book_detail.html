@@ -24,8 +24,15 @@
                                     {% else %}
                                         <button type="button" class="btn btn-dark">Add</button>
                                     {% endif %}
-                                    |   number:{{ number.number }}   |
-                                    <button name="reduce" class="btn btn-danger" value="{{ number.id }}" type="submit">Reduce</button>
+                                    | number:{{ number.number }} |
+                                    {% if number.number > 1 %}
+                                        <button name="reduce" class="btn btn-danger" value="{{ number.id }}"
+                                                type="submit">Reduce</button>
+                                    {% else %}
+                                        <button class="btn btn-dark" type="button">Reduce</button>
+                                    {% endif %}
+                                    | <button name="delete" class="btn btn-danger" value="{{ number.id }}"
+                                              type="submit">Delete</button>
                                 </h3>
                             </form>
                         </p>

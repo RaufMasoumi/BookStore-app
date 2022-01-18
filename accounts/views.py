@@ -43,6 +43,7 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 @require_POST
 @login_required(login_url='account_login')
 def user_cart_editing_view(request):
+
     if request.POST.get('add'):
         number_id = request.POST.get('add')
         number = UserCartBooksNumber.objects.get(id=number_id)
@@ -55,10 +56,9 @@ def user_cart_editing_view(request):
             number.save()
             book.stock -= 1
             book.save()
+            return redirect(request.META['HTTP_REFERER'])
         else:
             return HttpResponse('<h1>409 The book has not enough stock!', status=409)
-
-        return redirect(request.META['HTTP_REFERER'])
 
     elif request.POST.get('reduce'):
         number_id = request.POST.get('reduce')
@@ -69,6 +69,19 @@ def user_cart_editing_view(request):
         number.save()
         number.book.stock += 1
         number.book.save()
+        return redirect(request.META['HTTP_REFERER'])
+
+    elif request.POST.get('delete'):
+        number_id = request.POST.get('delete')
+        number = UserCartBooksNumber.objects.get(id=number_id)
+        book = number.book
+        cart = number.cart
+        if cart.user != request.user:
+            return HttpResponseForbidden('<h1>403 Forbidden</h1>')
+        book.stock += number.number
+        book.save()
+        cart.cart.remove(book)
+        cart.save()
         return redirect(request.META['HTTP_REFERER'])
 
     elif request.POST.get('book_add'):

@@ -16,7 +16,6 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=300, blank=True, null=True)
     card_number = models.CharField(max_length=200, blank=True, null=True)
-    cash = models.DecimalField(max_digits=10, decimal_places=2, default=00.00)
 
 
 from books.models import Book
@@ -37,7 +36,7 @@ class UserCart(models.Model):
 class UserCartBooksNumber(models.Model):
     cart = models.ForeignKey(UserCart, on_delete=models.CASCADE, related_name='books_numbers')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='carts_numbers')
-    number = models.PositiveIntegerField(default=1, max_length=2)
+    number = models.PositiveIntegerField(default=1)
 
     def __str__(self):
         return f'{self.cart.user.username}\'s cart{self.cart.pk} number of {self.book.title}'
