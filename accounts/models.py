@@ -89,7 +89,7 @@ def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
 
 
 @receiver(post_save, sender=UserCartBooksNumber)
-def update_user_cart_books_number_number_and_stock(instance, created, **kwargs):
+def update_user_cart_books_number_number(instance, created, **kwargs):
     if not created:
         number = UserCartBooksNumber.objects.get(id=instance.id)
         if number.number == 0:

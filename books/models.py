@@ -34,4 +34,6 @@ class Review(models.Model):
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.review
+        return self.review[:20]
+
+
