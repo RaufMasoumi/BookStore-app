@@ -12,7 +12,7 @@
             {% for number in cart.books_numbers.all %}
                     {% if number.book == book %}
                         <p>
-                            <form method="post" action="{% url 'account_usercart_edit' %}">
+                            <form method="post" action="{% url 'account_user_cart_update' %}">
                                 {% csrf_token %}
                                 <h3>
                                     {% if book.stock > 0 %}

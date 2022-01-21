@@ -23,7 +23,7 @@
           <a class="p-2 text-dark" href="{% url 'account_logout' %}">Log Out</a>
           <a class="p-2 text-dark" href="{% url 'account_change_password' %}">Change Password</a>
           <a class="p-2 text-dark" href="{% url 'account_user_update' user.pk %}">Profile</a>
-          <a class="p-2 text-dark" href="{% url 'account_usercart_detail' user.carts.pk %}">Shopping Cart</a>
+          <a class="p-2 text-dark" href="{% url 'account_user_cart_detail' user.carts.pk %}">Shopping Cart</a>
             {% if  'books.add_book' in user.get_all_permissions %}
                 <a class="p-2 text-dark" href="{% url 'book_create' %}">Add Book</a>
             {% endif %}

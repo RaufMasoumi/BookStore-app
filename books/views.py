@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden, HttpResponse
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from uuid import UUID
 from .models import Book, Review
@@ -28,7 +28,7 @@ class BookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        form = ReviewForm(initial={'author': self.request.user, 'book': self.object})
+        form = ReviewForm(initial={'book': self.object})
         context['review_form'] = form
         return context
 
@@ -49,14 +49,30 @@ class BookUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     permission_required = 'books.change_book'
 
 
+class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Book
+    template_name = 'books/book_delete.html'
+    login_url = 'account_login'
+    success_url = reverse_lazy('book_list')
+    permission_required = 'books.delete_book'
+
+
+class ReviewCreateView(LoginRequiredMixin, CreateView):
+    model = Review
+    fields = ('book', 'review')
+    template_name = 'books/review_create.html'
+    login_url = 'account_login'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
 class ReviewUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Review
     fields = ('review',)
     template_name = 'books/review_update.html'
     login_url = 'account_login'
-
-    def get_success_url(self):
-        return reverse('book_detail', kwargs={'pk': self.object.book.pk})
 
     def test_func(self):
         obj = self.get_object()
@@ -91,7 +107,7 @@ class SearchResultsView(ListView):
 
 @require_POST
 @login_required(login_url='account_login')
-def save_review(request):
+def create_review(request):
     book = Book.objects.get(id=request.META['HTTP_REFERER'].split('/')[-2])
     if int(request.POST['author']) != request.user.id or UUID(request.POST['book']) != book.id:
         return HttpResponseForbidden('<h1>401 Forbidden!</h1>')

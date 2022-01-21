@@ -27,7 +27,7 @@ class UserCart(models.Model):
     cart = models.ManyToManyField(Book, related_name='in_carts', blank=True)
 
     def get_absolute_url(self):
-        return reverse('account_usercart_detail', kwargs={'pk': self.pk})
+        return reverse('account_user_cart_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
         return f'{self.user.username}\'s cart'
@@ -49,7 +49,7 @@ def create_user_cart(instance, created, **kwargs):
             return HttpResponse('The singed up user already have a user cart!!', status=409)
         else:
             UserCart.objects.create(user=instance)
-            return print('the usercart created for the new user!')
+            return print('the user cart created for the new user!')
     else:
         return HttpResponse('The user signing up was unsuccessful!!')
 

@@ -15,7 +15,7 @@
             {% for number in user.carts.books_numbers.all %}
                     {% if number.book == book %}
                         <p>
-                            <form method="post" action="{% url 'account_usercart_edit' %}">
+                            <form method="post" action="{% url 'account_user_cart_update' %}">
                                 {% csrf_token %}
                                 <h3>
                                     {% if book.stock > 0 %}
@@ -41,7 +41,7 @@
         {% else %}
             {% if book.stock > 0 %}
                 <p>
-                    <form method="post" action="{% url 'account_usercart_edit' %}">
+                    <form method="post" action="{% url 'account_user_cart_update' %}">
                         {% csrf_token %}
                         <button name="book_add" type="submit" value="{{ book.id }}" class="btn btn-success">Add to Cart</button>
                     </form>
@@ -66,15 +66,22 @@
                     </li>
                 {% endfor %}
             </ul>
-            <form action="{% url 'review_save' %}" method="post">
+            <form action="{% url 'review_create' %}" method="post">
                 {% csrf_token %}
                 {{ review_form | crispy}}
-                <button name="book" value="{{ book.id }}" type="submit" class="btn btn-success">Submit</button>
+                <button type="submit" class="btn btn-success">Submit</button>
             </form>
         </div>
     </div>
-    {% if 'books.change_book' in user.get_all_permissions %}
-        <hr>
-        <h4><a href="{% url 'book_update' book.pk %}">Update</a></h4>
-    {% endif %}
+    <hr>
+    <p>
+    <h4>
+        {% if 'books.change_book' in user.get_all_permissions %}
+            <a href="{% url 'book_update' book.pk %}">Update</a>
+        {% endif %}
+        {% if 'books.delete_book' in user.get_all_permissions %}
+            <a href="{% url 'book_delete' book.pk %}" style="color: red">Delete</a>
+        {% endif %}
+    </h4>
+    </p>
 {% endblock %}

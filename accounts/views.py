@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.http import HttpResponseForbidden, HttpResponse
 from decimal import Decimal
 from books.models import Book
@@ -16,7 +16,7 @@ class UserProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
     model = get_user_model()
     fields = ('first_name', 'last_name', 'image', 'phone_number', 'address', 'card_number')
     template_name = 'account/user_update.html'
-    success_url = 'home'
+    success_url = reverse_lazy('home')
     login_url = 'account_login'
 
     def test_func(self):
@@ -28,7 +28,7 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = UserCart
     context_object_name = 'cart'
     login_url = 'account_login'
-    template_name = 'account/usercart_detail.html'
+    template_name = 'account/user_cart_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -42,7 +42,11 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
 @require_POST
 @login_required(login_url='account_login')
-def user_cart_editing_view(request):
+def user_cart_update_view(request):
+    try:
+        url = request.META['HTTP_REFERER']
+    except KeyError:
+        url = reverse('account_user_cart_detail', kwargs={'pk': request.user.carts.pk})
 
     if request.POST.get('add'):
         number_id = request.POST.get('add')
@@ -56,7 +60,7 @@ def user_cart_editing_view(request):
             number.save()
             book.stock -= 1
             book.save()
-            return redirect(request.META['HTTP_REFERER'])
+            return redirect(url)
         else:
             return HttpResponse('<h1>409 The book has not enough stock!', status=409)
 
@@ -69,7 +73,7 @@ def user_cart_editing_view(request):
         number.save()
         number.book.stock += 1
         number.book.save()
-        return redirect(request.META['HTTP_REFERER'])
+        return redirect(url)
 
     elif request.POST.get('delete'):
         number_id = request.POST.get('delete')
@@ -82,7 +86,7 @@ def user_cart_editing_view(request):
         book.save()
         cart.cart.remove(book)
         cart.save()
-        return redirect(request.META['HTTP_REFERER'])
+        return redirect(url)
 
     elif request.POST.get('book_add'):
         book_id = request.POST.get('book_add')
@@ -93,7 +97,7 @@ def user_cart_editing_view(request):
             user_cart.save()
             book.stock -= 1
             book.save()
-            return redirect(request.META['HTTP_REFERER'])
+            return redirect(url)
         else:
             return HttpResponse('<h1>409 The book has not enough stock!', status=409)
 

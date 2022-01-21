@@ -1,6 +1,5 @@
 docker-compose-prod.yml
 .env
-users/
 __pycache__/
 db.sqlite3
 .DS_Store

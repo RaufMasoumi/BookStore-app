@@ -11,7 +11,7 @@ class Book(models.Model):
     author = models.CharField(max_length=250)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     cover = models.ImageField(upload_to='covers/', blank=True)
-    stock = models.PositiveIntegerField(default=0)
+    stock = models.PositiveIntegerField(default=0, blank=True)
 
     class Meta:
         indexes = [
@@ -25,7 +25,7 @@ class Book(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('book_detail', kwargs={'pk': str(self.pk)})
+        return reverse('book_detail', kwargs={'pk': self.pk})
 
 
 class Review(models.Model):
@@ -35,5 +35,8 @@ class Review(models.Model):
 
     def __str__(self):
         return self.review[:20]
+
+    def get_absolute_url(self):
+        return reverse('book_detail', kwargs={'pk': self.book.pk})
 
 
