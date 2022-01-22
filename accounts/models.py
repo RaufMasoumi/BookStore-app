@@ -1,3 +1,4 @@
+import django.conf
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
@@ -5,14 +6,15 @@ from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.http import HttpResponse
 from django.urls import reverse
+from allauth.socialaccount.models import SocialAccount
+import requests
 import uuid
-from decimal import Decimal
 
 # Create your models here.
 
 
 class CustomUser(AbstractUser):
-    image = models.ImageField(upload_to='accounts/', blank=True)
+    image = models.ImageField(upload_to='accounts/pictures/', blank=True)
     phone_number = models.CharField(max_length=100, blank=True, null=True)
     address = models.CharField(max_length=300, blank=True, null=True)
     card_number = models.CharField(max_length=200, blank=True, null=True)
@@ -57,7 +59,9 @@ def create_user_cart(instance, created, **kwargs):
 @receiver(m2m_changed, sender=UserCart.cart.through)
 def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
     user_cart = UserCart.objects.get(pk=instance.pk)
-    pk_list = list(pk_set)
+
+    if action != 'pre_clear' and action != 'post_clear':
+        pk_list = list(pk_set)
 
     if model != Book:
         return HttpResponse('Error when calculating the number of user cart books!!', status=409)
@@ -98,56 +102,16 @@ def update_user_cart_books_number_number(instance, created, **kwargs):
             cart.cart.remove(book)
             return print('the book deleted from cart cause its number is zero!')
 
-# @receiver(m2m_changed, sender=UserCart.cart.through)
-# def update_user_cart_total_price(instance, action, pk_set, model, **kwargs):
-#     user_cart = UserCart.objects.get(pk=instance.pk)
-#     pk_list = list(pk_set)
-#     total_price = Decimal('00.00')
-#
-#     if model != Book:
-#         return HttpResponse('Error when calculating the total price of user cart!!', status=409)
-#
-#     for i in range(len(pk_list)):
-#         price = Book.objects.get(pk=pk_list[i]).price
-#         if UserCartBooksNumber.objects.filter(cart=user_cart, book__pk=pk_list[i]).exists():
-#             number = UserCartBooksNumber.objects.get(cart=user_cart, book__pk=pk_list[i]).number
-#             total_price += price * Decimal(number)
-#         else:
-#             number = 1
-#             total_price += price * Decimal(number)
-#
-#     if action == 'post_add':
-#         user_cart.total_price += total_price
-#         user_cart.save()
-#         return print('post_adding done!', user_cart.total_price)
-#
-#     elif action == 'post_remove':
-#         user_cart.total_price -= total_price
-#         if user_cart.total_price > 0:
-#             user_cart.save()
-#
-#         else:
-#             user_cart.total_price = Decimal('00.00')
-#             user_cart.save()
-#         return print('post_removing done!', user_cart.total_price)
-#
-#     elif action == 'post_clear':
-#         user_cart.total_price = Decimal('00.00')
-#         user_cart.save()
-#         return print('post_clearing done!', user_cart.total_price)
-#
-#     return HttpResponse('Error when calculating the total price of user cart!!', status=409)
-#
-#
-# @receiver(post_save, sender=UserCartBooksNumber)
-# def update_user_cart_total_price_by_number(instance, created, update_fields, **kwargs):
-#     if created:
-#         return
-#     cart = instance.cart
-#     number = instance.number
-#     price = instance.book.price
-#     total_price = cart.total_price - price
-#     total_price += price * number
-#     cart.total_price = total_price
-#     cart.save()
-#     return print(f'total price updating by number done. total price:{total_price} | added price:{}')
+
+@receiver(post_save, sender=SocialAccount)
+def update_user_profile_image(instance, **kwargs):
+    if not instance.user.image:
+        response = requests.get(instance.extra_data['picture'])
+        user = get_user_model().objects.get(id=instance.user.id)
+        path = f'{django.conf.settings.MEDIA_ROOT}/accounts/pictures/{user.username}.png'
+        image = open(path, 'wb')
+        image.write(response.content)
+        image.close()
+        user.image = path.split('media')[1]
+        user.save()
+        return print('image sat for the user.')

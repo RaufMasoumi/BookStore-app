@@ -6,11 +6,11 @@ import uuid
 
 
 class Book(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=250)
     author = models.CharField(max_length=250)
     price = models.DecimalField(max_digits=6, decimal_places=2)
-    cover = models.ImageField(upload_to='covers/', blank=True)
+    cover = models.ImageField(upload_to='covers/', blank=True, max_length=200)
     stock = models.PositiveIntegerField(default=0, blank=True)
 
     class Meta:

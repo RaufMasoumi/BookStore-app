@@ -12,6 +12,7 @@ pillow = "*"
 environs = {extras = ["django"], version = "*"}
 whitenoise = "*"
 gunicorn = "*"
+requests = "*"
 
 [dev-packages]
 

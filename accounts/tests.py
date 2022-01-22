@@ -93,6 +93,10 @@ class UserCartTests(TestCase):
         self.assertEqual(number.cart, self.user_cart)
         self.user_cart.cart.remove(self.book)
         self.assertFalse(UserCartBooksNumber.objects.filter(id=number.id).exists())
+        new_book = Book.objects.create(title='The hello', author='hello', price=1)
+        self.user_cart.cart.add(new_book)
+        self.user_cart.cart.add(self.book)
+        self.user_cart.cart.clear()
         self.assertEqual(UserCartBooksNumber.objects.count(), 0)
 
     def test_user_cart_books_number_number_updating(self):
