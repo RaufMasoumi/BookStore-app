@@ -7,8 +7,8 @@ from django.http import HttpResponseForbidden, HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from uuid import UUID
-from .models import Book, Review
-from .forms import ReviewForm
+from .models import Book, Review, ReviewReply
+from .forms import ReviewForm, ReviewReplyForm
 # Create your views here.
 
 
@@ -28,8 +28,10 @@ class BookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        form = ReviewForm(initial={'book': self.object})
-        context['review_form'] = form
+        review_form = ReviewForm(initial={'book': self.object})
+        review_reply_form = ReviewReplyForm()
+        context['review_form'] = review_form
+        context['review_reply_form'] = review_reply_form
         return context
 
 
@@ -60,7 +62,7 @@ class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 class ReviewCreateView(LoginRequiredMixin, CreateView):
     model = Review
     fields = ('book', 'review')
-    template_name = 'books/review_create.html'
+    template_name = 'books/reviews/review_create.html'
     login_url = 'account_login'
 
     def form_valid(self, form):
@@ -71,7 +73,7 @@ class ReviewCreateView(LoginRequiredMixin, CreateView):
 class ReviewUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Review
     fields = ('review',)
-    template_name = 'books/review_update.html'
+    template_name = 'books/reviews/review_update.html'
     login_url = 'account_login'
 
     def test_func(self):
@@ -82,7 +84,7 @@ class ReviewUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 class ReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Review
     login_url = 'account_login'
-    template_name = 'books/review_delete.html'
+    template_name = 'books/reviews/review_delete.html'
 
     def get_success_url(self):
         return reverse('book_detail', kwargs={'pk': self.object.book.pk})
@@ -95,6 +97,44 @@ class ReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return False
 
 
+class ReviewReplyCreateView(LoginRequiredMixin, CreateView):
+    model = ReviewReply
+    fields = ('review', 'reply')
+    template_name = 'books/reviews/replies/review_reply_create.html'
+    login_url = 'account_login'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        if self.request.POST.get('review_pk'):
+            form.instance.review = Review.objects.get(pk=self.request.POST.get('review_pk'))
+        return super().form_valid(form)
+
+
+class ReviewReplyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = ReviewReply
+    fields = ('reply', )
+    template_name = 'books/reviews/replies/review_reply_update.html'
+    login_url = 'account_login'
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author == self.request.user
+
+
+class ReviewReplyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = ReviewReply
+    template_name = 'books/reviews/replies/review_reply_delete.html'
+    login_url = 'account_login'
+
+    def get_success_url(self):
+        obj = self.get_object()
+        return reverse('book_detail', kwargs={'pk': obj.review.book.pk})
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj.author == self.request.user or self.request.user.has_perm('books.delete_reviewreply')
+
+
 class SearchResultsView(ListView):
     model = Book
     context_object_name = 'book_list'
@@ -105,6 +145,7 @@ class SearchResultsView(ListView):
         return Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query))
 
 
+# is not in using
 @require_POST
 @login_required(login_url='account_login')
 def create_review(request):

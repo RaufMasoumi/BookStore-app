@@ -10,14 +10,4 @@
         <input name="q" class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
         <button type="submit" class="btn btn-success">Search</button>
     </form>
-    <a href="{% provider_login_url 'google' %}">Log In</a>
-{#    <img class="bookcover" src="{% static 'images/dfp.png' %}">#}
-{#    {% if user.is_authenticated %}#}
-{#        Hi {{ user.email }}!#}
-{#        <p><a href="{% url 'account_logout' %}">Log Out</a></p>#}
-{#    {% else %}#}
-{#        <p>You are not logged in!</p>#}
-{#        <a href="{% url 'account_login' %}">Log In</a>#}
-{#        <a href="{% url 'account_signup' %}">Sign Up</a>#}
-{#    {% endif %}#}
 {% endblock content %}

@@ -2,7 +2,7 @@ import django.conf
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, pre_delete, m2m_changed
 from django.dispatch import receiver
 from django.http import HttpResponse
 from django.urls import reverse

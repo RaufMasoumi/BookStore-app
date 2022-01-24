@@ -21,10 +21,7 @@
     </p>
     {% if 'books.delete_book' in user.get_all_permissions %}
         <p>
-            <form method="post" action="{% url 'book_delete' book.pk %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
+            <a href="{% url 'book_delete' book.pk %}"><button class="btn btn-danger">Delete</button></a>
         </p>
     {% endif %}
 {% endblock %}

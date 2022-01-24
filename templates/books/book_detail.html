@@ -12,38 +12,39 @@
         <p>Author: {{ book.author }}</p>
         <p>Price: {{ book.price }}</p>
         {% if book in user.carts.cart.all %}
-            {% for number in user.carts.books_numbers.all %}
-                    {% if number.book == book %}
-                        <p>
-                            <form method="post" action="{% url 'account_user_cart_update' %}">
-                                {% csrf_token %}
-                                <h3>
-                                    {% if book.stock > 0 %}
-                                        <button name="add" class="btn btn-success" value="{{ number.id }}"
-                                                type="submit">Add</button>
-                                    {% else %}
-                                        <button type="button" class="btn btn-dark">Add</button>
-                                    {% endif %}
-                                    | number:{{ number.number }} |
-                                    {% if number.number > 1 %}
-                                        <button name="reduce" class="btn btn-danger" value="{{ number.id }}"
-                                                type="submit">Reduce</button>
-                                    {% else %}
-                                        <button class="btn btn-dark" type="button">Reduce</button>
-                                    {% endif %}
-                                    | <button name="delete" class="btn btn-danger" value="{{ number.id }}"
-                                              type="submit">Delete</button>
-                                </h3>
-                            </form>
-                        </p>
-                    {% endif %}
-            {% endfor %}
+        {% for number in user.carts.books_numbers.all %}
+        {% if number.book == book %}
+        <div>
+        <form method="post" action="{% url 'account_user_cart_update' %}">
+            {% csrf_token %}
+            <h3>
+                {% if book.stock > 0 %}
+                    <button name="add" class="btn btn-success" value="{{ number.id }}"
+                            type="submit">Add</button>
+                {% else %}
+                    <button type="button" class="btn btn-dark">Add</button>
+                {% endif %}
+                | number:{{ number.number }} |
+                {% if number.number > 1 %}
+                    <button name="reduce" class="btn btn-warning" value="{{ number.id }}"
+                            type="submit">Reduce</button>
+                {% else %}
+                    <button class="btn btn-dark" type="button">Reduce</button>
+                {% endif %}
+                | <button name="delete" class="btn btn-danger" value="{{ number.id }}"
+                          type="submit">Delete</button>
+            </h3>
+        </form>
+        </div>
+        {% endif %}
+        {% endfor %}
         {% else %}
             {% if book.stock > 0 %}
                 <p>
                     <form method="post" action="{% url 'account_user_cart_update' %}">
                         {% csrf_token %}
-                        <button name="book_add" type="submit" value="{{ book.id }}" class="btn btn-success">Add to Cart</button>
+                        <button name="book_add" type="submit" value="{{ book.id }}"
+                                class="btn btn-success">Add to Cart</button>
                     </form>
                 </p>
             {% else %}
@@ -63,6 +64,24 @@
                         {% if 'books.delete_review' in user.get_all_permissions or review.author == user %}
                             <a href="{% url 'review_delete' review.pk %}" style="color: red">Delete</a>
                         {% endif %}
+                        <ul>
+                            {% for reply in review.replies.all %}
+                                <li>{{ reply.reply }} ({{ reply.author }})
+                                    {% if reply.author == user %}
+                                        <a href="{% url 'reply_update' reply.pk %}">Update</a>
+                                    {% endif %}
+                                    {% if 'books.delete_reviewreply' in user.get_all_permissions or reply.author == user %}
+                                        <a href="{% url 'reply_delete' reply.pk %}" style="color: red">Delete</a>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <form method="post" action="{% url 'reply_create' %}">
+                            {% csrf_token %}
+                            {{ review_reply_form}}
+                            <button name="review_pk" type="submit" class="btn btn-success" style="height: 30px"
+                                    value="{{ review.pk }}">Reply</button>
+                        </form>
                     </li>
                 {% endfor %}
             </ul>

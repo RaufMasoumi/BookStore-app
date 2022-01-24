@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>{% block title %}Bookstore{% endblock title %}</title>
+  {% block extra_head %}{% endblock %}
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <!-- CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
@@ -11,7 +12,6 @@
 </head>
 <body>
   <header>
-    <!-- Fixed navbar -->
     <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4
      mb-3 bg-white border-bottom shadow-sm">
         <a href="{% url 'home' %}" class="navbar-brand my-0 mr-md-auto
@@ -35,9 +35,25 @@
     </div>
   </header>
   <div class="container">
+      {% block body %}
+        {% if messages %}
+        <div>
+          <strong>Messages:</strong>
+          <ul>
+            {% for message in messages %}
+            <li>{{message}}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %}
+      {% endblock %}
+  </div>
+  <div class="container">
     {% block content %}
     {% endblock content %}
   </div>
+  {% block extra_body %}
+  {% endblock %}
   <!-- JavaScript -->
   <!-- JS, Popper.js, and jQuery -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>

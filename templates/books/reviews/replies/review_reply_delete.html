@@ -1,0 +1,13 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Delete Review Reply{% endblock %}
+
+{% block content %}
+    <h1>Delete Review Reply</h1>
+    <h2>Are you sure you want to delete the reply of the review?!</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success">Delete</button>
+    </form>
+{% endblock %}

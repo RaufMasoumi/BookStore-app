@@ -7,34 +7,34 @@
     <h1>Shopping Cart</h1>
     <hr>
     {% for book in cart.cart.all %}
+        <div>
+        <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+        {% for number in cart.books_numbers.all %}
+        {% if number.book == book %}
         <p>
-            <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
-            {% for number in cart.books_numbers.all %}
-                    {% if number.book == book %}
-                        <p>
-                            <form method="post" action="{% url 'account_user_cart_update' %}">
-                                {% csrf_token %}
-                                <h3>
-                                    {% if book.stock > 0 %}
-                                        <button name="add" class="btn btn-success" value="{{ number.id }}"
-                                                type="submit">Add</button>
-                                    {% else %}
-                                        <button type="button" class="btn btn-dark">Add</button>
-                                    {% endif %}
-                                    |   number:{{ number.number }}   |
-                                    {% if number.number > 1 %}
-                                        <button name="reduce" class="btn btn-danger" value="{{ number.id }}"
-                                                type="submit">Reduce</button>
-                                    {% else %}
-                                        <button type="button" class="btn btn-dark">Reduce</button>
-                                    {% endif %}
-                                    | <button name="delete" class="btn btn-danger" value="{{ number.id }}" type="submit">Delete</button>
-                                </h3>
-                            </form>
-                        </p>
-                    {% endif %}
-            {% endfor %}
+        <form method="post" action="{% url 'account_user_cart_update' %}">
+        {% csrf_token %}
+        <h3>
+            {% if book.stock > 0 %}
+                <button name="add" class="btn btn-success" value="{{ number.id }}"
+                        type="submit">Add</button>
+            {% else %}
+                <button type="button" class="btn btn-dark">Add</button>
+            {% endif %}
+            |   number:{{ number.number }}   |
+            {% if number.number > 1 %}
+                <button name="reduce" class="btn btn-warning" value="{{ number.id }}"
+                        type="submit">Reduce</button>
+            {% else %}
+                <button type="button" class="btn btn-dark">Reduce</button>
+            {% endif %}
+            | <button name="delete" class="btn btn-danger" value="{{ number.id }}" type="submit">Delete</button>
+        </h3>
+        </form>
         </p>
+        {% endif %}
+        {% endfor %}
+        </div>
         <hr>
     {% endfor %}
     <h2>Total Price:{{ total_price }}</h2>

@@ -1,13 +1,15 @@
 h1 {
     color: red;
 }
+
 .bookcover {
     height: 300px;
     width: auto;
 }
+
 .avatar {
-  vertical-align: middle;
-  width: 125px;
-  height: 125px;
-  border-radius: 50%;
+    vertical-align: middle;
+    width: 125px;
+    height: 125px;
+    border-radius: 50%;
 }

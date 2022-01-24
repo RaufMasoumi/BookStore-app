@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.urls import reverse, resolve
 from decimal import Decimal
-from .models import Book, Review
+from .models import Book, Review, ReviewReply
 from . import views
 # Create your tests here.
 
@@ -24,7 +24,6 @@ class BookTests(TestCase):
 
         self.user = get_user_model().objects.create_user(
             username='testuser',
-            email='testuser@email.com',
             password='testpass123'
         )
 
@@ -126,7 +125,6 @@ class ReviewTests(TestCase):
 
     def setUp(self):
         self.author = get_user_model().objects.create_user(
-            email='testuser@email.com',
             username='testuser',
             password='testpass123'
         )
@@ -147,7 +145,6 @@ class ReviewTests(TestCase):
 
         self.client.force_login(self.author)
         self.author.user_permissions.add(self.permission)
-        self.book_path = reverse('book_detail', kwargs={'pk': self.book.pk})
 
     def test_review_listing(self):
         self.assertEqual(self.review.review, 'A test review')
@@ -160,12 +157,12 @@ class ReviewTests(TestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertContains(get_response, 'Create Review')
         self.assertNotContains(get_response, 'Update Review')
-        self.assertTemplateUsed(get_response, 'books/review_create.html')
+        self.assertTemplateUsed(get_response, 'books/reviews/review_create.html')
         post_response = self.client.post(path, {'book': self.book.pk, 'review': 'A new review'})
         self.assertEqual(post_response.status_code, 302)
         self.assertEqual(Review.objects.count(), 2)
         self.assertEqual(Review.objects.all()[1].review, 'A new review')
-        self.assertRedirects(post_response, self.book_path)
+        self.assertRedirects(post_response, self.book.get_absolute_url())
 
     def test_review_update_view_for_review_author(self):
         path = reverse('review_update', kwargs={'pk': self.review.pk})
@@ -173,12 +170,12 @@ class ReviewTests(TestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertContains(get_response, 'Update Review')
         self.assertNotContains(get_response, 'hi there I should not by in template!!')
-        self.assertTemplateUsed(get_response, 'books/review_update.html')
+        self.assertTemplateUsed(get_response, 'books/reviews/review_update.html')
         post_response = self.client.post(path, {'review': 'A test review (updated)'})
         self.review.refresh_from_db()
         self.assertEqual(self.review.review, 'A test review (updated)')
         self.assertEqual(post_response.status_code, 302)
-        self.assertRedirects(post_response, self.book_path)
+        self.assertRedirects(post_response, self.book.get_absolute_url())
 
     def test_review_delete_view_for_review_author(self):
         path = reverse('review_delete', kwargs={'pk': self.review.pk})
@@ -186,8 +183,83 @@ class ReviewTests(TestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertContains(get_response, 'Delete Review')
         self.assertNotContains(get_response, 'Update Review')
-        self.assertTemplateUsed(get_response, 'books/review_delete.html')
+        self.assertTemplateUsed(get_response, 'books/reviews/review_delete.html')
         post_response = self.client.delete(path)
         self.assertEqual(Review.objects.count(), 0)
         self.assertEqual(post_response.status_code, 302)
-        self.assertRedirects(post_response, self.book_path)
+        self.assertRedirects(post_response, self.book.get_absolute_url())
+
+
+class ReviewRepliesTests(TestCase):
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+
+        self.book = Book.objects.create(
+            title='A new Book',
+            author='Rauf',
+            price='10'
+        )
+
+        self.review = Review.objects.create(
+            book=self.book,
+            author=self.user,
+            review='The new Review'
+        )
+
+        self.review_reply = ReviewReply.objects.create(
+            review=self.review,
+            author=self.user,
+            reply='The new review Reply'
+        )
+        self.client.force_login(self.user)
+        self.user.user_permissions.add(Permission.objects.get(codename='special_status'))
+
+    def test_review_reply_listing(self):
+        self.assertEqual(ReviewReply.objects.count(), 1)
+        self.assertEqual(ReviewReply.objects.all()[0], self.review_reply)
+        self.assertEqual(self.review_reply.author, self.user)
+        self.assertEqual(self.review_reply.review, self.review)
+        self.assertEqual(self.review_reply.reply, 'The new review Reply')
+
+    def test_review_reply_create_view_for_logged_in_user(self):
+        path = reverse('reply_create')
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, 'Create Review Reply')
+        self.assertNotContains(get_response, 'Update Review Reply')
+        self.assertTemplateUsed(get_response, 'books/reviews/replies/review_reply_create.html')
+        post_response = self.client.post(path, {'review': self.review.pk, 'reply': 'the second review Reply'})
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(ReviewReply.objects.count(), 2)
+        self.assertEqual(ReviewReply.objects.all()[1].reply, 'the second review Reply')
+        self.assertRedirects(post_response, self.book.get_absolute_url())
+
+    def test_review_reply_update_view_for_reply_author(self):
+        path = reverse('reply_update', kwargs={'pk': self.review_reply.pk})
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, 'Update Review Reply')
+        self.assertNotContains(get_response, 'Create Review Reply')
+        self.assertTemplateUsed(get_response, 'books/reviews/replies/review_reply_update.html')
+        post_response = self.client.post(path, {'reply': 'The review Reply'})
+        self.review_reply.refresh_from_db()
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(ReviewReply.objects.all()[0].reply, 'The review Reply')
+        self.assertRedirects(post_response, self.book.get_absolute_url())
+
+    def test_review_reply_delete_view_for_reply_author(self):
+        path = reverse('reply_delete', kwargs={'pk': self.review_reply.pk})
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, 'Delete Review Reply')
+        self.assertNotContains(get_response, 'Create Review Reply')
+        self.assertTemplateUsed(get_response, 'books/reviews/replies/review_reply_delete.html')
+        post_response = self.client.delete(path)
+        self.assertEqual(ReviewReply.objects.count(), 0)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertRedirects(post_response, self.book.get_absolute_url())
+

@@ -11,6 +11,7 @@
         </p>
     {% endif %}
     <h2>{{ user.username }}</h2>
+    <h4>{{ user.email }}</h4>
     <p>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
