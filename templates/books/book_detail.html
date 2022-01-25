@@ -11,6 +11,11 @@
         <h2><a href="">{{ book.title }}</a></h2>
         <p>Author: {{ book.author }}</p>
         <p>Price: {{ book.price }}</p>
+        <p>
+            {% for category in book.category.all %}
+                <a href="{{ category.get_absolute_url }}">#{{ category.title }}</a>
+            {% endfor %}
+        </p>
         {% if book in user.carts.cart.all %}
         {% for number in user.carts.books_numbers.all %}
         {% if number.book == book %}
@@ -79,7 +84,7 @@
                         <form method="post" action="{% url 'reply_create' %}">
                             {% csrf_token %}
                             {{ review_reply_form}}
-                            <button name="review_pk" type="submit" class="btn btn-success" style="height: 30px"
+                            <button name="review" type="submit" class="btn btn-success" style="height: 30px"
                                     value="{{ review.pk }}">Reply</button>
                         </form>
                     </li>
@@ -88,7 +93,7 @@
             <form action="{% url 'review_create' %}" method="post">
                 {% csrf_token %}
                 {{ review_form | crispy}}
-                <button type="submit" class="btn btn-success">Submit</button>
+                <button name="book" value="{{ book.pk }}" type="submit" class="btn btn-success">Submit</button>
             </form>
         </div>
     </div>

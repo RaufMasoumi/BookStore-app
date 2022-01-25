@@ -5,8 +5,7 @@ from .models import Review, ReviewReply
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ('book', 'review')
-        widgets = {'book': forms.HiddenInput}
+        fields = ('review',)
 
 
 class ReviewReplyForm(forms.ModelForm):

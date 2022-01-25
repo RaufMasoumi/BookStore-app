@@ -1,0 +1,20 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Update Category{% endblock %}
+
+{% block content %}
+    <h1>Update Category</h1>
+    {% if category.thumbnail %}
+        <p>
+            <img src="{{ category.thumbnail.url }}" class="bookcover">
+        </p>
+    {% endif %}
+    <p>
+        <form method="post">
+            {% csrf_token %}
+            {{ form | crispy }}
+            <button type="submit" class="btn btn-success">Update</button>
+        </form>
+    </p>
+{% endblock %}

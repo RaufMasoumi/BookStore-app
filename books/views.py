@@ -7,13 +7,14 @@ from django.http import HttpResponseForbidden, HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from uuid import UUID
-from .models import Book, Review, ReviewReply
+from .models import Book, Category, Review, ReviewReply
 from .forms import ReviewForm, ReviewReplyForm
 # Create your views here.
 
 
 class BookListView(LoginRequiredMixin, ListView):
     model = Book
+    queryset = Book.objects.published()
     context_object_name = 'book_list'
     template_name = 'books/book_list.html'
     login_url = 'account_login'
@@ -28,7 +29,7 @@ class BookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        review_form = ReviewForm(initial={'book': self.object})
+        review_form = ReviewForm()
         review_reply_form = ReviewReplyForm()
         context['review_form'] = review_form
         context['review_reply_form'] = review_reply_form
@@ -57,6 +58,43 @@ class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     login_url = 'account_login'
     success_url = reverse_lazy('book_list')
     permission_required = 'books.delete_book'
+
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'books/category/category_list.html'
+    context_object_name = 'category_list'
+
+
+class CategoryDetailView(DetailView):
+    model = Category
+    template_name = 'books/category/category_detail.html'
+
+
+class CategoryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
+    model = Category
+    fields = '__all__'
+    template_name = 'books/category/category_create.html'
+    login_url = 'account_login'
+    success_url = reverse_lazy('category_list')
+    permission_required = 'books.add_category'
+
+
+class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    model = Category
+    fields = '__all__'
+    template_name = 'books/category/category_update.html'
+    login_url = 'account_login'
+    success_url = reverse_lazy('category_list')
+    permission_required = 'books.change_category'
+
+
+class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = Category
+    template_name = 'books/category/category_delete.html'
+    login_url = 'account_login'
+    success_url = reverse_lazy('category_list')
+    permission_required = 'books.delete_category'
 
 
 class ReviewCreateView(LoginRequiredMixin, CreateView):
@@ -105,8 +143,8 @@ class ReviewReplyCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        if self.request.POST.get('review_pk'):
-            form.instance.review = Review.objects.get(pk=self.request.POST.get('review_pk'))
+        # if self.request.POST.get('review'):
+        #     form.instance.review = Review.objects.get(pk=self.request.POST.get('review'))
         return super().form_valid(form)
 
 
@@ -142,7 +180,7 @@ class SearchResultsView(ListView):
 
     def get_queryset(self):
         query = self.request.GET.get('q')
-        return Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query))
+        return Book.objects.filter(Q(status='p') & Q(title__icontains=query) | Q(author__icontains=query))
 
 
 # is not in using

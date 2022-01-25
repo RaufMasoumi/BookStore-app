@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Book, Review, ReviewReply
+from .models import Book, Category, Review, ReviewReply
 # Register your models here.
 
 
@@ -9,10 +9,17 @@ class ReviewInline(admin.TabularInline):
 
 class BookAdmin(admin.ModelAdmin):
     inlines = [ReviewInline]
-    list_display = ('title', 'author', 'price',)
+    list_display = ('title', 'author', 'price')
 
 
 admin.site.register(Book, BookAdmin)
+
+
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'parent')
+
+
+admin.site.register(Category, CategoryAdmin)
 
 
 class ReviewReplyInline(admin.TabularInline):

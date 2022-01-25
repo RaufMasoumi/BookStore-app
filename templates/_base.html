@@ -18,6 +18,7 @@
             font-weight-normal">Bookstore</a>
       <nav class="my-2 my-md-0 mr-md-3">
           <a class="p-2 text-dark" href="{% url 'book_list' %}">Books</a>
+          <a class="p-2 text-dark" href="{% url 'category_list' %}">Categories</a>
           <a class="p-2 text-dark" href="{% url 'about' %}">About</a>
         {% if user.is_authenticated %}
           <a class="p-2 text-dark" href="{% url 'account_logout' %}">Log Out</a>

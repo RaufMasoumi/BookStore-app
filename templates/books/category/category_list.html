@@ -1,0 +1,25 @@
+{% extends '_base.html' %}
+
+{% block title %}Categories{% endblock %}
+
+{% block content %}
+    <h1>Categories List</h1>
+    {% for category in category_list %}
+        <h2><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></h2>
+        <p>
+            <a href="{% url 'category_update' category.pk %}">Update</a>
+            <a style="color: red" href="{% url 'category_delete' category.pk %}">Delete</a>
+        </p>
+        <ul>
+            {% for child in category.children.all %}
+                <li>
+                    <h3><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></h3>
+                    <p>
+                        <a href="{% url 'category_update' child.pk %}">Update</a>
+                        <a style="color: red" href="{% url 'category_delete' child.pk %}">Delete</a>
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+{% endblock %}
