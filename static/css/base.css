@@ -8,6 +8,12 @@ h1 {
     border-radius: 15%;
 }
 
+.bookimage {
+    height: 100px;
+    width: auto;
+    border-radius: 15%;
+}
+
 .avatar {
     vertical-align: middle;
     width: 125px;

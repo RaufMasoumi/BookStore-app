@@ -1,0 +1,14 @@
+<ul>
+    {% for category in category.children.all %}
+        <li>
+            <h3><a href="{{ category.get_absolute_url }}">{{ category.title }}</a></h3>
+            <p>
+                <a href="{% url 'category_update' category.pk %}">Update</a>
+                <a style="color: red" href="{% url 'category_delete' category.pk %}">Delete</a>
+            </p>
+            {% if category.children.all %}
+                {% include 'books/category/category_loop.html' %}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

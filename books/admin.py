@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Book, Category, Review, ReviewReply
+from .models import Book, BookImage, Category, Review, ReviewReply
 # Register your models here.
 
 
@@ -7,12 +7,23 @@ class ReviewInline(admin.TabularInline):
     model = Review
 
 
+class BookImageInline(admin.StackedInline):
+    model = BookImage
+
+
 class BookAdmin(admin.ModelAdmin):
-    inlines = [ReviewInline]
+    inlines = [BookImageInline, ReviewInline]
     list_display = ('title', 'author', 'price')
 
 
 admin.site.register(Book, BookAdmin)
+
+
+class BookImageAdmin(admin.ModelAdmin):
+    list_display = ('book',)
+
+
+admin.site.register(BookImage, BookImageAdmin)
 
 
 class CategoryAdmin(admin.ModelAdmin):

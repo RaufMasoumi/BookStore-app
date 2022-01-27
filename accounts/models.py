@@ -2,7 +2,7 @@ import django.conf
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, pre_delete, m2m_changed
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.http import HttpResponse
 from django.urls import reverse
@@ -76,20 +76,20 @@ def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
             print(f'the number for book with \"{book.title}\" title added.')
         return
 
-    # if action == 'post_remove':
-    #     for i in range(len(pk_list)):
-    #         book = Book.objects.get(pk=pk_list[i])
-    #         if UserCartBooksNumber.objects.filter(cart=user_cart, book=book).exists():
-    #             UserCartBooksNumber.objects.get(cart=user_cart, book=book).delete()
-    #         print(f'the number for book with \"{book.title}\" title removed.')
-    #     return
-    #
-    # if action == 'post_clear':
-    #     if UserCartBooksNumber.objects.filter(cart=user_cart).exists():
-    #         for number in UserCartBooksNumber.objects.filter(cart=user_cart):
-    #             number.delete()
-    #     return print(f'the numbers for books of user cart with {user_cart.pk} pk'
-    #                  f' for {user_cart.user.username} cleared.')
+    if action == 'post_remove':
+        for i in range(len(pk_list)):
+            book = Book.objects.get(pk=pk_list[i])
+            if UserCartBooksNumber.objects.filter(cart=user_cart, book=book).exists():
+                UserCartBooksNumber.objects.get(cart=user_cart, book=book).delete()
+            print(f'the number for book with \"{book.title}\" title removed.')
+        return
+
+    if action == 'post_clear':
+        if UserCartBooksNumber.objects.filter(cart=user_cart).exists():
+            for number in UserCartBooksNumber.objects.filter(cart=user_cart):
+                number.delete()
+        return print(f'the numbers for books of user cart with {user_cart.pk} pk'
+                     f' for {user_cart.user.username} cleared.')
 
 
 @receiver(post_save, sender=UserCartBooksNumber)

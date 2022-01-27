@@ -6,10 +6,12 @@
 {% block content %}
     <h1>Create Book</h1>
     <p>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form | crispy }}
+            {{ image_formset | crispy }}
             <button class="btn btn-success" type="submit">Create</button>
         </form>
     </p>
+
 {% endblock %}

@@ -89,6 +89,7 @@ def user_cart_update_view(request):
         return redirect(url)
 
     elif request.POST.get('book_add'):
+        print('hello')
         book_id = request.POST.get('book_add')
         book = Book.objects.get(id=book_id)
         user_cart = UserCart.objects.get(user=request.user)

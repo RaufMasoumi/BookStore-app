@@ -8,6 +8,11 @@
         {% if book.cover %}
             <img class="bookcover" src="{{ book.cover.url }}" alt="{{ book.title }}">
         {% endif %}
+        {% for image in book.images.all %}
+            <a href="{{ image.image.url }}">
+                <img class="bookimage" src="{{ image.image.url }}">
+            </a>
+        {% endfor %}
         <h2><a href="">{{ book.title }}</a></h2>
         <p>Author: {{ book.author }}</p>
         <p>Price: {{ book.price }}</p>
@@ -62,7 +67,19 @@
             <h3>Reviews</h3>
             <ul>
                 {% for review in book.reviews.all %}
-                    <li>{{ review.review }} ({{ review.author }})
+                    <li>{{ review.review }} ({{ review.author }}) | {{ review.submitted }} |
+                        {% if review.votes > 0 %}
+                        +
+                        {% elif review.votes < 0 %}
+                        -
+                        {% endif %}
+                        {{ review.votes }}
+                        <form action="{% url 'votes_update' %}" method="post">
+                            {% csrf_token %}
+                            <input name="review" type="hidden" value="{{ review.pk }}">
+                            <button name="positive" value="1" type="submit">⬆</button>
+                            <button name="negative" value="-1" type="submit">⬇</button>
+                        </form>
                         {% if review.author == user %}
                             <a href="{% url 'review_update' review.pk %}">Update</a>
                         {% endif %}
@@ -71,21 +88,43 @@
                         {% endif %}
                         <ul>
                             {% for reply in review.replies.all %}
-                                <li>{{ reply.reply }} ({{ reply.author }})
+                                <li>{{ reply.reply }} ({{ reply.author }}) | {{ reply.replied }}
+                                    {% if reply.add %}
+                                        @{{ reply.add.author }} |
+                                    {% endif %}
+                                    {% if reply.votes > 0 %}
+                                    +
+                                    {% elif reply.votes < 0 %}
+                                    -
+                                    {% endif %}
+                                    {{ reply.votes }}
+                                    <form action="{% url 'votes_update' %}" method="post">
+                                        {% csrf_token %}
+                                        <input name="reply" type="hidden" value="{{ reply.pk }}">
+                                        <button name="positive" value="1" type="submit">⬆</button>
+                                        <button name="negative" value="-1" type="submit">⬇</button>
+                                    </form>
                                     {% if reply.author == user %}
                                         <a href="{% url 'reply_update' reply.pk %}">Update</a>
                                     {% endif %}
                                     {% if 'books.delete_reviewreply' in user.get_all_permissions or reply.author == user %}
                                         <a href="{% url 'reply_delete' reply.pk %}" style="color: red">Delete</a>
                                     {% endif %}
+                                    <form method="post" action="{% url 'reply_create' %}">
+                                        {% csrf_token %}
+                                        {{ review_reply_form}}
+                                        <input name="review" value="{{ review.pk }}" type="hidden">
+                                        <input name="add" value="{{ reply.pk }}" type="hidden">
+                                        <button type="submit" class="btn btn-success" style="height: 30px">Reply</button>
+                                    </form>
                                 </li>
                             {% endfor %}
                         </ul>
                         <form method="post" action="{% url 'reply_create' %}">
                             {% csrf_token %}
                             {{ review_reply_form}}
-                            <button name="review" type="submit" class="btn btn-success" style="height: 30px"
-                                    value="{{ review.pk }}">Reply</button>
+                            <input name="review" value="{{ review.pk }}" type="hidden">
+                            <button type="submit" class="btn btn-success" style="height: 30px">Reply</button>
                         </form>
                     </li>
                 {% endfor %}
@@ -93,7 +132,7 @@
             <form action="{% url 'review_create' %}" method="post">
                 {% csrf_token %}
                 {{ review_form | crispy}}
-                <button name="book" value="{{ book.pk }}" type="submit" class="btn btn-success">Submit</button>
+                <button type="submit" class="btn btn-success">Submit</button>
             </form>
         </div>
     </div>
