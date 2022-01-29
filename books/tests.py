@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.urls import reverse, resolve
 from decimal import Decimal
-from .models import Book, Review, ReviewReply
+from .models import Book, Category, Review, ReviewReply
 from . import views
 # Create your tests here.
 
@@ -121,6 +121,98 @@ class BookTests(TestCase):
         self.assertRedirects(post_response, reverse('book_list'))
 
 
+class CategoryTests(TestCase):
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username='testuser',
+            password='testpass123'
+        )
+
+        self.create_cat_permission = Permission.objects.get(codename='add_category')
+        self.update_cat_permission = Permission.objects.get(codename='change_category')
+        self.delete_cat_permission = Permission.objects.get(codename='delete_category')
+
+        self.category = Category.objects.create(
+            title='A test Category',
+            position=1
+        )
+
+        self.book = Book.objects.create(
+            title='A test book',
+            author='Rauf',
+            price='30.00',
+        )
+
+        self.book.category.add(self.category)
+        self.client.force_login(self.user)
+
+    def test_category_listing(self):
+        self.assertEqual(self.category.title, 'A test Category')
+        self.assertEqual(self.category.position, 1)
+
+    def test_category_list_view(self):
+        response = self.client.get(reverse('category_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Categories List')
+        self.assertContains(response, self.category.title)
+        self.assertNotContains(response, 'Category Update')
+        self.assertTemplateUsed(response, 'books/category/category_list.html')
+
+    def test_category_detail_view(self):
+        response = self.client.get(self.category.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.category.title)
+        self.assertContains(response, self.book.title)
+        self.assertNotContains(response, 'Category Update')
+        self.assertTemplateUsed(response, 'books/category/category_detail.html')
+
+    def test_category_create_view_with_permissions(self):
+        path = reverse('category_create')
+        self.user.user_permissions.add(self.create_cat_permission)
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, 'Create Category')
+        self.assertNotContains(get_response, 'Update Category')
+        self.assertTemplateUsed(get_response, 'books/category/category_create.html')
+        data = {'title': 'A new Category', 'position': 2}
+        post_response = self.client.post(path, data)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertEqual(Category.objects.count(), 2)
+        new_category = Category.objects.all()[1]
+        self.assertEqual(new_category.title, 'A new Category')
+        self.assertRedirects(post_response, reverse('category_list'))
+
+    def test_category_update_view_with_permissions(self):
+        path = reverse('category_update', kwargs={'pk': self.category.pk})
+        self.user.user_permissions.add(self.update_cat_permission)
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, 'Update Category')
+        self.assertNotContains(get_response, 'Create Category')
+        self.assertTemplateUsed(get_response, 'books/category/category_update.html')
+        data = {'title': 'A test Category(updated)', 'position': 2}
+        post_response = self.client.post(path, data)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertRedirects(post_response, reverse('category_list'))
+        self.category.refresh_from_db()
+        self.assertEqual(self.category.title, 'A test Category(updated)')
+        self.assertEqual(self.category.position, 2)
+
+    def test_category_delete_view_with_permissions(self):
+        path = reverse('category_delete', kwargs={'pk': self.category.pk})
+        self.user.user_permissions.add(self.delete_cat_permission)
+        get_response = self.client.get(path)
+        self.assertEqual(get_response.status_code, 200)
+        self.assertContains(get_response, 'Delete Category')
+        self.assertNotContains(get_response, 'Update Category')
+        self.assertTemplateUsed(get_response, 'books/category/category_delete.html')
+        post_response = self.client.delete(path)
+        self.assertEqual(post_response.status_code, 302)
+        self.assertRedirects(post_response, reverse('category_list'))
+        self.assertEqual(Category.objects.count(), 0)
+
+
 class ReviewTests(TestCase):
 
     def setUp(self):
@@ -161,7 +253,7 @@ class ReviewTests(TestCase):
         post_response = self.client.post(path, {'book': self.book.pk, 'review': 'A new review'})
         self.assertEqual(post_response.status_code, 302)
         self.assertEqual(Review.objects.count(), 2)
-        self.assertEqual(Review.objects.all()[1].review, 'A new review')
+        self.assertEqual(Review.objects.all()[0].review, 'A new review')
         self.assertRedirects(post_response, self.book.get_absolute_url())
 
     def test_review_update_view_for_review_author(self):

@@ -17,6 +17,7 @@ class CustomUserChangeForm(UserChangeForm):
         fields = ('username', 'email',)
 
 
+# is not in using
 class UserProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = get_user_model()

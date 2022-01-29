@@ -6,7 +6,9 @@
 {% block content %}
     <div class="book-detail">
         {% if book.cover %}
-            <img class="bookcover" src="{{ book.cover.url }}" alt="{{ book.title }}">
+            <a href="{{ book.cover.url }}">
+                <img class="bookcover" src="{{ book.cover.url }}" alt="{{ book.title }}">
+            </a>
         {% endif %}
         {% for image in book.images.all %}
             <a href="{{ image.image.url }}">
@@ -16,6 +18,7 @@
         <h2><a href="">{{ book.title }}</a></h2>
         <p>Author: {{ book.author }}</p>
         <p>Price: {{ book.price }}</p>
+        <p></p>
         <p>
             {% for category in book.category.all %}
                 <a href="{{ category.get_absolute_url }}">#{{ category.title }}</a>

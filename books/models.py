@@ -18,7 +18,7 @@ class Category(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='children')
     title = models.CharField(max_length=100)
     thumbnail = models.ImageField(upload_to='categories', blank=True)
-    status = models.BooleanField(default=True, verbose_name='To be displayed?')
+    status = models.BooleanField(default=True, verbose_name='To be displayed?', blank=True)
     position = models.IntegerField()
 
     class Meta:
@@ -44,10 +44,20 @@ class Book(models.Model):
     author = models.CharField(max_length=250)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=200)
+    pages = models.PositiveIntegerField(blank=True, null=True)
+    subject = models.CharField(max_length=50, blank=True, null=True)
+    rating = models.FloatField(blank=True, null=True)
+    age_range = models.CharField(max_length=100, blank=True, null=True)
+    grade_range = models.CharField(max_length=100, blank=True, null=True)
+    page_size = models.CharField(max_length=10, blank=True, null=True)
+    length = models.FloatField(blank=True, null=True, verbose_name='length(cm)')
+    width = models.FloatField(blank=True, null=True, verbose_name='width(cm)')
+    summary = models.TextField(blank=True, null=True)
+    time_to_sell = models.DateTimeField(auto_now_add=True)
     stock = models.PositiveIntegerField(default=0, blank=True)
     buys = models.PositiveIntegerField(default=0, blank=True)
     category = models.ManyToManyField(Category, related_name='books', blank=True)
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='p')
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='p', blank=True)
     objects = BookManager()
 
     class Meta:
