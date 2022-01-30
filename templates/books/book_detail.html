@@ -17,8 +17,7 @@
         {% endfor %}
         <h2><a href="">{{ book.title }}</a></h2>
         <p>Author: {{ book.author }}</p>
-        <p>Price: {{ book.price }}</p>
-        <p></p>
+        <p>Price: {{ book.price }}$</p>
         <p>
             {% for category in book.category.all %}
                 <a href="{{ category.get_absolute_url }}">#{{ category.title }}</a>

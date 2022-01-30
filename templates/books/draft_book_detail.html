@@ -1,0 +1,38 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ book.title }} (draft){% endblock %}
+
+{% block content %}
+    <div class="book-detail">
+        {% if book.cover %}
+            <a href="{{ book.cover.url }}">
+                <img class="bookcover" src="{{ book.cover.url }}" alt="{{ book.title }}">
+            </a>
+        {% endif %}
+        {% for image in book.images.all %}
+            <a href="{{ image.image.url }}">
+                <img class="bookimage" src="{{ image.image.url }}">
+            </a>
+        {% endfor %}
+        <h2><a href="">{{ book.title }}</a></h2>
+        <p>Author: {{ book.author }}</p>
+        <p>Price: {{ book.price }}$</p>
+        <p>
+            {% for category in book.category.all %}
+                <a href="{{ category.get_absolute_url }}">#{{ category.title }}</a>
+            {% endfor %}
+        </p>
+        <hr>
+        <p>
+        <h4>
+            {% if 'books.change_book' in user.get_all_permissions %}
+                <a href="{% url 'book_update' book.pk %}">Update</a>
+            {% endif %}
+            {% if 'books.delete_book' in user.get_all_permissions %}
+                <a href="{% url 'book_delete' book.pk %}" style="color: red">Delete</a>
+            {% endif %}
+        </h4>
+        </p>
+    </div>
+{% endblock %}

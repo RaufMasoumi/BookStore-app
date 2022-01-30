@@ -1,29 +1,39 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_POST
+from django.http import HttpResponseBadRequest
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from .models import Book, Category, Review, ReviewReply
-from .forms import BookImageFormSet, ReviewForm, ReviewReplyForm
+from .forms import BookImageFormSet, BookMakePublishedForm, ReviewForm, ReviewReplyForm
 # Create your views here.
 
 
-class BookListView(LoginRequiredMixin, ListView):
-    model = Book
+class BookListView(ListView):
     queryset = Book.objects.published()
     context_object_name = 'book_list'
     template_name = 'books/book_list.html'
-    login_url = 'account_login'
 
 
-class BookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    model = Book
-    context_object_name = 'book'
-    template_name = 'books/book_detail.html'
+class DraftBookListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    queryset = Book.objects.drafted()
+    context_object_name = 'book_list'
+    template_name = 'books/draft_book_list.html'
     login_url = 'account_login'
     permission_required = 'books.special_status'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['publish_form'] = BookMakePublishedForm()
+        return context
+
+
+class BookDetailView(DetailView):
+    queryset = Book.objects.published()
+    context_object_name = 'book'
+    template_name = 'books/book_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -32,6 +42,14 @@ class BookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
         context['review_form'] = review_form
         context['review_reply_form'] = review_reply_form
         return context
+
+
+class DraftBookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    queryset = Book.objects.drafted()
+    context_object_name = 'book'
+    template_name = 'books/draft_book_detail.html'
+    login_url = 'account_login'
+    permission_required = 'books.special_status'
 
 
 class BookCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -199,8 +217,67 @@ class SearchResultsView(ListView):
     template_name = 'books/search_results.html'
 
     def get_queryset(self):
-        query = self.request.GET.get('q')
-        return Book.objects.filter(Q(status='p') & Q(title__icontains=query) | Q(author__icontains=query))
+        search_query = search_by_title_author(self.request)
+        price_limit_query = price_limit(search_query, self.request)
+        available_limit_query = available_limit(price_limit_query, self.request)
+        published_limit_query = published_limit(available_limit_query, self.request)
+        return published_limit_query
+
+
+def search_by_title_author(request):
+    query = request.GET.get('search')
+    elem = []
+    if request.GET.get('title'):
+        elem.append('title')
+    if request.GET.get('author'):
+        elem.append('author')
+
+    if len(elem) == 2 or len(elem) == 0:
+        return Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query))
+
+    elif len(elem) == 1:
+        if elem[0] == 'title':
+            return Book.objects.filter(Q(title__icontains=query))
+        elif elem[0] == 'author':
+            return Book.objects.filter(Q(author__icontains=query))
+    return
+
+
+def price_limit(query, request):
+    more = None
+    less = None
+    if request.GET.get('more'):
+        more = request.GET.get('more')
+
+    if request.GET.get('less'):
+        less = request.GET.get('less')
+
+    if not more and not less:
+        return query
+
+    elif more and less:
+        price_range = (more, less)
+        return query.filter(price__range=price_range)
+
+    elif more:
+        return query.filter(price__gt=more)
+
+    elif less:
+        return query.filter(price__lt=less)
+
+
+def available_limit(query, request):
+    if request.GET.get('available'):
+        return query.filter(stock__gt=0)
+    else:
+        return query
+
+
+def published_limit(query, request):
+    if request.user.has_perm('books.spacial_status'):
+        return query
+    else:
+        return query.objects.published()
 
 
 @require_POST
@@ -230,6 +307,19 @@ def update_votes(request):
         reply.save()
         return redirect(reverse('book_detail', kwargs={'pk': reply.review.book.pk}))
 
+
+@require_POST
+@login_required(login_url='account_login')
+@permission_required(perm='books.change_book')
+def book_make_published(request):
+    if request.POST.get('book') and request.POST.get('publish'):
+        book = Book.objects.get(pk=request.POST.get('book'))
+        if request.POST.get('publish') == 'on':
+            book.status = 'p'
+            book.save()
+            return redirect(reverse('draft_book_list'))
+
+    return HttpResponseBadRequest('There was a problem in publishing the book!')
 
 # @require_POST
 # @login_required(login_url='account_login')

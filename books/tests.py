@@ -4,7 +4,6 @@ from django.contrib.auth.models import Permission
 from django.urls import reverse, resolve
 from decimal import Decimal
 from .models import Book, Category, Review, ReviewReply
-from . import views
 # Create your tests here.
 
 
@@ -38,25 +37,35 @@ class BookTests(TestCase):
         self.assertEqual(self.book.author, 'Rauf')
         self.assertEqual(self.book.price, '30.00')
 
-    def test_book_list_view_for_logged_in_user(self):
-        self.client.force_login(self.user)
+    def test_book_list_view(self):
         response = self.client.get(reverse('book_list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Books List')
         self.assertNotContains(response, 'hi there i shooudlffsdf')
         self.assertTemplateUsed(response, 'books/book_list.html')
-        self.client.logout()
 
-    def test_book_list_view_for_logged_out_user(self):
-        response = self.client.get(reverse('book_list'))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, f"{reverse('account_login')}?next=/books/")
-        response = self.client.get(f"{reverse('account_login')}?next=/books/")
-        self.assertContains(response, 'Log In')
-
-    def test_book_detail_view_with_permissions(self):
+    def test_draft_book_list_view_with_permissions(self):
         self.client.force_login(self.user)
         self.user.user_permissions.add(self.special_status_permission)
+        self.book.status = 'd'
+        self.book.save()
+        response = self.client.get(reverse('draft_book_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Draft Books')
+        self.assertContains(response, self.book.title)
+        self.assertNotContains(response, 'Book Update')
+        self.assertTemplateUsed(response, 'books/draft_book_list.html')
+        self.book.status = 'p'
+        self.book.save()
+        self.client.logout()
+    # def test_book_list_view_for_logged_out_user(self):
+    #     response = self.client.get(reverse('book_list'))
+    #     self.assertEqual(response.status_code, 302)
+    #     self.assertRedirects(response, f"{reverse('account_login')}?next=/books/")
+    #     response = self.client.get(f"{reverse('account_login')}?next=/books/")
+    #     self.assertContains(response, 'Log In')
+
+    def test_book_detail_view(self):
         response = self.client.get(self.book.get_absolute_url())
         no_response = self.client.get('/books/12345/')
         self.assertEqual(response.status_code, 200)
@@ -65,6 +74,19 @@ class BookTests(TestCase):
         self.assertContains(response, 'A test review')
         self.assertNotContains(response, 'hi there i shooudlffsdf')
         self.assertTemplateUsed(response, 'books/book_detail.html')
+
+    def test_draft_book_detail_view_with_permissions(self):
+        self.client.force_login(self.user)
+        self.user.user_permissions.add(self.special_status_permission)
+        self.book.status = 'd'
+        self.book.save()
+        response = self.client.get(self.book.get_absolute_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'{self.book.title} (draft)')
+        self.assertNotContains(response, 'Draft Books')
+        self.assertTemplateUsed(response, 'books/draft_book_detail.html')
+        self.book.status = 'p'
+        self.book.save()
         self.client.logout()
 
     def test_book_update_view_with_permissions(self):

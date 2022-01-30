@@ -1,0 +1,17 @@
+{% extends '_base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Draft Books List{% endblock %}
+
+{% block content %}
+    <h1>Draft Books</h1>
+    {% for book in book_list %}
+        <div>
+            <h2><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h2>
+            <form method="post" action="{% url 'book_make_published' %}">
+                {% csrf_token %}
+                {{ publish_form }}
+                <button type="submit" value="{{ book.pk }}" name="book" class="btn btn-success">Ok</button>
+            </form>
+        </div>
+    {% endfor %}
+{% endblock %}

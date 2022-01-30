@@ -66,14 +66,16 @@ class Book(models.Model):
         ]
         permissions = [
             ('special_status', 'Can read all books'),
-            ('published_status', 'Can read published books')
         ]
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('book_detail', kwargs={'pk': self.pk})
+        if self.status == 'p':
+            return reverse('book_detail', kwargs={'pk': self.pk})
+        else:
+            return reverse('draft_book_detail', kwargs={'pk': self.pk})
 
 
 class BookImage(models.Model):

@@ -28,6 +28,9 @@
             {% if  'books.add_book' in user.get_all_permissions %}
                 <a class="p-2 text-dark" href="{% url 'book_create' %}">Add Book</a>
             {% endif %}
+            {% if 'books.special_status' in user.get_all_permissions %}
+                <a class="p-2 text-dark" href="{% url 'draft_book_list' %}">Drafts</a>
+            {% endif %}
         {% else %}
           <a class="p-2 text-dark" href="{% url 'account_login' %}">Log In</a>
           <a class="btn btn-outline-primary" href="{% url 'account_signup' %}">Sign Up</a>

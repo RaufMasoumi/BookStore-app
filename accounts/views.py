@@ -5,7 +5,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.urls import reverse, reverse_lazy
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from decimal import Decimal
 from books.models import Book
 from .models import UserCart, UserCartBooksNumber
@@ -50,7 +50,11 @@ def user_cart_update_view(request):
 
     if request.POST.get('add'):
         number_id = request.POST.get('add')
-        number = UserCartBooksNumber.objects.get(id=number_id)
+        if UserCartBooksNumber.objects.filter(id=number_id).exists():
+            number = UserCartBooksNumber.objects.get(id=number_id)
+        else:
+            return HttpResponseBadRequest('The book is not in user cart!')
+
         if number.cart.user != request.user:
             return HttpResponseForbidden('<h1>403 Forbidden</h1>')
 
@@ -66,7 +70,10 @@ def user_cart_update_view(request):
 
     elif request.POST.get('reduce'):
         number_id = request.POST.get('reduce')
-        number = UserCartBooksNumber.objects.get(id=number_id)
+        if UserCartBooksNumber.objects.filter(id=number_id).exists():
+            number = UserCartBooksNumber.objects.get(id=number_id)
+        else:
+            return HttpResponseBadRequest('The book is not in user cart!')
         if number.cart.user != request.user:
             return HttpResponseForbidden('<h1>403 Forbidden</h1>')
         number.number -= 1
@@ -89,9 +96,10 @@ def user_cart_update_view(request):
         return redirect(url)
 
     elif request.POST.get('book_add'):
-        print('hello')
         book_id = request.POST.get('book_add')
         book = Book.objects.get(id=book_id)
+        if not book.status == 'p':
+            return HttpResponseBadRequest('The book is not published!')
         user_cart = UserCart.objects.get(user=request.user)
         if book.stock > 0:
             user_cart.cart.add(book)

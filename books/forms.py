@@ -19,6 +19,19 @@ class ReviewReplyForm(forms.ModelForm):
         fields = ('reply',)
 
 
+class BookSearchForm(forms.Form):
+    search = forms.CharField(max_length=100)
+    title = forms.BooleanField(required=False)
+    author = forms.BooleanField(required=False)
+    less = forms.DecimalField(max_digits=10, decimal_places=2, required=False, label='price less than:')
+    more = forms.DecimalField(max_digits=10, decimal_places=2, required=False, label='price more than:')
+    available = forms.BooleanField(required=False, label='only available books?')
+
+
+class BookMakePublishedForm(forms.Form):
+    publish = forms.BooleanField(required=False)
+
+
 # is not in using
 class DateSelectorWidget(forms.MultiWidget):
     def __init__(self, attrs=None):
