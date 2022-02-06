@@ -1,0 +1,56 @@
+{% if book %}
+<ul class="list-group margin-bottom-25 sidebar-menu">
+  {% for category, active in category_dict.items %}
+    {% if not category.parent %}
+      {% if active %}
+        <li class="list-group-item clearfix dropdown active">
+            <a href="{{ category.get_absolute_url }}" class="collapsed">
+                <i class="fa fa-angle-right"></i>
+                {{ category.title }}
+            </a>
+            {% if category.children.active %}
+                {% include 'newtemplates/category_loop.html' %}
+            {% else %}
+                <ul class="dropdown-menu" style="display: block;">
+                    <li class="list-group-item clearfix active">
+                        <a href="{{ book.get_absolute_url }}" class="collapsed">
+                            <i class="fa fa-angle-right"></i>
+                            {{ book.title }}
+                        </a>
+                    </li>
+                </ul>
+            {% endif %}
+        </li>
+      {% else %}
+        <li class="list-group-item collapse dropdown">
+            <a href="{{ category.get_absolute_url }}" class="collapsed">
+                <i class="fa fa-angle-right"></i>
+                {{ category.title }}
+            </a>
+            {% if category.children.active %}
+                {% include 'newtemplates/category_loop.html' %}
+            {% endif %}
+        </li>
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+</ul>
+{% else %}
+<div class="sidebar col-md-3 col-sm-4">
+    <ul class="list-group margin-bottom-25 sidebar-menu">
+      {% for category in category_list %}
+        {% if not category.parent %}
+            <li class="list-group-item collapse dropdown">
+                <a href="{{ category.get_absolute_url }}" class="collapsed">
+                    <i class="fa fa-angle-right"></i>
+                    {{ category.title }}
+                </a>
+                {% if category.children.active %}
+                    {% include 'newtemplates/category_loop.html' %}
+                {% endif %}
+            </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+</div>
+{% endif %}

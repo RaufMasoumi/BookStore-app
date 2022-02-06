@@ -1,0 +1,56 @@
+{% if book %}
+    {% for child in category.children.active %}
+        {% for category, active in category_dict.items %}
+            {% if child == category %}
+                {% if active %}
+                    <ul class="dropdown-menu" style="display: block;">
+                        <li class="list-group-item dropdown clearfix active">
+                            <a href="{{ category.get_absolute_url }}" class="collapsed">
+                                <i class="fa fa-angle-right"></i>
+                                {{ category.title }}
+                            </a>
+                            {% if category.children.active %}
+                                {% include 'newtemplates/category_loop.html' %}
+                            {% else %}
+                                <ul class="dropdown-menu" style="display: block;">
+                                    <li class="list-group-item clearfix active">
+                                        <a href="{{ book.get_absolute_url }}" class="collapsed">
+                                            <i class="fa fa-angle-right"></i>
+                                            {{ book.title }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            {% endif %}
+                        </li>
+                    </ul>
+                {% else %}
+                    <ul class="dropdown-menu">
+                        <li class="list-group-item dropdown clearfix">
+                            <a href="{{ category.get_absolute_url }}" class="collapsed">
+                                <i class="fa fa-angle-right"></i>
+                                {{ category.title }}
+                            </a>
+                            {% if category.children.active %}
+                                {% include 'newtemplates/category_loop.html' %}
+                            {% endif %}
+                        </li>
+                    </ul>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% else %}
+  <ul class="dropdown-menu">
+    {% for category in category.children.active %}
+        <li class="list-group-item dropdown clearfix">
+            <a href="{{ category.get_absolute_url }}" class="collapsed">
+                <i class="fa fa-angle-right"></i>
+                {{ category.title }}
+            </a>
+            {% if category.children.active %}
+                {% include 'newtemplates/category_loop.html' %}
+            {% endif %}
+        </li>
+    {% endfor %}
+  </ul>
+{% endif %}

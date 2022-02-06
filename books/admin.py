@@ -13,7 +13,7 @@ class BookImageInline(admin.StackedInline):
 
 class BookAdmin(admin.ModelAdmin):
     inlines = [BookImageInline, ReviewInline]
-    list_display = ('title', 'author', 'price')
+    list_display = ('title', 'author', 'price', 'sale')
 
 
 admin.site.register(Book, BookAdmin)

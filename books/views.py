@@ -6,6 +6,7 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponseBadRequest
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
+from django.forms.models import model_to_dict
 from .models import Book, Category, Review, ReviewReply
 from .forms import BookImageFormSet, BookMakePublishedForm, ReviewForm, ReviewReplyForm
 # Create your views here.
@@ -33,12 +34,27 @@ class DraftBookListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class BookDetailView(DetailView):
     queryset = Book.objects.published()
     context_object_name = 'book'
-    template_name = 'books/book_detail.html'
+    template_name = 'newtemplates/shop-item.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        display_fields = ('author', 'pages', 'subject', 'rating', 'age_range', 'grade_range', 'page_size',
+                          'length', 'width', 'summary')
+        book_fields = {field.name: getattr(self.object, field.name) for field in self.object._meta.get_fields()
+                      if field.name in display_fields}
+        for field, value in book_fields.items():
+            if not value:
+                book_fields[field] = ''
+        category_dict = {}
+        book_categories = [category for category in self.object.category.all()]
+        for category in Category.objects.active():
+            make_active(category, book_categories, category_dict)
+
+        book_fields['category'] = book_categories
         review_form = ReviewForm(initial={'book': self.object.pk})
         review_reply_form = ReviewReplyForm()
+        context['category_dict'] = category_dict
+        context['book_fields'] = book_fields
         context['review_form'] = review_form
         context['review_reply_form'] = review_reply_form
         return context
@@ -136,14 +152,16 @@ class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView
     permission_required = 'books.delete_category'
 
 
-class ReviewCreateView(LoginRequiredMixin, CreateView):
+class ReviewCreateView(CreateView):
     model = Review
-    fields = ('book', 'review')
+    fields = ('author', 'name', 'email', 'book', 'review', 'rating')
     template_name = 'books/reviews/review_create.html'
-    login_url = 'account_login'
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        if self.request.user.is_authenticated:
+            form.instance.author = self.request.user
+            form.instance.name = self.request.user.username
+            form.instance.email = self.request.user.email
         return super().form_valid(form)
 
 
@@ -321,6 +339,20 @@ def book_make_published(request):
 
     return HttpResponseBadRequest('There was a problem in publishing the book!')
 
+
+def make_active(category, check_list, save_dict, from_child=False):
+    if category in check_list or from_child:
+        if category.parent:
+            save_dict[category] = True
+            print(category.title, category.parent)
+            make_active(category.parent, check_list, save_dict, from_child=True)
+        else:
+            save_dict[category] = True
+
+    elif category not in save_dict.keys():
+        save_dict[category] = False
+
+    return save_dict
 # @require_POST
 # @login_required(login_url='account_login')
 # def create_review(request):

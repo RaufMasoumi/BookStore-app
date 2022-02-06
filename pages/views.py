@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from books.forms import BookSearchForm
+from books.models import Book, Category
 # Create your views here.
 
 
@@ -19,3 +20,59 @@ class AboutPageView(TemplateView):
 
 def hello(request):
     return render(request, 'hello.html')
+
+class AboutView(TemplateView):
+    template_name = 'newtemplates/shop-about.html'
+
+class AccountView(TemplateView):
+    template_name = 'newtemplates/shop-account.html'
+
+class CheckoutView(TemplateView):
+    template_name = 'newtemplates/shop-checkout.html'
+
+class ContenctsView(TemplateView):
+    template_name = 'newtemplates/shop-contacts.html'
+
+class FaqView(TemplateView):
+    template_name = 'newtemplates/shop-faq.html'
+
+class GoodsView(TemplateView):
+    template_name = 'newtemplates/shop-goods-compare.html'
+
+class IndexView(TemplateView):
+    template_name = 'newtemplates/shop-index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sales'] = Book.objects.filter(sale=True)[:5]
+        context['new_arrivals'] = Book.objects.filter(sale=False)[:3]
+        context['category_list'] = [category for category in Category.objects.active()]
+        context['bestsellers'] = Book.objects.all()[:2]
+        return context
+
+class ItemView(TemplateView):
+    template_name = 'newtemplates/shop-item.html'
+
+class PrivacyPolicyView(TemplateView):
+    template_name = 'newtemplates/shop-privacy-policy.html'
+
+class ProductListView(TemplateView):
+    template_name = 'newtemplates/shop-product-list.html'
+
+class SearchResultView(TemplateView):
+    template_name = 'newtemplates/shop-search-result.html'
+
+class ShoppingCartView(TemplateView):
+    template_name = 'newtemplates/shop-shopping-cart.html'
+
+class ShoppingCartNullView(TemplateView):
+    template_name = 'newtemplates/shop-shopping-cart-null.html'
+
+class StandardFormsView(TemplateView):
+    template_name = 'newtemplates/shop-standart-forms.html'
+
+class TermsConditionsView(TemplateView):
+    template_name = 'newtemplates/shop-terms-conditions-page.html'
+
+class WishListView(TemplateView):
+    template_name = 'newtemplates/shop-wishlist.html'

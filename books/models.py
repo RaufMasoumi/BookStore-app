@@ -5,6 +5,12 @@ import uuid
 # Create your models here.
 
 
+class CategoryManager(models.Manager):
+
+    def active(self):
+        return self.filter(status=True)
+
+
 class BookManager(models.Manager):
 
     def published(self):
@@ -20,6 +26,7 @@ class Category(models.Model):
     thumbnail = models.ImageField(upload_to='categories', blank=True)
     status = models.BooleanField(default=True, verbose_name='To be displayed?', blank=True)
     position = models.IntegerField()
+    objects = CategoryManager()
 
     class Meta:
         verbose_name_plural = 'Categories'
@@ -43,6 +50,8 @@ class Book(models.Model):
     title = models.CharField(max_length=250)
     author = models.CharField(max_length=250)
     price = models.DecimalField(max_digits=6, decimal_places=2)
+    off = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+    sale = models.BooleanField(default=False, blank=True)
     cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=200)
     pages = models.PositiveIntegerField(blank=True, null=True)
     subject = models.CharField(max_length=50, blank=True, null=True)
@@ -53,7 +62,7 @@ class Book(models.Model):
     length = models.FloatField(blank=True, null=True, verbose_name='length(cm)')
     width = models.FloatField(blank=True, null=True, verbose_name='width(cm)')
     summary = models.TextField(blank=True, null=True)
-    time_to_sell = models.DateTimeField(auto_now_add=True)
+    time_to_sell = models.DateTimeField(auto_now_add=True, editable=False)
     stock = models.PositiveIntegerField(default=0, blank=True)
     buys = models.PositiveIntegerField(default=0, blank=True)
     category = models.ManyToManyField(Category, related_name='books', blank=True)
@@ -66,6 +75,10 @@ class Book(models.Model):
         ]
         permissions = [
             ('special_status', 'Can read all books'),
+        ]
+        ordering = [
+            '-time_to_sell',
+            'stock'
         ]
 
     def __str__(self):
@@ -90,10 +103,13 @@ class BookImage(models.Model):
 
 
 class Review(models.Model):
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(max_length=50, blank=True)
+    email = models.EmailField(null=True, blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
     review = models.CharField(max_length=250)
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    submitted = models.DateTimeField(auto_now_add=True)
+    rating = models.FloatField(blank=True, null=True)
+    submitted = models.DateTimeField(auto_now_add=True, editable=False)
     votes = models.IntegerField(default=0)
 
     class Meta:

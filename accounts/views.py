@@ -48,7 +48,49 @@ def user_cart_update_view(request):
     except KeyError:
         url = reverse('account_user_cart_detail', kwargs={'pk': request.user.carts.pk})
 
-    if request.POST.get('add'):
+    if request.POST.get('quantity') and not request.POST.get('delete'):
+        quantity = int(request.POST.get('quantity'))
+
+        if request.POST.get('book'):
+            book = Book.objects.get(id=request.POST.get('book'))
+            user_cart = UserCart.objects.get(user=request.user)
+
+            if not book.status == 'p':
+                return HttpResponseBadRequest('The book is not published!')
+
+            if book.stock >= quantity:
+                user_cart.cart.add(book)
+                user_cart.save()
+                if UserCartBooksNumber.objects.filter(book=book).exists():
+                    book_number = UserCartBooksNumber.objects.get(book=book)
+                else:
+                    return HttpResponse('<h1>409 There was a in adding the book to the Cart</h1>')
+                book_number.number = quantity
+                book_number.save()
+                book.stock -= quantity
+                book.save()
+                return redirect(url)
+            else:
+                return HttpResponse('<h1>409 The book has not enough stock!', status=409)
+
+        elif request.POST.get('number'):
+            number = UserCartBooksNumber.objects.get(id=request.POST.get('number'))
+            book = number.book
+
+            if not book.status == 'p':
+                return HttpResponseBadRequest('The book is not published!')
+
+            book.stock += number.number
+            if book.stock >= quantity:
+                number.number = quantity
+                number.save()
+                book.stock -= quantity
+                book.save()
+                return redirect(url)
+            else:
+                return HttpResponse('<h1>409 The book has not enough stock!', status=409)
+
+    elif request.POST.get('add'):
         number_id = request.POST.get('add')
         if UserCartBooksNumber.objects.filter(id=number_id).exists():
             number = UserCartBooksNumber.objects.get(id=number_id)
