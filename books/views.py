@@ -42,9 +42,6 @@ class BookDetailView(DetailView):
                           'length', 'width', 'summary')
         book_fields = {field.name: getattr(self.object, field.name) for field in self.object._meta.get_fields()
                       if field.name in display_fields}
-        for field, value in book_fields.items():
-            if not value:
-                book_fields[field] = ''
         category_dict = {}
         book_categories = [category for category in self.object.category.all()]
         for category in Category.objects.active():
@@ -344,6 +341,7 @@ def make_active(category, check_list, save_dict, from_child=False):
     if category in check_list or from_child:
         if category.parent:
             save_dict[category] = True
+            print(dictt)
             print(category.title, category.parent)
             make_active(category.parent, check_list, save_dict, from_child=True)
         else:

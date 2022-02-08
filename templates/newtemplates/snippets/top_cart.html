@@ -2,56 +2,34 @@
 
 <div class="top-cart-block">
   <div class="top-cart-info">
-    <a href="javascript:void(0);" class="top-cart-info-count">3 items</a>
-    <a href="javascript:void(0);" class="top-cart-info-value">$1260</a>
+    <a href="{{ user.carts.get_absolute_url }}" class="top-cart-info-count">{{ user.carts.cart.count }} items</a>
+    <a href="{{ user.carts.get_absolute_url }}" class="top-cart-info-value">${{ user.carts.calculate_total_price }}</a>
   </div>
   <i class="fa fa-shopping-cart"></i>
 
   <div class="top-cart-content-wrapper">
     <div class="top-cart-content">
       <ul class="scroller" style="height: 250px;">
-        <li>
-          <a href="../shop-item.html"><img src="{% static 'assets/pages/img/cart-img.jpg' %}" alt="Rolex Classic Watch" width="37" height="34"></a>
-          <span class="cart-content-count">x 1</span>
-          <strong><a href="../shop-item.html">Rolex Classic Watch</a></strong>
-          <em>$1230</em>
-          <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-        </li>
-        <li>
-          <a href="../shop-item.html"><img src="{% static 'assets/pages/img/cart-img.jpg' %}" alt="Rolex Classic Watch" width="37" height="34"></a>
-          <span class="cart-content-count">x 1</span>
-          <strong><a href="../shop-item.html">Rolex Classic Watch</a></strong>
-          <em>$1230</em>
-          <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-        </li>
-        <li>
-          <a href="../shop-item.html"><img src="{% static 'assets/pages/img/cart-img.jpg' %}" alt="Rolex Classic Watch" width="37" height="34"></a>
-          <span class="cart-content-count">x 1</span>
-          <strong><a href="../shop-item.html">Rolex Classic Watch</a></strong>
-          <em>$1230</em>
-          <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-        </li>
-        <li>
-          <a href="../shop-item.html"><img src="{% static 'assets/pages/img/cart-img.jpg' %}" alt="Rolex Classic Watch" width="37" height="34"></a>
-          <span class="cart-content-count">x 1</span>
-          <strong><a href="../shop-item.html">Rolex Classic Watch</a></strong>
-          <em>$1230</em>
-          <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-        </li>
-        <li>
-          <a href="../shop-item.html"><img src="{% static 'assets/pages/img/cart-img.jpg' %}" alt="Rolex Classic Watch" width="37" height="34"></a>
-          <span class="cart-content-count">x 1</span>
-          <strong><a href="../shop-item.html">Rolex Classic Watch</a></strong>
-          <em>$1230</em>
-          <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-        </li>
-        <li>
-          <a href="../shop-item.html"><img src="{% static 'assets/pages/img/cart-img.jpg' %}" alt="Rolex Classic Watch" width="37" height="34"></a>
-          <span class="cart-content-count">x 1</span>
-          <strong><a href="../shop-item.html">Rolex Classic Watch</a></strong>
-          <em>$1230</em>
-          <a href="javascript:void(0);" class="del-goods">&nbsp;</a>
-        </li>
+      {% for book in user.carts.cart.all %}
+          {% for number in user.carts.books_numbers.all %}
+            {% if number.book == book %}
+             <li>
+              <a href="{{ book.get_absolute_url }}"><img src="{{ book.cover.url }}" alt="{{ book.title }}" width="37" height="34"></a>
+              <span class="cart-content-count">x {{ number.number }}</span>
+              <strong><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></strong>
+              {% if book.off %}
+                <em>${{ book.off }}</em>
+              {% else %}
+                 <em>${{ book.price }}</em>
+              {% endif %}
+              <form method="post" action="{% url 'account_user_cart_update' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="del-goods" name="delete" value="{{ number.id }}">&nbsp;</button>
+              </form>
+            </li>
+            {% endif %}
+          {% endfor %}
+      {% endfor %}
         <li>
           <a href="../shop-item.html"><img src="{% static 'assets/pages/img/cart-img.jpg' %}" alt="Rolex Classic Watch" width="37" height="34"></a>
           <span class="cart-content-count">x 1</span>
@@ -68,7 +46,7 @@
         </li>
       </ul>
       <div class="text-right">
-        <a href="../shop-shopping-cart.html" class="btn btn-default">View Cart</a>
+        <a href="{{ user.carts.get_absolute_url }}" class="btn btn-default">View Cart</a>
         <a href="../shop-checkout.html" class="btn btn-primary">Checkout</a>
       </div>
     </div>

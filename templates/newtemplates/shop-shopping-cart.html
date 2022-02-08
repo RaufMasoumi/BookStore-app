@@ -14,6 +14,7 @@
 {% endblock %}
 
 {% block content %}
+    {% if user.carts.cart.all %}
     <!-- BEGIN SIDEBAR & CONTENT -->
     <div class="row margin-bottom-40">
       <!-- BEGIN CONTENT -->
@@ -31,60 +32,55 @@
                 <th class="goods-page-price">Unit price</th>
                 <th class="goods-page-total" colspan="2">Total</th>
               </tr>
+              {% for book in cart.cart.all %}
+              {% for number in cart.books_numbers.all %}
+              {% if number.book == book %}
               <tr>
                 <td class="goods-page-image">
-                  <a href="javascript:;"><img src="{% static 'assets/pages/img/products/model3.jpg' %}" alt="Berry Lace Dress"></a>
+                  <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"></a>
                 </td>
                 <td class="goods-page-description">
-                  <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                  <p><strong>Item 1</strong> - Color: Green; Size: S</p>
-                  <em>More info is here</em>
+                  <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+                  <p><strong>{{ book.author }}</strong></p>
+                  <p>- category:
+                      {% for category in book.category.all %}
+                       <a href="{{ category.get_absolute_url }}">#{{ category.title }}</a>
+                      {% endfor %};
+                  Pages: {{ book.pages }}</p>
                 </td>
                 <td class="goods-page-ref-no">
                   javc2133
                 </td>
                 <td class="goods-page-quantity">
-                  <div class="product-quantity">
-                      <input id="product-quantity" type="text" value="1" readonly class="form-control input-sm">
-                  </div>
+                      <form action="{% url 'account_user_cart_update' %}" method="post">
+                        {% csrf_token %}
+                        <div class="product-quantity">
+                            <input id="product-quantity" name="quantity" value="{{ number.number }}" readonly class="form-control input-sm">
+                        </div>
+                        <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">update</button>
+                      </form>
                 </td>
                 <td class="goods-page-price">
-                  <strong><span>$</span>47.00</strong>
+                  {% if book.off %}
+                      <strong><span>$</span>{{ book.off }}</strong>
+                      <em>$<span>{{ book.price }}</span></em>
+                  {% else %}
+                      <strong><span>$</span>{{ book.price }}</strong>
+                  {% endif %}
                 </td>
                 <td class="goods-page-total">
-                  <strong><span>$</span>47.00</strong>
+                  <strong><span>$</span>{{ number.calculate_total_price }}</strong>
                 </td>
                 <td class="del-goods-col">
-                  <a class="del-goods" href="javascript:;">&nbsp;</a>
+                  <form method="post" action="{% url 'account_user_cart_update' %}">
+                      {% csrf_token %}
+                      <button class="del-goods" name="delete" value="{{ number.id }}">&nbsp;</button>
+                  </form>
                 </td>
               </tr>
-              <tr>
-                <td class="goods-page-image">
-                  <a href="javascript:;"><img src="{% static 'assets/pages/img/products/model4.jpg' %}" alt="Berry Lace Dress"></a>
-                </td>
-                <td class="goods-page-description">
-                  <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                  <p><strong>Item 1</strong> - Color: Green; Size: S</p>
-                  <em>More info is here</em>
-                </td>
-                <td class="goods-page-ref-no">
-                  javc2133
-                </td>
-                <td class="goods-page-quantity">
-                  <div class="product-quantity">
-                      <input id="product-quantity2" type="text" value="1" readonly class="form-control input-sm">
-                  </div>
-                </td>
-                <td class="goods-page-price">
-                  <strong><span>$</span>47.00</strong>
-                </td>
-                <td class="goods-page-total">
-                  <strong><span>$</span>47.00</strong>
-                </td>
-                <td class="del-goods-col">
-                  <a class="del-goods" href="javascript:;">&nbsp;</a>
-                </td>
-              </tr>
+              {% endif %}
+              {% endfor %}
+              {% endfor %}
             </table>
             </div>
 
@@ -92,7 +88,7 @@
               <ul>
                 <li>
                   <em>Sub total</em>
-                  <strong class="price"><span>$</span>47.00</strong>
+                  <strong class="price"><span>$</span>{{ cart.calculate_total_price }}</strong>
                 </li>
                 <li>
                   <em>Shipping cost</em>
@@ -100,113 +96,35 @@
                 </li>
                 <li class="shopping-total-price">
                   <em>Total</em>
-                  <strong class="price"><span>$</span>50.00</strong>
+                  <strong class="price"><span>$</span>{{ cart.calculate_total_price_with_cost }}</strong>
                 </li>
               </ul>
             </div>
           </div>
-          <button class="btn btn-default" type="submit">Continue shopping <i class="fa fa-shopping-cart"></i></button>
+          <a href="{% url 'home' %}" class="btn btn-default" type="submit">Continue shopping <i class="fa fa-shopping-cart"></i></a>
           <button class="btn btn-primary" type="submit">Checkout <i class="fa fa-check"></i></button>
         </div>
       </div>
       <!-- END CONTENT -->
     </div>
     <!-- END SIDEBAR & CONTENT -->
-
-    <!-- BEGIN SIMILAR PRODUCTS -->
-    <div class="row margin-bottom-40">
+    {% else %}
+      <div class="row margin-bottom-40">
+      <!-- BEGIN CONTENT -->
       <div class="col-md-12 col-sm-12">
-        <h2>Most popular products</h2>
-        <div class="owl-carousel owl-carousel4">
-          <div>
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/k1.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/k1.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-              <div class="sticker sticker-new"></div>
-            </div>
-          </div>
-          <div>
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/k2.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/k2.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress2</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <div>
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/k3.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/k3.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress3</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <div>
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/k4.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/k4.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress4</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-              <div class="sticker sticker-sale"></div>
-            </div>
-          </div>
-          <div>
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/k1.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/k1.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress5</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <div>
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/k2.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/k2.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress6</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
+        <h1>Shopping cart</h1>
+        <div class="shopping-cart-page">
+          <div class="shopping-cart-data clearfix">
+            <p>Your shopping cart is empty!</p>
           </div>
         </div>
       </div>
+      <!-- END CONTENT -->
     </div>
+    {% endif %}
+
+    <!-- BEGIN SIMILAR PRODUCTS -->
+    {% include 'newtemplates/snippets/most_popular.html' %}
     <!-- END SIMILAR PRODUCTS -->
 {% endblock %}
 

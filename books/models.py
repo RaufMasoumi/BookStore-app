@@ -53,7 +53,7 @@ class Book(models.Model):
     off = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     sale = models.BooleanField(default=False, blank=True)
     cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=200)
-    pages = models.PositiveIntegerField(blank=True, null=True)
+    pages = models.PositiveIntegerField(default=0, blank=True)
     subject = models.CharField(max_length=50, blank=True, null=True)
     rating = models.FloatField(blank=True, null=True)
     age_range = models.CharField(max_length=100, blank=True, null=True)

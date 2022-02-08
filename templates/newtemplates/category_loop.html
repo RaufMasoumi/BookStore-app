@@ -39,6 +39,16 @@
             {% endif %}
         {% endfor %}
     {% endfor %}
+    {% if not 'True' in category_dict.values %}
+        <ul class="dropdown-menu" style="display: block;">
+            <li class="list-group-item clearfix active">
+                <a href="{{ book.get_absolute_url }}" class="collapsed">
+                    <i class="fa fa-angle-right"></i>
+                    {{ book.title }}
+                </a>
+            </li>
+        </ul>
+    {% endif %}
 {% else %}
   <ul class="dropdown-menu">
     {% for category in category.children.active %}

@@ -1,0 +1,196 @@
+{% load static %}
+<div class="row margin-bottom-40">
+  <div class="col-md-12 col-sm-12">
+    <h2>Most popular products</h2>
+    <div class="owl-carousel owl-carousel4">
+    {% for book in most_popular %}
+      <div>
+        <div class="product-item">
+          <div class="pi-img-wrapper">
+            <img src="{{ book.cover.url }}" class="img-responsive" alt="{{ book.title }}" style="height: 232px; width: 300px">
+            <div>
+              <a href="{{ book.cover.url }}" class="btn btn-default fancybox-button">Zoom</a>
+              <a href="#product-pop-up-popular-{{ book.pk }}" class="btn btn-default fancybox-fast-view">View</a>
+            </div>
+          </div>
+          <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+          {% if book.off %}
+            <div class="pi-price">${{ book.off }}</div>
+          {% else %}
+            <div class="pi-price">${{ book.price }}</div>
+          {% endif %}
+          {% if book in user.carts.cart.all %}
+              <a href="{% url 'account_user_cart_detail' user.carts.pk %}" class="btn btn-default add2cart">Is in cart</a>
+          {% else %}
+              {% if book.stock > 0 %}
+                  <form action="{% url 'account_user_cart_update' %}" method="post">
+                      {% csrf_token %}
+                      <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
+                  </form>
+              {% else %}
+                  <button class="btn btn-default add2cart">Unavailable</button>
+              {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+      <div>
+        <div class="product-item">
+          <div class="pi-img-wrapper">
+            <img src="{% static 'assets/pages/img/products/k1.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
+            <div>
+              <a href="{% static 'assets/pages/img/products/k1.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
+              <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
+            </div>
+          </div>
+          <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
+          <div class="pi-price">$29.00</div>
+          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+          <div class="sticker sticker-new"></div>
+        </div>
+      </div>
+      <div>
+        <div class="product-item">
+          <div class="pi-img-wrapper">
+            <img src="{% static 'assets/pages/img/products/k2.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
+            <div>
+              <a href="{% static 'assets/pages/img/products/k2.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
+              <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
+            </div>
+          </div>
+          <h3><a href="shop-item.html">Berry Lace Dress2</a></h3>
+          <div class="pi-price">$29.00</div>
+          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+        </div>
+      </div>
+      <div>
+        <div class="product-item">
+          <div class="pi-img-wrapper">
+            <img src="{% static 'assets/pages/img/products/k3.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
+            <div>
+              <a href="{% static 'assets/pages/img/products/k3.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
+              <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
+            </div>
+          </div>
+          <h3><a href="shop-item.html">Berry Lace Dress3</a></h3>
+          <div class="pi-price">$29.00</div>
+          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+        </div>
+      </div>
+      <div>
+        <div class="product-item">
+          <div class="pi-img-wrapper">
+            <img src="{% static 'assets/pages/img/products/k4.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
+            <div>
+              <a href="{% static 'assets/pages/img/products/k4.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
+              <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
+            </div>
+          </div>
+          <h3><a href="shop-item.html">Berry Lace Dress4</a></h3>
+          <div class="pi-price">$29.00</div>
+          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+          <div class="sticker sticker-sale"></div>
+        </div>
+      </div>
+      <div>
+        <div class="product-item">
+          <div class="pi-img-wrapper">
+            <img src="{% static 'assets/pages/img/products/k1.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
+            <div>
+              <a href="{% static 'assets/pages/img/products/k1.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
+              <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
+            </div>
+          </div>
+          <h3><a href="shop-item.html">Berry Lace Dress5</a></h3>
+          <div class="pi-price">$29.00</div>
+          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+        </div>
+      </div>
+      <div>
+        <div class="product-item">
+          <div class="pi-img-wrapper">
+            <img src="{% static 'assets/pages/img/products/k2.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
+            <div>
+              <a href="{% static 'assets/pages/img/products/k2.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
+              <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
+            </div>
+          </div>
+          <h3><a href="shop-item.html">Berry Lace Dress6</a></h3>
+          <div class="pi-price">$29.00</div>
+          <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% block fast_view_of_products %}
+    {% for book in most_popular %}
+    <div id="product-pop-up-popular-{{ book.pk }}" style="display: none; width: 700px;">
+        <div class="product-page product-pop-up">
+          <div class="row">
+            <div class="col-md-6 col-sm-6 col-xs-3">
+              <div class="product-main-image">
+                <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="img-responsive">
+                <div class="sticker sticker-new"></div>
+              </div>
+              <div class="product-other-images">
+                {% for image in book.images.all %}
+                    <a href="javascript:;"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
+                {% endfor %}
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6 col-xs-9">
+              <h2>{{ book.title }}</h2>
+              <div class="price-availability-block clearfix">
+                <div class="price">
+                  {% if book.off %}
+                      <strong><span>$</span>{{ book.off }}</strong>
+                      <em>$<span>{{ book.price }}</span></em>
+                  {% else %}
+                      <strong><span>$</span>{{ book.price }}</strong>
+                  {% endif %}
+                </div>
+                <div class="availability">
+                  {% if book.stock > 0 %}
+                    Availability: <strong>In Stock</strong>
+                  {% else %}
+                    Availability: <strong>Not in Stock</strong>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="description">
+                <p>{{ book.summary }}</p>
+              </div>
+              <div class="product-page-cart">
+                {% if book.stock > 0 %}
+                    <div class="product-quantity">
+                    <form action="{% url 'account_user_cart_update' %}" method="post">
+                      {% csrf_token %}
+                        {% if book in user.carts.cart.all %}
+                            {% for number in user.carts.books_numbers.all %}
+                            {% if number.book == book %}
+                                <input id="product-quantity" name="quantity" type="text" value="{{ number.number }}" readonly class="form-control input-sm">
+                            </div>
+                                <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">Edit cart</button>
+                                | <button class="btn btn-danger" name="delete" value="{{ number.id }}" type="submit">Delete from cart</button>
+                                <hr>
+                            {% endif %}
+                            {% endfor %}
+                        {% else %}
+                                <input id="product-quantity" name="quantity" type="text" value="1" readonly class="form-control input-sm">
+                            </div>
+                            <button class="btn btn-primary" name="book" value="{{ book.id }}" type="submit">Add to cart</button>
+                        {% endif %}
+                    </form>
+                {% else %}
+                    <button class="btn btn-primary" type="button">Unavailable</button>
+                {% endif %}
+                <a href="{{ book.get_absolute_url }}" class="btn btn-default">More details</a>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endblock %}

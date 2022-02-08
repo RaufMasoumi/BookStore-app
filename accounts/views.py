@@ -28,11 +28,12 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = UserCart
     context_object_name = 'cart'
     login_url = 'account_login'
-    template_name = 'account/user_cart_detail.html'
+    template_name = 'newtemplates/shop-shopping-cart.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_price'] = calculate_user_cart_total_price(self.object)
+        context['most_popular'] = Book.objects.published()
         return context
 
     def test_func(self):

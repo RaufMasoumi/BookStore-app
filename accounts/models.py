@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from django.http import HttpResponse
 from django.urls import reverse
 from allauth.socialaccount.models import SocialAccount
+from decimal import Decimal
 import requests
 import uuid
 
@@ -28,6 +29,20 @@ class UserCart(models.Model):
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='carts')
     cart = models.ManyToManyField(Book, related_name='in_carts', blank=True)
 
+    def calculate_total_price(self):
+        total_price = Decimal('00.00')
+        for book in self.cart.all():
+            if book.off:
+                price = book.off
+            else:
+                price = book.price
+            total_price += price * UserCartBooksNumber.objects.get(cart=self, book=book).number
+        return total_price
+
+    def calculate_total_price_with_cost(self):
+        total_price = self.calculate_total_price()
+        return total_price + 3
+
     def get_absolute_url(self):
         return reverse('account_user_cart_detail', kwargs={'pk': self.pk})
 
@@ -39,6 +54,14 @@ class UserCartBooksNumber(models.Model):
     cart = models.ForeignKey(UserCart, on_delete=models.CASCADE, related_name='books_numbers')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='carts_numbers')
     number = models.PositiveIntegerField(default=1)
+
+    def calculate_total_price(self):
+        if self.book.off:
+            price = self.book.off
+        else:
+            price = self.book.price
+        total_price = price * self.number
+        return total_price
 
     def __str__(self):
         return f'{self.cart.user.username}\'s cart{self.cart.pk} number of {self.book.title}'

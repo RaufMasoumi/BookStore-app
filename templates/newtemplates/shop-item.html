@@ -170,6 +170,7 @@
                     {% for field, value in book_fields.items %}
                     <tr>
                       <td class="datasheet-features-type">{{ field }}</td>
+                      {% if value %}
                         {% if field == 'category' %}
                             <td>
                             {% for category in value %}
@@ -177,8 +178,11 @@
                             {% endfor %}
                             </td>
                         {% else %}
-                            <td>{{ value }}</td>
+                                <td>{{ value }}</td>
                         {% endif %}
+                      {% else %}
+                        <td>-</td>
+                      {% endif %}
                     </tr>
                     {% endfor %}
                   </table>
