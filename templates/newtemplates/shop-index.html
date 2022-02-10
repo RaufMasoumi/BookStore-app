@@ -113,7 +113,7 @@
               <div>
                 <div class="product-item">
                   <div class="pi-img-wrapper">
-                    <img src="{{ book.cover.url }}" class="img-responsive" style="width: 200px; height: 280px" alt="{{ book.title }}">
+                    <img src="{{ book.cover.url }}" class="img-responsive" style="width: 200px; height: 260px" alt="{{ book.title }}">
                     <div>
                       <a href="{{ book.cover.url }}" class="btn btn-default fancybox-button">Zoom</a>
                       <a href="#product-pop-up-sale-{{ book.pk }}" class="btn btn-default fancybox-fast-view">View</a>
@@ -258,7 +258,7 @@
                <div>
                 <div class="product-item">
                   <div class="pi-img-wrapper">
-                    <img src="{{ book.cover.url }}" class="img-responsive" style="height: 300px; width: 300px" alt="{{ book.title }}">
+                    <img src="{{ book.cover.url }}" class="img-responsive" style="height: 230px; width: 250px" alt="{{ book.title }}">
                     <div>
                       <a href="{{ book.cover.url }}" class="btn btn-default fancybox-button">Zoom</a>
                       <a href="#product-pop-up-new-{{ book.pk }}" class="btn btn-default fancybox-fast-view">View</a>
@@ -386,7 +386,7 @@
                   <div>
                     <div class="product-item">
                       <div class="pi-img-wrapper">
-                        <img src="{{ book.cover.url }}" class="img-responsive" style="width: 300px; height: 220px;" alt="{{ book.title }}">
+                        <img src="{{ book.cover.url }}" class="img-responsive" style="width: 300px; height: 225px;" alt="{{ book.title }}">
                         <div>
                           <a href="{{ book.cover.url }}" class="btn btn-default fancybox-button">Zoom</a>
                           <a href="#product-pop-up-bestseller-{{ book.pk }}" class="btn btn-default fancybox-fast-view">View</a>
@@ -406,6 +406,7 @@
                               <button class="btn btn-default add2cart">Unavailable</button>
                           {% endif %}
                       {% endif %}
+                      <div class="sticker sticker-bestseller"></div>
                     </div>
                   </div>
                   {% endfor %}
@@ -515,7 +516,7 @@
               </div>
               <div class="product-other-images">
                 {% for image in book.images.all %}
-                    <a href="javascript:;"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
+                    <a href="{{ book.get_absolute_url }}"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
                 {% endfor %}
               </div>
             </div>
@@ -583,7 +584,7 @@
               </div>
               <div class="product-other-images">
                 {% for image in book.images.all %}
-                    <a href="javascript:;"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
+                    <a href="{{ book.get_absolute_url }}"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
                 {% endfor %}
               </div>
             </div>
@@ -651,7 +652,7 @@
               </div>
               <div class="product-other-images">
                 {% for image in book.images.all %}
-                    <a href="javascript:;"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
+                    <a href="{{ book.get_absolute_url }}"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
                 {% endfor %}
               </div>
             </div>

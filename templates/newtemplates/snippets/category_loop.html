@@ -1,0 +1,43 @@
+{% if category and active_category_set %}
+    {% for category in category.children.active %}
+        {% if category in active_category_set %}
+            <ul class="dropdown-menu" style="display: block;">
+                <li class="list-group-item dropdown clearfix active">
+                    <a href="{{ category.get_absolute_url }}" class="collapsed">
+                        <i class="fa fa-angle-right"></i>
+                        {{ category.title }}
+                    </a>
+                    {% if category.children.active %}
+                        {% include 'newtemplates/snippets/category_loop.html' %}
+                    {% endif %}
+                </li>
+            </ul>
+        {% else %}
+            <ul class="dropdown-menu" style="display: block;">
+                <li class="list-group-item dropdown clearfix">
+                    <a href="{{ category.get_absolute_url }}" class="collapsed">
+                        <i class="fa fa-angle-right"></i>
+                        {{ category.title }}
+                    </a>
+                    {% if category.children.active %}
+                        {% include 'newtemplates/snippets/category_loop.html' %}
+                    {% endif %}
+                </li>
+            </ul>
+        {% endif %}
+    {% endfor %}
+{% elif category %}
+  <ul class="dropdown-menu">
+    {% for category in category.children.active %}
+        <li class="list-group-item dropdown clearfix">
+            <a href="{{ category.get_absolute_url }}" class="collapsed">
+                <i class="fa fa-angle-right"></i>
+                {{ category.title }}
+            </a>
+            {% if category.children.active %}
+                {% include 'newtemplates/snippets/category_loop.html' %}
+            {% endif %}
+        </li>
+    {% endfor %}
+  </ul>
+{% endif %}

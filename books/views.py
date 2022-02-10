@@ -6,7 +6,6 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponseBadRequest
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
-from django.forms.models import model_to_dict
 from .models import Book, Category, Review, ReviewReply
 from .forms import BookImageFormSet, BookMakePublishedForm, ReviewForm, ReviewReplyForm
 # Create your views here.
@@ -38,19 +37,19 @@ class BookDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        display_fields = ('author', 'pages', 'subject', 'rating', 'age_range', 'grade_range', 'page_size',
+        display_fields = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
                           'length', 'width', 'summary')
         book_fields = {field.name: getattr(self.object, field.name) for field in self.object._meta.get_fields()
                       if field.name in display_fields}
-        category_dict = {}
         book_categories = [category for category in self.object.category.all()]
-        for category in Category.objects.active():
-            make_active(category, book_categories, category_dict)
-
+        active_category_set = make_active(query_set=Category.objects.active(), check_list=book_categories)
         book_fields['category'] = book_categories
         review_form = ReviewForm(initial={'book': self.object.pk})
         review_reply_form = ReviewReplyForm()
-        context['category_dict'] = category_dict
+        context['similars'] = Book.objects.all()[:4]
+        context['bestsellers'] = Book.objects.all()[:4]
+        context['active_category_set'] = active_category_set
+        context['category_list'] = Category.objects.active()
         context['book_fields'] = book_fields
         context['review_form'] = review_form
         context['review_reply_form'] = review_reply_form
@@ -118,9 +117,31 @@ class CategoryListView(ListView):
     context_object_name = 'category_list'
 
 
-class CategoryDetailView(DetailView):
-    model = Category
-    template_name = 'books/category/category_detail.html'
+class CategoryBooksListView(ListView):
+    template_name = 'newtemplates/shop-product-list.html'
+    context_object_name = 'category_books'
+
+    def get_paginate_by(self, queryset):
+        if self.kwargs.get('paginate_by'):
+            number = self.kwargs.get('paginate_by')
+        else:
+            number = 9
+        return number
+
+    def get_queryset(self):
+        global category
+        pk = self.kwargs.get('pk')
+        category = Category.objects.get(pk=pk)
+        return category.books.published()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = category
+        context['category_list'] = Category.objects.active()
+        context['active_category_set'] = make_active(category)
+        context['bestsellers'] = Book.objects.published()[:4]
+        print(context)
+        return context
 
 
 class CategoryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -337,20 +358,32 @@ def book_make_published(request):
     return HttpResponseBadRequest('There was a problem in publishing the book!')
 
 
-def make_active(category, check_list, save_dict, from_child=False):
-    if category in check_list or from_child:
+def make_active2(category, save_list, check_list=None, from_child=False):
+    if (check_list and category in check_list) or from_child or not isinstance(check_list, list):
+        save_list.append(category)
         if category.parent:
-            save_dict[category] = True
-            print(dictt)
             print(category.title, category.parent)
-            make_active(category.parent, check_list, save_dict, from_child=True)
-        else:
-            save_dict[category] = True
+            make_active2(category.parent, save_list, from_child=True)
 
-    elif category not in save_dict.keys():
-        save_dict[category] = False
+    return save_list
 
-    return save_dict
+
+def make_active(category=None, query_set=None, check_list=None):
+    active_category_set = set()
+    if query_set:
+        for category in query_set:
+            if (check_list and category in check_list) or check_list == None:
+                while category:
+                    active_category_set.add(category)
+                    category = category.parent
+    elif category:
+        while category:
+            active_category_set.add(category)
+            category = category.parent
+
+    return active_category_set
+
+
 # @require_POST
 # @login_required(login_url='account_login')
 # def create_review(request):

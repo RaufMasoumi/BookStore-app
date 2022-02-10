@@ -1,6 +1,8 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth import get_user_model
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 import uuid
 # Create your models here.
 
@@ -32,11 +34,17 @@ class Category(models.Model):
         verbose_name_plural = 'Categories'
         ordering = ['parent_id', 'position']
 
+    def get_available_books(self):
+        return self.books.filter(stock__gt=0)
+
+    def get_unavailable_books(self):
+        return self.books.filter(stock__lt=1)
+
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('category_detail', kwargs={'pk': self.pk})
+        return reverse('category_books_list', kwargs={'pk': self.pk})
 
 
 class Book(models.Model):
@@ -55,7 +63,8 @@ class Book(models.Model):
     cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=200)
     pages = models.PositiveIntegerField(default=0, blank=True)
     subject = models.CharField(max_length=50, blank=True, null=True)
-    rating = models.FloatField(blank=True, null=True)
+    rating = models.FloatField(default=0, blank=True)
+    publisher = models.CharField(max_length=200, blank=True, null=True)
     age_range = models.CharField(max_length=100, blank=True, null=True)
     grade_range = models.CharField(max_length=100, blank=True, null=True)
     page_size = models.CharField(max_length=10, blank=True, null=True)
@@ -108,7 +117,7 @@ class Review(models.Model):
     email = models.EmailField(null=True, blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
     review = models.CharField(max_length=250)
-    rating = models.FloatField(blank=True, null=True)
+    rating = models.FloatField(default=0, blank=True)
     submitted = models.DateTimeField(auto_now_add=True, editable=False)
     votes = models.IntegerField(default=0)
 
@@ -139,3 +148,13 @@ class ReviewReply(models.Model):
 
     def get_absolute_url(self):
         return reverse('book_detail', kwargs={'pk': self.review.book.pk})
+
+
+@receiver(post_save, sender=Review)
+def update_book_rating(instance, **kwargs):
+    book = instance.book
+    ratings = [review.rating for review in book.reviews.all()]
+    ave_rating = sum(ratings) / book.reviews.count()
+    book.rating = round(ave_rating, 1)
+    book.save()
+    return

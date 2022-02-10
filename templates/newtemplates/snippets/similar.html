@@ -1,16 +1,16 @@
 {% load static %}
 <div class="row margin-bottom-40">
   <div class="col-md-12 col-sm-12">
-    <h2>Most popular products</h2>
+    <h2>Similar Books</h2>
     <div class="owl-carousel owl-carousel4">
-    {% for book in most_popular %}
+      {% for book in similars %}
       <div>
         <div class="product-item">
           <div class="pi-img-wrapper">
             <img src="{{ book.cover.url }}" class="img-responsive" alt="{{ book.title }}" style="height: 232px; width: 300px">
             <div>
               <a href="{{ book.cover.url }}" class="btn btn-default fancybox-button">Zoom</a>
-              <a href="#product-pop-up-popular-{{ book.pk }}" class="btn btn-default fancybox-fast-view">View</a>
+              <a href="#product-pop-up-similar-{{ book.pk }}" class="btn btn-default fancybox-fast-view">View</a>
             </div>
           </div>
           <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
@@ -31,10 +31,10 @@
                   <button class="btn btn-default add2cart">Unavailable</button>
               {% endif %}
           {% endif %}
-            <div class="sticker sticker-mostpopular"></div>
+          <div class="sticker sticker-similar"></div>
         </div>
       </div>
-    {% endfor %}
+      {% endfor %}
       <div>
         <div class="product-item">
           <div class="pi-img-wrapper">
@@ -126,14 +126,14 @@
 </div>
 
 {% block fast_view_of_products %}
-    {% for book in most_popular %}
-    <div id="product-pop-up-popular-{{ book.pk }}" style="display: none; width: 700px;">
+    {% for book in similars %}
+    <div id="product-pop-up-similar-{{ book.pk }}" style="display: none; width: 700px;">
         <div class="product-page product-pop-up">
           <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-3">
               <div class="product-main-image">
                 <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="img-responsive">
-                <div class="sticker sticker-mostpopular"></div>
+                <div class="sticker sticker-similar"></div>
               </div>
               <div class="product-other-images">
                 {% for image in book.images.all %}

@@ -364,6 +364,14 @@ Header and header elements
 	left: auto;
 	right: 0;
 }
+.sticker-bestseller {
+	background: url(../../pages/img/bestseller.png) no-repeat;
+}
+.sticker-mostpopular {
+	background: url(../../pages/img/mostpopular.png) no-repeat;
+	left: auto;
+	right: 0;
+}
 .pi-img-wrapper {
 	position: relative;
 }

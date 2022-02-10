@@ -42,11 +42,7 @@
                 <td class="goods-page-description">
                   <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
                   <p><strong>{{ book.author }}</strong></p>
-                  <p>- category:
-                      {% for category in book.category.all %}
-                       <a href="{{ category.get_absolute_url }}">#{{ category.title }}</a>
-                      {% endfor %};
-                  Pages: {{ book.pages }}</p>
+                  <p>Pages: {{ book.pages }}</p>
                 </td>
                 <td class="goods-page-ref-no">
                   javc2133
@@ -57,7 +53,7 @@
                         <div class="product-quantity">
                             <input id="product-quantity" name="quantity" value="{{ number.number }}" readonly class="form-control input-sm">
                         </div>
-                        <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">update</button>
+                          <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">update</button>
                       </form>
                 </td>
                 <td class="goods-page-price">
