@@ -1,7 +1,7 @@
 {% extends 'newtemplates/base.html' %}
 {% load static %}
 
-{% block title %}Men category | Metronic Shop UI{% endblock %}
+{% block title %}{{ category.title }} category | Metronic Shop UI{% endblock %}
 
 {% block page_level_plugin_styles %}
 <!-- Page level plugin styles START -->
@@ -36,12 +36,11 @@
         {% include 'newtemplates/snippets/sidebar_category.html' %}
         <div class="sidebar-filter margin-bottom-25">
           <h2>Filter</h2>
-          <form method="get" action="{% url 'category_books_list' category.pk %}">
-              {% csrf_token %}
+          <form method="get">
               <h3>Availability</h3>
               <div class="checkbox-list">
-                <label><input type="checkbox" name="available"> Not Available ({{ category.get_unavailable_books.count }})</label>
-                <label><input type="checkbox" name="unavailable"> In Stock ({{ category.get_available_books.count }})</label>
+                <label><input type="checkbox" name="unavailable"> Not Available ({{ category.get_unavailable_books.count }})</label>
+                <label><input type="checkbox" name="available"> In Stock ({{ category.get_available_books.count }})</label>
               </div>
 
               <h3>Price</h3>
@@ -50,7 +49,7 @@
                 <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;">
                  <div id="slider-range"></div>
               </p>
-              <button type="submit" class="btn btn-primary">Filter</button>
+              <button type="submit" name="filter" value="1" class="btn btn-primary">Filter</button>
           </form>
         </div>
         {% include 'newtemplates/snippets/bestseller.html' %}
@@ -64,30 +63,31 @@
             <a href="javascript:;"><i class="fa fa-th-list"></i></a>
           </div>
           <div class="col-md-10 col-sm-10">
-            <div class="pull-right">
-              <label class="control-label">Show:</label>
-              <select class="form-control input-sm">
-                <option value="#?limit=24" selected="selected">24</option>
-                <option value="#?limit=25">25</option>
-                <option value="#?limit=50">50</option>
-                <option value="#?limit=75">75</option>
-                <option value="#?limit=100">100</option>
-              </select>
-            </div>
-            <div class="pull-right">
-              <label class="control-label">Sort&nbsp;By:</label>
-              <select class="form-control input-sm">
-                <option value="#?sort=p.sort_order&amp;order=ASC" selected="selected">Default</option>
-                <option value="#?sort=pd.name&amp;order=ASC">Name (A - Z)</option>
-                <option value="#?sort=pd.name&amp;order=DESC">Name (Z - A)</option>
-                <option value="#?sort=p.price&amp;order=ASC">Price (Low &gt; High)</option>
-                <option value="#?sort=p.price&amp;order=DESC">Price (High &gt; Low)</option>
-                <option value="#?sort=rating&amp;order=DESC">Rating (Highest)</option>
-                <option value="#?sort=rating&amp;order=ASC">Rating (Lowest)</option>
-                <option value="#?sort=p.model&amp;order=ASC">Model (A - Z)</option>
-                <option value="#?sort=p.model&amp;order=DESC">Model (Z - A)</option>
-              </select>
-            </div>
+              <form method="get">
+                <div class="pull-right">
+                  <label class="control-label">Show:</label>
+                  <select class="form-control input-sm" name="show">
+                    <option value="9" selected="selected">9</option>
+                    <option value="12">12</option>
+                    <option value="15">15</option>
+                    <option value="18">18</option>
+                    <option value="21">21</option>
+                  </select>
+                    ---<button type="submit" name="showing" value="1" class="btn btn-primary" style="height: 30px">Do</button>
+                </div>
+                <div class="pull-right">
+                  <label class="control-label">Sort&nbsp;By:</label>
+                  <select class="form-control input-sm" name="sort">
+                    <option selected="selected">Default</option>
+                    <option value="title">Name (A - Z)</option>
+                    <option value="-title">Name (Z - A)</option>
+                    <option value="price">Price (Low &gt; High)</option>
+                    <option value="-price">Price (High &gt; Low)</option>
+                    <option value="rating">Rating (Highest)</option>
+                    <option value="-rating">Rating (Lowest)</option>
+                  </select>
+                </div>
+              </form>
           </div>
         </div>
         <!-- BEGIN PRODUCT LIST -->
@@ -130,7 +130,7 @@
         <!-- BEGIN PAGINATOR -->
         {% if is_paginated %}
         <div class="row">
-          <div class="col-md-4 col-sm-4 items-info">Items {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ category.books.published.count }} total</div>
+          <div class="col-md-4 col-sm-4 items-info">Items {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} total</div>
           <div class="col-md-8 col-sm-8">
             <ul class="pagination pull-right">
               {% if page_obj.has_previous %}
@@ -191,7 +191,7 @@
                   {% if book.stock > 0 %}
                     Availability: <strong>In Stock</strong>
                   {% else %}
-                    Availability: <strong>Not in Stock</strong>
+                    Availability: <strong style="color: red">Not in Stock</strong>
                   {% endif %}
                 </div>
               </div>

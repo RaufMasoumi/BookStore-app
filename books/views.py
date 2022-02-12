@@ -120,27 +120,45 @@ class CategoryListView(ListView):
 class CategoryBooksListView(ListView):
     template_name = 'newtemplates/shop-product-list.html'
     context_object_name = 'category_books'
-
-    def get_paginate_by(self, queryset):
-        if self.kwargs.get('paginate_by'):
-            number = self.kwargs.get('paginate_by')
-        else:
-            number = 9
-        return number
+    ordering = 'price'
 
     def get_queryset(self):
-        global category
         pk = self.kwargs.get('pk')
-        category = Category.objects.get(pk=pk)
-        return category.books.published()
+        self.category = Category.objects.get(pk=pk)
+        queryset = self.category.books.published()
+        if self.request.GET.get('filter'):
+            if not self.request.GET.get('available') or not self.request.GET.get('unavailable'):
+                if self.request.GET.get('available'):
+                    queryset = queryset.filter(stock__gt=0)
+                elif self.request.GET.get('unavailable'):
+                    queryset = queryset.filter(stock__lt=1)
+        ordering_list = ['title', '-title', 'price', '-price', 'rating', '-rating']
+        if self.request.GET.get('showing'):
+            order_by = self.request.GET.get('sort')
+            if order_by != 'Default' and order_by in ordering_list:
+                return queryset.order_by(order_by)
+        return queryset
+
+    def get_paginate_by(self, *args):
+        paginate_by = 9
+        if self.request.GET.get('showing'):
+            paginate_by = self.request.GET.get('show')
+            try:
+                paginate_by = int(paginate_by)
+            except ValueError:
+                paginate_by = 9
+
+            if paginate_by not in [3 * number for number in range(3, 7)]:
+                paginate_by = 9
+
+        return paginate_by
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['category'] = category
+        context['category'] = self.category
         context['category_list'] = Category.objects.active()
-        context['active_category_set'] = make_active(category)
+        context['active_category_set'] = make_active(self.category)
         context['bestsellers'] = Book.objects.published()[:4]
-        print(context)
         return context
 
 
