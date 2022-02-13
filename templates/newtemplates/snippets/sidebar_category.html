@@ -14,7 +14,7 @@
         </li>
       {% else %}
         <li class="list-group-item collapse dropdown">
-            <a href="{{ category.get_absolute_url }}" class="collapsed">
+            <a href="{{ category.get_absolute_url }}">
                 <i class="fa fa-angle-right"></i>
                 {{ category.title }}
             </a>
@@ -32,15 +32,24 @@
     <ul class="list-group margin-bottom-25 sidebar-menu">
       {% for category in category_list %}
         {% if not category.parent %}
-            <li class="list-group-item collapse dropdown">
-                <a href="{{ category.get_absolute_url }}" class="collapsed">
+            {% if category.children.active %}
+                <li class="list-group-item collapse dropdown">
+                    <a href="{{ category.get_absolute_url }}">
+                        <i class="fa fa-angle-right"></i>
+                        {{ category.title }}
+                    </a>
+                    {% if category.children.active %}
+                        {% include 'newtemplates/snippets/category_loop.html' %}
+                    {% endif %}
+                </li>
+            {% else %}
+              <li class="list-group-item collapse">
+                <a href="{{ category.get_absolute_url }}">
                     <i class="fa fa-angle-right"></i>
                     {{ category.title }}
                 </a>
-                {% if category.children.active %}
-                    {% include 'newtemplates/snippets/category_loop.html' %}
-                {% endif %}
-            </li>
+              </li>
+            {% endif %}
         {% endif %}
       {% endfor %}
     </ul>

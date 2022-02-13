@@ -46,10 +46,11 @@ class BookDetailView(DetailView):
         book_fields['category'] = book_categories
         review_form = ReviewForm(initial={'book': self.object.pk})
         review_reply_form = ReviewReplyForm()
-        context['similars'] = Book.objects.all()[:4]
-        context['bestsellers'] = Book.objects.all()[:4]
+        context['down_suggestions'] = Book.objects.all()[:4]
+        context['sidebar_suggestions'] = Book.objects.bestseller()
         context['active_category_set'] = active_category_set
         context['category_list'] = Category.objects.active()
+        context['fast_view_books'] = context['down_suggestions']
         context['book_fields'] = book_fields
         context['review_form'] = review_form
         context['review_reply_form'] = review_reply_form
@@ -157,8 +158,9 @@ class CategoryBooksListView(ListView):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
         context['category_list'] = Category.objects.active()
+        context['fast_view_books'] = context['category_books']
         context['active_category_set'] = make_active(self.category)
-        context['bestsellers'] = Book.objects.published()[:4]
+        context['sidebar_suggestions'] = Book.objects.published()[:4]
         return context
 
 

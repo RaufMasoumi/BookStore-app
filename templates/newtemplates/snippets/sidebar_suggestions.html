@@ -1,9 +1,6 @@
-{% load static %}
-<div class="sidebar-products clearfix">
-  <h2>Bestsellers</h2>
-  {% for book in bestsellers %}
+{% for book in sidebar_suggestions %}
     <div class="item">
-        <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}" 
+        <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"
                                                                     style="height: 65px; width: 65px"></a>
         <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
         {% if book.off %}
@@ -12,5 +9,4 @@
             <div class="price">${{ book.price }}</div>
         {% endif %}
     </div>
-  {% endfor %}
-</div>
+{% endfor %}

@@ -17,7 +17,7 @@
     <ul class="breadcrumb">
         <li><a href="{% url 'home' %}">Home</a></li>
         <li><a href="">Store</a></li>
-        <li><a href="">Books</a></li>
+        <li><a href="{% url 'book_list' %}">Books</a></li>
         <li class="active">{{ book.title }}</li>
     </ul>
     <!-- BEGIN SIDEBAR & CONTENT -->
@@ -25,7 +25,10 @@
       <!-- BEGIN SIDEBAR -->
       <div class="sidebar col-md-3 col-sm-5">
         {% include 'newtemplates/snippets/sidebar_category.html' %}
-        {% include 'newtemplates/snippets/bestseller.html' %}
+        <div class="sidebar-products clearfix">
+            <h2>Bestsellers</h2>
+            {% include 'newtemplates/snippets/sidebar_suggestions.html' %}
+        </div>
       </div>
       <!-- END SIDEBAR -->
 
@@ -217,11 +220,9 @@
       <!-- END CONTENT -->
     </div>
     <!-- END SIDEBAR & CONTENT -->
-
-    <!-- BEGIN SIMILAR PRODUCTS -->
-    {% include 'newtemplates/snippets/similar.html' %}
-    <!-- END SIMILAR PRODUCTS -->
 {% endblock %}
+
+{% block down_suggestions_title %}Similar Books{% endblock %}
 
 {% block page_level_javascripts %}
 <!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->

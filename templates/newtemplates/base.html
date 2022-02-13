@@ -97,9 +97,21 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     {% block item_list_number %}{% endblock %}
     <div class="main">
       <div class="container">
-          {% block sale_product_and_new_arrivals %}{% endblock %}
-          {% block content %}{% endblock %}
-          {% block two_products_and_promo %}{% endblock %}
+        {% block sale_product_and_new_arrivals %}{% endblock %}
+        {% block content %}{% endblock %}
+        {% block two_products_and_promo %}{% endblock %}
+        {% if down_suggestions %}
+            <!-- BEGIN DOWN SUGGESTIONS -->
+            <div class="row margin-bottom-40">
+              <div class="col-md-12 col-sm-12">
+                <h2>{% block down_suggestions_title %}Suggestions{% endblock %}</h2>
+                <div class="owl-carousel owl-carousel4">
+                    {% include 'newtemplates/snippets/down_suggestions.html' %}
+                </div>
+              </div>
+            </div>
+            <!-- END DOWN SUGGESTIONS -->
+        {% endif %}
       </div>
     </div>
 
@@ -120,8 +132,9 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     <!-- END FOOTER -->
 
     <!-- BEGIN fast view of products -->
-    {% include 'newtemplates/snippets/fast_view.html' %}
-    {% block fast_view_of_products %}{% endblock %}
+    {% if fast_view_books %}
+        {% include 'newtemplates/snippets/fast_view.html' %}
+    {% endif %}
     <!-- END fast view of products -->
 
     <!-- Load javascripts at bottom, this will reduce page load time -->

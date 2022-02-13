@@ -3,7 +3,7 @@
         {% if category in active_category_set %}
             <ul class="dropdown-menu" style="display: block;">
                 <li class="list-group-item dropdown clearfix active">
-                    <a href="{{ category.get_absolute_url }}" class="collapsed">
+                    <a href="{{ category.get_absolute_url }}">
                         <i class="fa fa-angle-right"></i>
                         {{ category.title }}
                     </a>
@@ -15,7 +15,7 @@
         {% else %}
             <ul class="dropdown-menu" style="display: block;">
                 <li class="list-group-item dropdown clearfix">
-                    <a href="{{ category.get_absolute_url }}" class="collapsed">
+                    <a href="{{ category.get_absolute_url }}">
                         <i class="fa fa-angle-right"></i>
                         {{ category.title }}
                     </a>
@@ -30,7 +30,7 @@
   <ul class="dropdown-menu">
     {% for category in category.children.active %}
         <li class="list-group-item dropdown clearfix">
-            <a href="{{ category.get_absolute_url }}" class="collapsed">
+            <a href="{{ category.get_absolute_url }}">
                 <i class="fa fa-angle-right"></i>
                 {{ category.title }}
             </a>

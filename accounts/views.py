@@ -33,7 +33,8 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_price'] = calculate_user_cart_total_price(self.object)
-        context['most_popular'] = Book.objects.published()
+        context['down_suggestions'] = Book.objects.published()
+        context['fast_view_books'] = context['down_suggestions']
         return context
 
     def test_func(self):

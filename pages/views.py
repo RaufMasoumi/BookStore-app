@@ -44,10 +44,11 @@ class IndexView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sales'] = Book.objects.filter(sale=True)[:5]
-        context['new_arrivals'] = Book.objects.filter(sale=False)[:3]
+        context['sales'] = Book.objects.sale()
+        context['new_arrivals'] = Book.objects.new()
+        context['bestsellers'] = Book.objects.bestseller()
+        context['fast_view_books'] = context['sales'] | context['new_arrivals'] | context['bestsellers']
         context['category_list'] = [category for category in Category.objects.active()]
-        context['bestsellers'] = Book.objects.all()[:2]
         return context
 
 class ItemView(TemplateView):

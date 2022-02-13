@@ -21,6 +21,18 @@ class BookManager(models.Manager):
     def drafted(self):
         return self.filter(status='d')
 
+    def bestseller(self):
+        return self.filter(bestseller=True)
+
+    def new(self):
+        return self.filter(new=True)
+
+    def sale(self):
+        return self.filter(sale=True)
+
+    def mostpopular(self):
+        return self.filter(mostpopular=True)
+
 
 class Category(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='children')
@@ -60,6 +72,9 @@ class Book(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     off = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     sale = models.BooleanField(default=False, blank=True)
+    bestseller = models.BooleanField(default=False, blank=True)
+    mostpopular = models.BooleanField(default=False, blank=True)
+    new = models.BooleanField(default=False, blank=True)
     cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=200)
     pages = models.PositiveIntegerField(default=0, blank=True)
     subject = models.CharField(max_length=50, blank=True, null=True)
