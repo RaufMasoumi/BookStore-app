@@ -127,12 +127,18 @@ class CategoryBooksListView(ListView):
         pk = self.kwargs.get('pk')
         self.category = Category.objects.get(pk=pk)
         queryset = self.category.books.published()
+        self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key \
+            = [False, False, '', '', '']
 
         if self.request.GET.get('filter'):
-            queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
-            queryset, self.available_on_key = available_limit(queryset, self.request)
-        else:
-            self.available_on_key, self.price_less_key, self.price_more_key = ['', '', '']
+            if self.request.GET.get('use_price'):
+                queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
+                self.price_on_key = True
+
+            if self.request.GET.get('use_availability'):
+                queryset, self.available_on_key = available_limit(queryset, self.request)
+                self.availability_on_key = True
+
 
         if self.request.GET.get('showing'):
             queryset, self.order_by = sort_books(queryset, self.request)
@@ -155,6 +161,8 @@ class CategoryBooksListView(ListView):
         context['active_category_set'] = make_active(self.category)
         context['sidebar_suggestions'] = Book.objects.published()[:4]
         context['available_on_key'] = self.available_on_key
+        context['availability_on_key'] = self.availability_on_key
+        context['price_on_key'] = self.price_on_key
         context['price_less_key'] = self.price_less_key
         context['price_more_key'] = self.price_more_key
         context['order_by'] = self.order_by
@@ -275,12 +283,18 @@ class SearchResultsView(ListView):
         queryset = search_by_title_author(self.request)
         self.search_queryset = queryset
         queryset = published_limit(queryset, self.request)
+        self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key \
+            = [False, False, '', '', '']
 
         if self.request.GET.get('filter'):
-            queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
-            queryset, self.available_on_key = available_limit(queryset, self.request)
-        else:
-            self.available_on_key, self.price_less_key, self.price_more_key = ['', '', '']
+            if self.request.GET.get('use_price'):
+                queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
+                self.price_on_key = True
+
+            if self.request.GET.get('use_availability'):
+                queryset, self.available_on_key = available_limit(queryset, self.request)
+                self.availability_on_key = True
+
 
         if self.request.GET.get('showing'):
             queryset, self.order_by = sort_books(queryset, self.request)
@@ -301,6 +315,8 @@ class SearchResultsView(ListView):
         context['searched'] = self.searched
         context['available'] = self.search_queryset.filter(stock__gt=0).count()
         context['unavailable'] = self.search_queryset.filter(stock__lt=1).count()
+        context['availability_on_key'] = self.availability_on_key
+        context['price_on_key'] = self.price_on_key
         context['available_on_key'] = self.available_on_key
         context['price_less_key'] = self.price_less_key
         context['price_more_key'] = self.price_more_key

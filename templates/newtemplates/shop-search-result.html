@@ -27,8 +27,13 @@
           <h2>Search categories</h2>
           <form method="get" action="{% url 'search_results' %}">
               <input name="search" type="hidden" value="{{ searched }}">
-              <h3>Availability</h3>
-              <div class="checkbox-list">
+            <div class="checkbox-list">
+              {% if availability_on_key %}
+                <label><input type="checkbox" name="use_availability" checked><h3 style="display: inline-block">Availability</h3></label>
+              {% else %}
+                <label><input type="checkbox" name="use_availability"><h3 style="display: inline-block">Availability</h3></label>
+              {% endif %}
+              <div class="checkbox-inline">
               {% if available_on_key == 'unavailable' %}
                 <label><input type="checkbox" name="unavailable" checked> Not Available ({{ unavailable }})</label>
                 <label><input type="checkbox" name="available"> In Stock ({{ available }})</label>
@@ -41,14 +46,19 @@
               {% endif %}
               </div>
 
-              <h3>Price</h3>
+              {% if price_on_key %}
+                <label><input type="checkbox" name="use_price" checked><h3 style="display:inline-block;">Price</h3></label>
+              {% else %}
+                <label><input type="checkbox" name="use_price"><h3 style="display:inline-block;">Price</h3></label>
+              {% endif %}
               <p>
                 <label for="amount">Range:</label>
                 <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" name="amount">
                  <div id="slider-range"></div>
               </p>
                 <hr>
-              <button type="submit" name="filter" value="1" class="btn btn-primary">Filter</button>
+            </div>
+            <button type="submit" name="filter" value="1" class="btn btn-primary">Filter</button>
           </form>
         </div>
         <div class="sidebar-products clearfix">
