@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from .models import Book, Category, Review, ReviewReply
 from .forms import BookImageFormSet, BookMakePublishedForm, ReviewForm, ReviewReplyForm
+import re
 # Create your views here.
 
 
@@ -18,7 +19,7 @@ class BookListView(ListView):
 
 
 class DraftBookListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    queryset = Book.objects.drafted()
+    queryset = Book.objects.draft()
     context_object_name = 'book_list'
     template_name = 'books/draft_book_list.html'
     login_url = 'account_login'
@@ -58,7 +59,7 @@ class BookDetailView(DetailView):
 
 
 class DraftBookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
-    queryset = Book.objects.drafted()
+    queryset = Book.objects.draft()
     context_object_name = 'book'
     template_name = 'books/draft_book_detail.html'
     login_url = 'account_login'
@@ -121,37 +122,29 @@ class CategoryListView(ListView):
 class CategoryBooksListView(ListView):
     template_name = 'newtemplates/shop-product-list.html'
     context_object_name = 'category_books'
-    ordering = 'price'
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         self.category = Category.objects.get(pk=pk)
         queryset = self.category.books.published()
+
         if self.request.GET.get('filter'):
-            if not self.request.GET.get('available') or not self.request.GET.get('unavailable'):
-                if self.request.GET.get('available'):
-                    queryset = queryset.filter(stock__gt=0)
-                elif self.request.GET.get('unavailable'):
-                    queryset = queryset.filter(stock__lt=1)
-        ordering_list = ['title', '-title', 'price', '-price', 'rating', '-rating']
+            queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
+            queryset, self.available_on_key = available_limit(queryset, self.request)
+        else:
+            self.available_on_key, self.price_less_key, self.price_more_key = ['', '', '']
+
         if self.request.GET.get('showing'):
-            order_by = self.request.GET.get('sort')
-            if order_by != 'Default' and order_by in ordering_list:
-                return queryset.order_by(order_by)
+            queryset, self.order_by = sort_books(queryset, self.request)
+        else:
+            self.order_by = None
+
         return queryset
 
     def get_paginate_by(self, *args):
         paginate_by = 9
         if self.request.GET.get('showing'):
-            paginate_by = self.request.GET.get('show')
-            try:
-                paginate_by = int(paginate_by)
-            except ValueError:
-                paginate_by = 9
-
-            if paginate_by not in [3 * number for number in range(3, 7)]:
-                paginate_by = 9
-
+            paginate_by = paginate_books(self.request)
         return paginate_by
 
     def get_context_data(self, **kwargs):
@@ -161,6 +154,11 @@ class CategoryBooksListView(ListView):
         context['fast_view_books'] = context['category_books']
         context['active_category_set'] = make_active(self.category)
         context['sidebar_suggestions'] = Book.objects.published()[:4]
+        context['available_on_key'] = self.available_on_key
+        context['price_less_key'] = self.price_less_key
+        context['price_more_key'] = self.price_more_key
+        context['order_by'] = self.order_by
+        context['paginate_by'] = self.get_paginate_by()
         return context
 
 
@@ -269,15 +267,46 @@ class ReviewReplyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 
 class SearchResultsView(ListView):
     model = Book
-    context_object_name = 'book_list'
-    template_name = 'books/search_results.html'
+    context_object_name = 'search_book_list'
+    template_name = 'newtemplates/shop-search-result.html'
 
     def get_queryset(self):
-        search_query = search_by_title_author(self.request)
-        price_limit_query = price_limit(search_query, self.request)
-        available_limit_query = available_limit(price_limit_query, self.request)
-        published_limit_query = published_limit(available_limit_query, self.request)
-        return published_limit_query
+        self.searched = self.request.GET.get('search')
+        queryset = search_by_title_author(self.request)
+        self.search_queryset = queryset
+        queryset = published_limit(queryset, self.request)
+
+        if self.request.GET.get('filter'):
+            queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
+            queryset, self.available_on_key = available_limit(queryset, self.request)
+        else:
+            self.available_on_key, self.price_less_key, self.price_more_key = ['', '', '']
+
+        if self.request.GET.get('showing'):
+            queryset, self.order_by = sort_books(queryset, self.request)
+        else:
+            self.order_by = None
+        return queryset
+
+    def get_paginate_by(self, *args):
+        paginate_by = 9
+        if self.request.GET.get('showing'):
+            paginate_by = paginate_books(self.request)
+        return paginate_by
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['sidebar_suggestions'] = Book.objects.all()[:5]
+        context['fast_view_books'] = self.get_queryset()
+        context['searched'] = self.searched
+        context['available'] = self.search_queryset.filter(stock__gt=0).count()
+        context['unavailable'] = self.search_queryset.filter(stock__lt=1).count()
+        context['available_on_key'] = self.available_on_key
+        context['price_less_key'] = self.price_less_key
+        context['price_more_key'] = self.price_more_key
+        context['order_by'] = self.order_by
+        context['paginate_by'] = self.get_paginate_by()
+        return context
 
 
 def search_by_title_author(request):
@@ -289,44 +318,52 @@ def search_by_title_author(request):
         elem.append('author')
 
     if len(elem) == 2 or len(elem) == 0:
-        return Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query))
+        queryset = Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query))
 
     elif len(elem) == 1:
         if elem[0] == 'title':
-            return Book.objects.filter(Q(title__icontains=query))
+            queryset = Book.objects.filter(Q(title__icontains=query))
         elif elem[0] == 'author':
-            return Book.objects.filter(Q(author__icontains=query))
-    return
+            queryset = Book.objects.filter(Q(author__icontains=query))
+
+    return queryset
 
 
-def price_limit(query, request):
+def price_limit(queryset, request):
     more = None
     less = None
-    if request.GET.get('more'):
-        more = request.GET.get('more')
 
-    if request.GET.get('less'):
-        less = request.GET.get('less')
+    if request.GET.get('amount'):
+        pattern = '\$(\d+) - \$(\d+)'
+        amount = re.match(pattern,  request.GET.get('amount'))
+        if not amount:
+            return queryset, less, more
+    else:
+        return queryset, less, more
 
-    if not more and not less:
-        return query
+    more, less = amount.groups()
 
-    elif more and less:
+    if more and less:
         price_range = (more, less)
-        return query.filter(price__range=price_range)
+        queryset = queryset.filter(price__range=price_range)
 
     elif more:
-        return query.filter(price__gt=more)
+        queryset = queryset.filter(price__gt=more)
 
     elif less:
-        return query.filter(price__lt=less)
+        queryset = queryset.filter(price__lt=less)
+    return queryset, less, more
 
 
-def available_limit(query, request):
-    if request.GET.get('available'):
-        return query.filter(stock__gt=0)
-    else:
-        return query
+def available_limit(queryset, request):
+    on_key = ''
+    if request.GET.get('available') and not request.GET.get('unavailable'):
+        queryset = queryset.filter(stock__gt=0)
+        on_key = 'available'
+    elif request.GET.get('unavailable')  and not request.GET.get('available'):
+        queryset = queryset.filter(stock__lt=1)
+        on_key = 'unavailable'
+    return queryset, on_key
 
 
 def published_limit(query, request):
@@ -334,6 +371,28 @@ def published_limit(query, request):
         return query
     else:
         return query.objects.published()
+
+
+def sort_books(queryset, request):
+    ordering_list = {'title': 'Name (A - Z)', '-title': 'Name (Z - A)', 'price': 'Price (Low > High)',
+                     '-price': 'Price (High > Low)', 'rating': 'Rating (Highest)', '-rating': 'Rating (Lowest)'}
+    order_by = request.GET.get('sort')
+    if order_by in ordering_list.keys():
+        return queryset.order_by(order_by), {order_by: ordering_list[order_by]}
+    return queryset, order_by
+
+
+def paginate_books(request):
+    paginate_by = request.GET.get('show')
+    try:
+        paginate_by = int(paginate_by)
+    except ValueError:
+        paginate_by = 9
+    else:
+        if paginate_by not in [3 * number for number in range(3, 7)]:
+            paginate_by = 9
+
+    return paginate_by
 
 
 @require_POST
@@ -376,16 +435,6 @@ def book_make_published(request):
             return redirect(reverse('draft_book_list'))
 
     return HttpResponseBadRequest('There was a problem in publishing the book!')
-
-
-def make_active2(category, save_list, check_list=None, from_child=False):
-    if (check_list and category in check_list) or from_child or not isinstance(check_list, list):
-        save_list.append(category)
-        if category.parent:
-            print(category.title, category.parent)
-            make_active2(category.parent, save_list, from_child=True)
-
-    return save_list
 
 
 def make_active(category=None, query_set=None, check_list=None):

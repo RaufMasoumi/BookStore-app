@@ -18,8 +18,14 @@ class BookManager(models.Manager):
     def published(self):
         return self.filter(status='p')
 
-    def drafted(self):
+    def draft(self):
         return self.filter(status='d')
+
+    def available(self):
+        return self.filter(stock__gt=0)
+
+    def unavailable(self):
+        return self.filter(stock__lt=1)
 
     def bestseller(self):
         return self.filter(bestseller=True)

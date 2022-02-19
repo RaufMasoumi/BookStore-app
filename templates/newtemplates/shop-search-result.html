@@ -25,37 +25,35 @@
       <div class="sidebar col-md-3 col-sm-5">
         <div class="sidebar-filter margin-bottom-25">
           <h2>Search categories</h2>
-          <h3>Availability</h3>
-          <div class="checkbox-list">
-            <label><input type="checkbox"> Not Available (3)</label>
-            <label><input type="checkbox"> In Stock (26)</label>
-          </div>
+          <form method="get" action="{% url 'search_results' %}">
+              <input name="search" type="hidden" value="{{ searched }}">
+              <h3>Availability</h3>
+              <div class="checkbox-list">
+              {% if available_on_key == 'unavailable' %}
+                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ unavailable }})</label>
+                <label><input type="checkbox" name="available"> In Stock ({{ available }})</label>
+              {% elif available_on_key == 'available' %}
+                <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
+                <label><input type="checkbox" name="available" checked> In Stock ({{ available }})</label>
+              {% else %}
+                <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
+                <label><input type="checkbox" name="available"> In Stock ({{ available }})</label>
+              {% endif %}
+              </div>
 
-          <h3>Price</h3>
-          <p>
-            <label for="amount">Range:</label>
-            <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;">
-          </p>
-          <div id="slider-range"></div>
+              <h3>Price</h3>
+              <p>
+                <label for="amount">Range:</label>
+                <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" name="amount">
+                 <div id="slider-range"></div>
+              </p>
+                <hr>
+              <button type="submit" name="filter" value="1" class="btn btn-primary">Filter</button>
+          </form>
         </div>
-
         <div class="sidebar-products clearfix">
           <h2>Bestsellers</h2>
-          <div class="item">
-            <a href="shop-item.html"><img src="{% static 'assets/pages/img/products/k1.jpg' %}" alt="Some Shoes in Animal with Cut Out"></a>
-            <h3><a href="shop-item.html">Some Shoes in Animal with Cut Out</a></h3>
-            <div class="price">$31.00</div>
-          </div>
-          <div class="item">
-            <a href="shop-item.html"><img src="{% static 'assets/pages/img/products/k4.jpg' %}" alt="Some Shoes in Animal with Cut Out"></a>
-            <h3><a href="shop-item.html">Some Shoes in Animal with Cut Out</a></h3>
-            <div class="price">$23.00</div>
-          </div>
-          <div class="item">
-            <a href="shop-item.html"><img src="{% static 'assets/pages/img/products/k3.jpg' %}" alt="Some Shoes in Animal with Cut Out"></a>
-            <h3><a href="shop-item.html">Some Shoes in Animal with Cut Out</a></h3>
-            <div class="price">$86.00</div>
-          </div>
+          {% include 'newtemplates/snippets/sidebar_suggestions.html' %}
         </div>
       </div>
       <!-- END SIDEBAR -->
@@ -64,12 +62,12 @@
         <div class="content-search margin-bottom-20">
           <div class="row">
             <div class="col-md-6">
-              <h1>Search result for <em>shoes</em></h1>
+              <h1>Search result for <em>{{ searched }}</em></h1>
             </div>
             <div class="col-md-6">
-              <form action="#">
+              <form method="get">
                 <div class="input-group">
-                  <input type="text" placeholder="Search again" class="form-control">
+                  <input type="text" placeholder="Search again" class="form-control" name="search">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="submit">Search</button>
                   </span>
@@ -84,201 +82,117 @@
             <a href="javascript:;"><i class="fa fa-th-list"></i></a>
           </div>
           <div class="col-md-10 col-sm-10">
-            <div class="pull-right">
-              <label class="control-label">Show:</label>
-              <select class="form-control input-sm">
-                <option value="#?limit=24" selected="selected">24</option>
-                <option value="#?limit=25">25</option>
-                <option value="#?limit=50">50</option>
-                <option value="#?limit=75">75</option>
-                <option value="#?limit=100">100</option>
-              </select>
-            </div>
-            <div class="pull-right">
-              <label class="control-label">Sort&nbsp;By:</label>
-              <select class="form-control input-sm">
-                <option value="#?sort=p.sort_order&amp;order=ASC" selected="selected">Default</option>
-                <option value="#?sort=pd.name&amp;order=ASC">Name (A - Z)</option>
-                <option value="#?sort=pd.name&amp;order=DESC">Name (Z - A)</option>
-                <option value="#?sort=p.price&amp;order=ASC">Price (Low &gt; High)</option>
-                <option value="#?sort=p.price&amp;order=DESC">Price (High &gt; Low)</option>
-                <option value="#?sort=rating&amp;order=DESC">Rating (Highest)</option>
-                <option value="#?sort=rating&amp;order=ASC">Rating (Lowest)</option>
-                <option value="#?sort=p.model&amp;order=ASC">Model (A - Z)</option>
-                <option value="#?sort=p.model&amp;order=DESC">Model (Z - A)</option>
-              </select>
-            </div>
+            <form method="get">
+                <input name="search" type="hidden" value="{{ searched }}">
+                <div class="pull-right">
+                  <label class="control-label">Show:</label>
+                  <select class="form-control input-sm" name="show">
+                    {% if paginate_by %}
+                        <option value="{{ paginate_by }}" selected="selected">{{ paginate_by }}</option>
+                    {% else %}
+                        <option value="9" selected="selected">9</option>
+                    {% endif %}
+                    <option value="9">9</option>
+                    <option value="12">12</option>
+                    <option value="15">15</option>
+                    <option value="18">18</option>
+                    <option value="21">21</option>
+                  </select>
+                    ---<button type="submit" name="showing" value="1" class="btn btn-primary" style="height: 30px">Do</button>
+                </div>
+                <div class="pull-right">
+                  <label class="control-label">Sort&nbsp;By:</label>
+                  <select class="form-control input-sm" name="sort">
+                    {% if order_by %}
+                       {% for ordering, human_readable in order_by.items %}
+                            <option value="{{ ordering }}" selected="selected">{{ human_readable }}</option>
+                       {% endfor %}
+                        <option name="Defualt">Default</option>
+                    {% else %}
+                      <option selected="selected">Default</option>
+                    {% endif %}
+                    <option value="title">Name (A - Z)</option>
+                    <option value="-title">Name (Z - A)</option>
+                    <option value="price">Price (Low &gt; High)</option>
+                    <option value="-price">Price (High &gt; Low)</option>
+                    <option value="rating">Rating (Highest)</option>
+                    <option value="-rating">Rating (Lowest)</option>
+                  </select>
+                </div>
+            </form>
           </div>
         </div>
         <!-- BEGIN PRODUCT LIST -->
         <div class="row product-list">
+        {% for book in search_book_list %}
           <!-- PRODUCT ITEM START -->
           <div class="col-md-4 col-sm-6 col-xs-12">
             <div class="product-item">
               <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model1.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
+                <img src="{{ book.cover.url }}" class="img-responsive" alt="{{ book.title }}" style="height: 319px; width: 300px">
                 <div>
-                  <a href="{% static 'assets/pages/img/products/model1.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
+                  <a href="{{ book.cover.url }}" class="btn btn-default fancybox-button">Zoom</a>
+                  <a href="#product-pop-up-{{ book.id }}" class="btn btn-default fancybox-fast-view">View</a>
                 </div>
               </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
+                {% if book.sale %}
+                  <dev class="sticker sticker-sale"></dev>
+                {% elif book.new %}
+                  <div class="sticker sticker-new"></div>
+                {% elif book.bestseller %}
+                  <div class="sticker sticker-bestseller"></div>
+                {% endif %}
+              <h3><a href="shop-item.html">{{ book.title }}</a></h3>
+              {% if book.off %}
+                <div class="pi-price">${{ book.off }}</div>
+              {% else %}
+                <div class="pi-price">${{ book.price }}</div>
+              {% endif %}
+              {% if book in user.carts.cart.all %}
+                  <a href="{% url 'account_user_cart_detail' user.carts.pk %}" class="btn btn-default add2cart">Is in cart</a>
+              {% else %}
+                  {% if book.stock > 0 %}
+                      <form action="{% url 'account_user_cart_update' %}" method="post">
+                          {% csrf_token %}
+                          <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
+                      </form>
+                  {% else %}
+                      <button class="btn btn-default add2cart">Unavailable</button>
+                  {% endif %}
+              {% endif %}
             </div>
           </div>
           <!-- PRODUCT ITEM END -->
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model2.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/model2.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model6.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                  <a href="{% static 'assets/pages/img/products/model6.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                  <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress 2</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
-        </div>
-        <div class="row product-list">
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model4.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                    <a href="{% static 'assets/pages/img/products/model4.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                    <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model5.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                    <a href="{% static 'assets/pages/img/products/model5.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                    <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-              <div class="sticker sticker-new"></div>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model3.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                    <a href="{% static 'assets/pages/img/products/model3.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                    <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
-        </div>
-        <div class="row product-list">
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model7.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                    <a href="{% static 'assets/pages/img/products/model7.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                    <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model1.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                    <a href="{% static 'assets/pages/img/products/model1.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                    <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
-          <!-- PRODUCT ITEM START -->
-          <div class="col-md-4 col-sm-6 col-xs-12">
-            <div class="product-item">
-              <div class="pi-img-wrapper">
-                <img src="{% static 'assets/pages/img/products/model2.jpg' %}" class="img-responsive" alt="Berry Lace Dress">
-                <div>
-                    <a href="{% static 'assets/pages/img/products/model2.jpg' %}" class="btn btn-default fancybox-button">Zoom</a>
-                    <a href="#product-pop-up" class="btn btn-default fancybox-fast-view">View</a>
-                </div>
-              </div>
-              <h3><a href="shop-item.html">Berry Lace Dress</a></h3>
-              <div class="pi-price">$29.00</div>
-              <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-              <div class="sticker sticker-sale"></div>
-            </div>
-          </div>
-          <!-- PRODUCT ITEM END -->
+        {% endfor %}
         </div>
         <!-- END PRODUCT LIST -->
         <!-- BEGIN PAGINATOR -->
+        {% if is_paginated %}
         <div class="row">
-          <div class="col-md-4 col-sm-4 items-info">Items 1 to 9 of 10 total</div>
+          <div class="col-md-4 col-sm-4 items-info">Items {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ paginator.count }} total</div>
           <div class="col-md-8 col-sm-8">
             <ul class="pagination pull-right">
-              <li><a href="javascript:;">&laquo;</a></li>
-              <li><a href="javascript:;">1</a></li>
-              <li><span>2</span></li>
-              <li><a href="javascript:;">3</a></li>
-              <li><a href="javascript:;">4</a></li>
-              <li><a href="javascript:;">5</a></li>
-              <li><a href="javascript:;">&raquo;</a></li>
+              {% if page_obj.has_previous %}
+                    <li><a href="{% url 'search_results' page_obj.previous_page_number %}">&laquo;</a></li>
+              {% else %}
+                <li><a>&laquo;</a></li>
+              {% endif %}
+              {% for number in paginator.page_range %}
+                  {% if number == page_obj.number %}
+                    <li><span>{{ number }}</span></li>
+                  {% else %}
+                    <li><a href="{% url 'search_results' number %}">{{ number }}</a></li>
+                  {% endif %}
+              {% endfor %}
+              {% if page_obj.has_next %}
+                  <li><a href="{% url 'search_results' page_obj.next_page_number %}">&raquo;</a></li>
+              {% else %}
+                <li><a>&raquo;</a></li>
+              {% endif %}
             </ul>
           </div>
         </div>
+        {% endif %}
         <!-- END PAGINATOR -->
       </div>
       <!-- END CONTENT -->
@@ -294,7 +208,7 @@
     <script src="{% static 'assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js' %}" type="text/javascript"></script><!-- Quantity -->
     <script src="{% static 'assets/plugins/uniform/jquery.uniform.min.js' %}" type="text/javascript"></script>
     <script src="{% static 'assets/plugins/rateit/src/jquery.rateit.js' %}" type="text/javascript"></script>
-    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js' %}" type="text/javascript"></script><!-- for slider-range -->
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js" type="text/javascript"></script><!-- for slider-range -->
 
     <script src="{% static 'assets/corporate/scripts/layout.js' %}" type="text/javascript"></script>
     <script type="text/javascript">

@@ -16,6 +16,7 @@ urlpatterns = [
     path('categories/<int:pk>/update/', CategoryUpdateView.as_view(), name='category_update'),
     path('categories/<int:pk>/delete/', CategoryDeleteView.as_view(), name='category_delete'),
     path('search/', SearchResultsView.as_view(), name='search_results'),
+    path('search/<int:page>/', SearchResultsView.as_view(), name='search_results'),
     path('reviews/create/', ReviewCreateView.as_view(), name='review_create'),
     path('reviews/<int:pk>/update/', ReviewUpdateView.as_view(), name='review_update'),
     path('reviews/<int:pk>/delete/', ReviewDeleteView.as_view(), name='review_delete'),

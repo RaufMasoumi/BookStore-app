@@ -162,7 +162,7 @@
         <li><a href="../shop-index-header-fix.html">Home Header Fixed</a></li>
         <li><a href="../shop-index-light-footer.html">Home Light Footer</a></li>
         <li><a href="{% url 'product_list' %}">Product List</a></li>
-        <li><a href="{% url 'search_result' %}">Search Result</a></li>
+        <li><a href="{% url 'search_results' %}">Search Result</a></li>
         <li><a href="{% url 'item' %}">Product Page</a></li>
         <li><a href="{% url 'shopping_cart_null' %}">Shopping Cart (Null Cart)</a></li>
         <li><a href="{% url 'shopping_cart' %}">Shopping Cart</a></li>
@@ -187,9 +187,9 @@
       <span class="sep"></span>
       <i class="fa fa-search search-btn"></i>
       <div class="search-box">
-        <form action="#">
+        <form method="get" action="{% url 'search_results' %}">
           <div class="input-group">
-            <input type="text" placeholder="Search" class="form-control">
+            <input type="text" placeholder="Search" class="form-control" name="search">
             <span class="input-group-btn">
               <button class="btn btn-primary" type="submit">Search</button>
             </span>
