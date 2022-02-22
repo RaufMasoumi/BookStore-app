@@ -1,6 +1,7 @@
 {% load static %}
 
 <div class="top-cart-block">
+  {% if user.is_authenticated%}
   <div class="top-cart-info">
     <a href="{{ user.carts.get_absolute_url }}" class="top-cart-info-count">{{ user.carts.cart.count }} items</a>
     <a href="{{ user.carts.get_absolute_url }}" class="top-cart-info-value">${{ user.carts.calculate_total_price }}</a>
@@ -37,4 +38,10 @@
       </div>
     </div>
   </div>
+  {% else %}
+  <div class="top-cart-info">
+    <a href="{% url 'account_login' %}" class="top-cart-info-count">please login</a>
+  </div>
+   <i class="fa fa-shopping-cart"></i>
+  {% endif %}
 </div>

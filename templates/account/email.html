@@ -1,74 +1,113 @@
-{% extends "_base.html" %}
+{% extends "newtemplates/base.html" %}
+{% load static %}
 {% load crispy_forms_tags %}
 {% load i18n %}
 
 {% block title %}{% trans "E-mail Addresses" %}{% endblock %}
 
-{% block content %}
-    <h1>{% trans "E-mail Addresses" %}</h1>
-{% if user.emailaddress_set.all %}
-<p>{% trans 'The following e-mail addresses are associated with your account:' %}</p>
-
-<form action="{% url 'account_email' %}" class="email_list" method="post">
-{% csrf_token %}
-<fieldset class="blockLabels">
-
-  {% for emailaddress in user.emailaddress_set.all %}
-<div class="ctrlHolder">
-      <label for="email_radio_{{forloop.counter}}" class="{% if emailaddress.primary %}primary_email{%endif%}">
-
-      <input id="email_radio_{{forloop.counter}}" type="radio" name="email" {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked"{%endif %} value="{{emailaddress.email}}"/>
-
-{{ emailaddress.email }}
-    {% if emailaddress.verified %}
-    <span class="verified">{% trans "Verified" %}</span>
-    {% else %}
-    <span class="unverified">{% trans "Unverified" %}</span>
-    {% endif %}
-      {% if emailaddress.primary %}<span class="primary">{% trans "Primary" %}</span>{% endif %}
-</label>
-</div>
-  {% endfor %}
-
-<div class="buttonHolder">
-      <button class="secondaryAction btn btn-secondary" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button>
-      <button class="secondaryAction btn btn-secondary" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button>
-      <button class="primaryAction btn btn-danger" type="submit" name="action_remove" >{% trans 'Remove' %}</button>
-</div>
-
-</fieldset>
-</form>
-
-{% else %}
-<p><strong>{% trans 'Warning:'%}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}</p>
-
-{% endif %}
-
-  {% if can_add_email %}
-    <h2>{% trans "Add E-mail Address" %}</h2>
-
-    <form method="post" action="{% url 'account_email' %}" class="add_email">
-        {% csrf_token %}
-        {{ form | crispy }}
-        <button class="btn btn-success" name="action_add" type="submit">{% trans "Add E-mail" %}</button>
-    </form>
-  {% endif %}
-
+{% block page_level_plugin_styles %}
+<!-- Page level plugin styles START -->
+  <link href="{% static 'assets/plugins/fancybox/source/jquery.fancybox.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/plugins/owl.carousel/assets/owl.carousel.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/plugins/uniform/css/uniform.default.css' %}" rel="stylesheet" type="text/css">
+<!-- Page level plugin styles END -->
 {% endblock %}
 
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="">Account</a></li>
+        <li class="active">Email</li>
+    </ul>
+    <div class="row margin-bottom-40">
+        <h1>{% trans "E-mail Addresses" %}</h1>
+        <div class="content-form-page">
 
-{% block extra_body %}
-<script type="text/javascript">
-(function() {
-  var message = "{% trans 'Do you really want to remove the selected e-mail address?' %}";
-  var actions = document.getElementsByName('action_remove');
-  if (actions.length) {
-    actions[0].addEventListener("click", function(e) {
-      if (! confirm(message)) {
-        e.preventDefault();
+            {% if user.emailaddress_set.all %}
+            <p style="font-size: 17px">{% trans 'The following e-mail addresses are associated with your account:' %}</p>
+
+            <form action="{% url 'account_email' %}" class="email_list" method="post" class="form-horizontal form-without-legend">
+            {% csrf_token %}
+            <fieldset class="blockLabels">
+
+              {% for emailaddress in user.emailaddress_set.all %}
+               <div class="ctrlHolder">
+                  <label for="email_radio_{{forloop.counter}}" class="{% if emailaddress.primary %}primary_email{%endif%}">
+
+                  <input id="email_radio_{{forloop.counter}}" type="radio" name="email" {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked"{%endif %} value="{{emailaddress.email}}"/>
+
+            {{ emailaddress.email }}
+                {% if emailaddress.verified %}
+                <span class="verified">{% trans "Verified" %}</span>
+                {% else %}
+                <span class="unverified">{% trans "Unverified" %}</span>
+                {% endif %}
+                  {% if emailaddress.primary %}<span class="primary">{% trans "Primary" %}</span>{% endif %}
+               </label>
+              </div>
+              {% endfor %}
+            <div class="btn-group">
+                <button class="secondaryAction btn btn-secondary" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button>
+                <button class="secondaryAction btn btn-secondary" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button>
+                <button class="primaryAction btn btn-danger" type="submit" name="action_remove" >{% trans 'Remove' %}</button>
+            </div>
+
+            </fieldset>
+            </form>
+
+            {% else %}
+            <p><strong>{% trans 'Warning:'%}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}</p>
+
+            {% endif %}
+        </div>
+        <h1 style="padding-top: 20px">{% trans "Add E-mail Address" %}</h1>
+        <div class="content-form-page">
+            {% if can_add_email %}
+                <form method="post" action="{% url 'account_email' %}" class="add_email">
+                    {% csrf_token %}
+                    {{ form | crispy }}
+                    <div class="row">
+                      <div class="col-lg-8">
+                        <button class="btn btn-success" type="submit" name="action_add">{% trans 'Add E-mail' %}</button>
+                      </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_level_javascripts %}
+<!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->
+    <script src="{% static 'assets/plugins/fancybox/source/jquery.fancybox.pack.js' %}" type="text/javascript"></script><!-- pop up -->
+    <script src="{% static 'assets/plugins/owl.carousel/owl.carousel.min.js' %}" type="text/javascript"></script><!-- slider for products -->
+    <script src="{% static 'assets/plugins/zoom/jquery.zoom.min.js' %}" type="text/javascript"></script><!-- product zoom -->
+    <script src="{% static 'assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js' %}" type="text/javascript"></script><!-- Quantity -->
+    <script src="{% static 'assets/plugins/uniform/jquery.uniform.min.js' %}" type="text/javascript"></script>
+
+    <script src="{% static 'assets/corporate/scripts/layout.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            Layout.init();
+            Layout.initOWL();
+            Layout.initTwitter();
+            Layout.initImageZoom();
+            Layout.initTouchspin();
+            Layout.initUniform();
+        });
+    </script>
+    <script type="text/javascript">
+    (function() {
+      var message = "{% trans 'Do you really want to remove the selected e-mail address?' %}";
+      var actions = document.getElementsByName('action_remove');
+      if (actions.length) {
+        actions[0].addEventListener("click", function(e) {
+          if (! confirm(message)) {
+            e.preventDefault();
+          }
+        });
       }
-    });
-  }
-})();
-</script>
+    })();
+    </script>
+<!-- END PAGE LEVEL JAVASCRIPTS -->
 {% endblock %}
