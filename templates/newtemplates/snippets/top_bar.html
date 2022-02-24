@@ -28,12 +28,15 @@
             <!-- BEGIN TOP BAR MENU -->
             <div class="col-md-6 col-sm-6 additional-nav">
                 <ul class="list-unstyled list-inline pull-right">
-                    <li><a href="../shop-account.html">My Account</a></li>
-                    <li><a href="../shop-wishlist.html">My Wishlist</a></li>
-                    <li><a href="../shop-checkout.html">Checkout</a></li>
                     {% if user.is_authenticated %}
+                        <li><a href="{% url 'account' %}">My Account</a></li>
+                        <li><a href="../shop-wishlist.html">My Wishlist</a></li>
+                        <li><a href="../shop-checkout.html">Checkout</a></li>
                         <li><a href="{% url 'account_logout' %}">Logout</a></li>
                     {% else %}
+                        <li><a href="{% url 'account' %}">My Account</a></li>
+                        <li><a href="{% url 'account_login' %}">My Wishlist</a></li>
+                        <li><a href="{% url 'account_login' %}">Checkout</a></li>
                         <li><a href="{% url 'account_login' %}">Log In</a></li>
                         <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
                     {% endif %}

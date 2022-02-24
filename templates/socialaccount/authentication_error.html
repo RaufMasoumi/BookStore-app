@@ -1,48 +1,15 @@
-{% extends "newtemplates/base.html" %}
+{% extends "account/base.html" %}
 {% load static %}
 {% load i18n %}
 
 {% block title %}{% trans "Social Network Login Failure" %}{% endblock %}
 
-{% block page_level_plugin_styles %}
-<!-- Page level plugin styles START -->
-  <link href="{% static 'assets/plugins/fancybox/source/jquery.fancybox.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/plugins/owl.carousel/assets/owl.carousel.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/plugins/uniform/css/uniform.default.css' %}" rel="stylesheet" type="text/css">
-<!-- Page level plugin styles END -->
+{% block account_status %}
+    <li><a href="{% url 'account_login' %}">Log In</a></li>
+    <li class="active">Authentication Error</li>
 {% endblock %}
 
-{% block content %}
-    <ul class="breadcrumb">
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="">Account</a></li>
-        <li><a href="{% url 'account_login' %}">Log In</a></li>
-        <li class="active">Authentication Error</li>
-    </ul>
-    <div class="row margin-bottom-40">
-        <h1>{% trans "Social Network Login Failure" %}</h1>
-        <p style="font-size: 16px">{% trans "An error occurred while attempting to login via your social network account." %}</p>
-    </div>
-{% endblock %}
-
-{% block page_level_javascripts %}
-<!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->
-    <script src="{% static 'assets/plugins/fancybox/source/jquery.fancybox.pack.js' %}" type="text/javascript"></script><!-- pop up -->
-    <script src="{% static 'assets/plugins/owl.carousel/owl.carousel.min.js' %}" type="text/javascript"></script><!-- slider for products -->
-    <script src="{% static 'assets/plugins/zoom/jquery.zoom.min.js' %}" type="text/javascript"></script><!-- product zoom -->
-    <script src="{% static 'assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js' %}" type="text/javascript"></script><!-- Quantity -->
-    <script src="{% static 'assets/plugins/uniform/jquery.uniform.min.js' %}" type="text/javascript"></script>
-
-    <script src="{% static 'assets/corporate/scripts/layout.js' %}" type="text/javascript"></script>
-    <script type="text/javascript">
-        jQuery(document).ready(function() {
-            Layout.init();
-            Layout.initOWL();
-            Layout.initTwitter();
-            Layout.initImageZoom();
-            Layout.initTouchspin();
-            Layout.initUniform();
-        });
-    </script>
-<!-- END PAGE LEVEL JAVASCRIPTS -->
+{% block account_content %}
+    <h1>{% trans "Social Network Login Failure" %}</h1>
+    <p style="font-size: 16px">{% trans "An error occurred while attempting to login via your social network account." %}</p>
 {% endblock %}

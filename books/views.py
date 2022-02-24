@@ -382,11 +382,11 @@ def available_limit(queryset, request):
     return queryset, on_key
 
 
-def published_limit(query, request):
+def published_limit(queryset, request):
     if request.user.has_perm('books.spacial_status'):
-        return query
+        return queryset
     else:
-        return query.objects.published()
+        return queryset.filter(status='p')
 
 
 def sort_books(queryset, request):

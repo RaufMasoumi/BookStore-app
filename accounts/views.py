@@ -24,6 +24,27 @@ class UserProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
         return obj == self.request.user
 
 
+class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = get_user_model()
+    template_name = 'account/user_detail.html'
+    login_url = 'account_login'
+    context_object_name = 'profile'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        display_fields = ('username', 'first_name', 'last_name', 'email', 'address', 'phone_number',
+                          'card_number', 'date_joined')
+        unsorted_profile_fields = {field.name: getattr(self.object, field.name) for field in self.object._meta.get_fields()
+                       if field.name in display_fields}
+        profile_fields = {field: unsorted_profile_fields.get(field) for field in display_fields}
+        context['profile_fields'] = profile_fields
+        return context
+
+    def test_func(self):
+        obj = self.get_object()
+        return obj == self.request.user
+
+
 class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = UserCart
     context_object_name = 'cart'

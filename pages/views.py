@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from books.forms import BookSearchForm
 from books.models import Book, Category
+from django.contrib.auth import get_user_model
 # Create your views here.
 
 
@@ -24,8 +25,10 @@ def hello(request):
 class AboutView(TemplateView):
     template_name = 'newtemplates/shop-about.html'
 
+
 class AccountView(TemplateView):
     template_name = 'newtemplates/shop-account.html'
+
 
 class CheckoutView(TemplateView):
     template_name = 'newtemplates/shop-checkout.html'

@@ -1,90 +1,54 @@
-{% extends "_base.html" %}
-
+{% extends "account/base.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Account Connections" %}{% endblock %}
 
-{% block page_level_plugin_styles %}
-<!-- Page level plugin styles START -->
-  <link href="{% static 'assets/plugins/fancybox/source/jquery.fancybox.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/plugins/owl.carousel/assets/owl.carousel.css' %}" rel="stylesheet">
-  <link href="{% static 'assets/plugins/uniform/css/uniform.default.css' %}" rel="stylesheet" type="text/css">
-<!-- Page level plugin styles END -->
-{% endblock %}
+{% block account_status %}<li class="active">Connections</li>{% endblock %}
 
-{% block content %}
-    <ul class="breadcrumb">
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="">Account</a></li>
-        <li class="active">Connections</li>
-    </ul>
-    <div class="row margin-bottom-40">
-        <h1>{% trans "Account Connections" %}</h1>
-        {% if form.accounts %}
-        <div class="content-form-page">
-            <p style="font-size: 16px">{% blocktrans %}You can sign in to your account using any of the following third party accounts:{% endblocktrans %}</p>
+{% block account_content %}
+    <h1>{% trans "Account Connections" %}</h1>
+    {% if form.accounts %}
+    <div class="content-form-page">
+        <p style="font-size: 16px">{% blocktrans %}You can sign in to your account using any of the following third party accounts:{% endblocktrans %}</p>
 
-            <form method="post" action="{% url 'socialaccount_connections' %}">
-            {% csrf_token %}
+        <form method="post" action="{% url 'socialaccount_connections' %}">
+        {% csrf_token %}
 
-            <fieldset>
-            {% if form.non_field_errors %}
-            <div id="errorMsg">{{ form.non_field_errors }}</div>
-            {% endif %}
-
-            {% for base_account in form.accounts %}
-            {% with base_account.get_provider_account as account %}
-            <div>
-            <label for="id_account_{{ base_account.id }}">
-            <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}"/>
-            <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{account.get_brand.name}}</span>
-            {{ account }}
-            </label>
-            </div>
-            {% endwith %}
-            {% endfor %}
-
-            <div>
-            <button type="submit">{% trans 'Remove' %}</button>
-            </div>
-
-            </fieldset>
-
-            </form>
-        </div>
-        {% else %}
-        <p style="font-size: 16px">{% trans 'You currently have no social network accounts connected to this account.' %}</p>
+        <fieldset>
+        {% if form.non_field_errors %}
+        <div id="errorMsg">{{ form.non_field_errors }}</div>
         {% endif %}
-        <h2 style="padding-top: 10px">{% trans 'Add a 3rd Party Account' %}</h2>
-        <div class="content-form-page">
 
-            <ul class="socialaccount_providers">
-            {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
-            </ul>
-
-            {% include "socialaccount/snippets/login_extra.html" %}
+        {% for base_account in form.accounts %}
+        {% with base_account.get_provider_account as account %}
+        <div>
+        <label for="id_account_{{ base_account.id }}">
+        <input id="id_account_{{ base_account.id }}" type="radio" name="account" value="{{ base_account.id }}"/>
+        <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{account.get_brand.name}}</span>
+        {{ account }}
+        </label>
         </div>
+        {% endwith %}
+        {% endfor %}
+
+        <div>
+        <button type="submit">{% trans 'Remove' %}</button>
+        </div>
+
+        </fieldset>
+
+        </form>
     </div>
-{% endblock %}
+    {% else %}
+    <p style="font-size: 16px">{% trans 'You currently have no social network accounts connected to this account.' %}</p>
+    {% endif %}
+    <h2 style="padding-top: 10px">{% trans 'Add a 3rd Party Account' %}</h2>
+    <div class="content-form-page">
 
-{% block page_level_javascripts %}
-<!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->
-    <script src="{% static 'assets/plugins/fancybox/source/jquery.fancybox.pack.js' %}" type="text/javascript"></script><!-- pop up -->
-    <script src="{% static 'assets/plugins/owl.carousel/owl.carousel.min.js' %}" type="text/javascript"></script><!-- slider for products -->
-    <script src="{% static 'assets/plugins/zoom/jquery.zoom.min.js' %}" type="text/javascript"></script><!-- product zoom -->
-    <script src="{% static 'assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js' %}" type="text/javascript"></script><!-- Quantity -->
-    <script src="{% static 'assets/plugins/uniform/jquery.uniform.min.js' %}" type="text/javascript"></script>
+        <ul class="socialaccount_providers">
+        {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+        </ul>
 
-    <script src="{% static 'assets/corporate/scripts/layout.js' %}" type="text/javascript"></script>
-    <script type="text/javascript">
-        jQuery(document).ready(function() {
-            Layout.init();
-            Layout.initOWL();
-            Layout.initTwitter();
-            Layout.initImageZoom();
-            Layout.initTouchspin();
-            Layout.initUniform();
-        });
-    </script>
-<!-- END PAGE LEVEL JAVASCRIPTS -->
+        {% include "socialaccount/snippets/login_extra.html" %}
+    </div>
 {% endblock %}

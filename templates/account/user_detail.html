@@ -1,0 +1,24 @@
+{% extends 'account/base.html' %}
+{% load static %}
+
+{% block title %}My Profile | Metronic Shop UI{% endblock %}
+
+{% block account_status %}<li class="active">Profile</li>{% endblock %}
+
+{% block account_content %}
+    <h1>My Profile</h1>
+    <div class="content-page">
+      <img style="vertical-align: middle;width: 175px;height: 200px;" src="{{ profile.image.url }}">
+      <ul>
+          {% for field, value in profile_fields.items %}
+            <li><h3>{{ field }}: {{ value }}</h3></li>
+          {% endfor %}
+      </ul>
+      <hr>
+        <div class="row">
+          <div class="col-lg-8">
+            <a class="btn btn-default" href="{% url 'account_user_update' user.pk %}">Update</a>
+          </div>
+        </div>
+    </div>
+{% endblock %}

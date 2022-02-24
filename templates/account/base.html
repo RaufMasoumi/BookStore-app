@@ -1,0 +1,48 @@
+{% extends "newtemplates/base.html" %}
+{% load static %}
+
+
+{% block page_level_plugin_styles %}
+<!-- Page level plugin styles START -->
+  <link href="{% static 'assets/plugins/fancybox/source/jquery.fancybox.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/plugins/owl.carousel/assets/owl.carousel.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/plugins/uniform/css/uniform.default.css' %}" rel="stylesheet" type="text/css">
+<!-- Page level plugin styles END -->
+{% endblock %}
+
+{% block content %}
+    <ul class="breadcrumb">
+        <li><a href="{% url 'home' %}">Home</a></li>
+        <li><a href="">Account</a></li>
+        {% block account_status %}{% endblock %}
+    </ul>
+    <div class="row margin-bottom-40">
+        {% include 'newtemplates/snippets/account_sidebar.html' %}
+        <div class="col-md-9 col-sm-9">
+            {% block account_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block page_level_javascripts %}
+<!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->
+    <script src="{% static 'assets/plugins/fancybox/source/jquery.fancybox.pack.js' %}" type="text/javascript"></script><!-- pop up -->
+    <script src="{% static 'assets/plugins/owl.carousel/owl.carousel.min.js' %}" type="text/javascript"></script><!-- slider for products -->
+    <script src="{% static 'assets/plugins/zoom/jquery.zoom.min.js' %}" type="text/javascript"></script><!-- product zoom -->
+    <script src="{% static 'assets/plugins/bootstrap-touchspin/bootstrap.touchspin.js' %}" type="text/javascript"></script><!-- Quantity -->
+    <script src="{% static 'assets/plugins/uniform/jquery.uniform.min.js' %}" type="text/javascript"></script>
+
+    <script src="{% static 'assets/corporate/scripts/layout.js' %}" type="text/javascript"></script>
+    <script type="text/javascript">
+        jQuery(document).ready(function() {
+            Layout.init();
+            Layout.initOWL();
+            Layout.initTwitter();
+            Layout.initImageZoom();
+            Layout.initTouchspin();
+            Layout.initUniform();
+        });
+    </script>
+    {% block additional_javascripts %}{% endblock %}
+<!-- END PAGE LEVEL JAVASCRIPTS -->
+{% endblock %}
