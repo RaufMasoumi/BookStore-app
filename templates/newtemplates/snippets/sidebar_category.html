@@ -1,6 +1,6 @@
-{% if category_list and active_category_set %}
+{% if sidebar_category_list and active_category_set %}
 <ul class="list-group margin-bottom-25 sidebar-menu">
-  {% for category in category_list %}
+  {% for category in sidebar_category_list %}
     {% if not category.parent %}
       {% if category in active_category_set %}
         <li class="list-group-item clearfix dropdown active">
@@ -26,11 +26,10 @@
     {% endif %}
   {% endfor %}
 </ul>
-
-{% elif category_list %}
+{% elif sidebar_category_list %}
 <div class="sidebar col-md-3 col-sm-4">
     <ul class="list-group margin-bottom-25 sidebar-menu">
-      {% for category in category_list %}
+      {% for category in sidebar_category_list %}
         {% if not category.parent %}
             {% if category.children.active %}
                 <li class="list-group-item collapse dropdown">

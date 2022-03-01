@@ -9,11 +9,11 @@
 {% block account_content %}
     <h1>LogOut</h1>
     <div class="content-form-page">
-        <p style="font-size: 19px">{% trans 'Are you sure you want to log out!?' %}</p>
+        <h3 style="font-size: 19px">{% trans 'Are you sure you want to log out!?' %}</h3>
         {% if redirect_field_value %}
               <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
         {% endif %}
-        <form method="post" action="{% url 'account_logout' %}" class="form-horizontal form-without-legend">
+        <form method="post" action="{% url 'account_logout' %}">
             {% csrf_token %}
             <div class="row">
               <div class="col-lg-8">

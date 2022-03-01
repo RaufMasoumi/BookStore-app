@@ -1,26 +1,33 @@
-{% extends '_base.html' %}
+{% extends 'account/base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Update{% endblock %}
+{% block title %}Update Profile{% endblock %}
 
-{% block content %}
+{% block account_status %}
+    <li><a href="{{ user.get_absolute_url }}">Profile</a></li>
+    <li class="active">Update</li>
+{% endblock%}
+
+{% block account_content %}
     <h1>Update Profile</h1>
-    {% if user.image %}
+    <div class="content-page">
+        {% if user.image %}
         <p>
-            <img class="avatar" src="{{ user.image.url }}">
+            <img style="vertical-align: middle;width: 175px;height: 200px;" src="{{ user.image.url }}">
         </p>
-    {% endif %}
-    <h2>{{ user.username }}</h2>
-    <h4>{{ user.email }}</h4>
-    <p>
+        {% endif %}
+        <p style="font-size: 20px">{{ user.username }}</p>
+        <p style="font-size: 16px">{{ user.email }}</p>
+    </div>
+    <div class="content-form-page">
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form | crispy }}
-            <button class="btn btn-success" type="submit">Update</button>
+            <div class="row">
+              <div class="col-lg-8">
+                <button class="btn btn-primary">Update</button>
+              </div>
+            </div>
         </form>
-    </p>
-    <hr>
-    <p>
-        <h3><a href="{{ user.carts.get_absolute_url }}">shopping cart</a></h3>
-    </p>
+    </div>
 {% endblock %}

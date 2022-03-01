@@ -22,20 +22,9 @@
     <!-- BEGIN SIDEBAR & CONTENT -->
     <div class="row margin-bottom-40">
       <!-- BEGIN SIDEBAR -->
-      <div class="sidebar col-md-3 col-sm-5">
-        <ul class="list-group margin-bottom-25 sidebar-menu">
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Ladies</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Kids</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Accessories</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Sports</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Brands</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Electronics</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Home & Garden</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Custom Link</a></li>
-        </ul>
-      </div>
+      {% include 'newtemplates/snippets/sidebar_category.html' %}
       <!-- END SIDEBAR -->
-
+      {% if user.wish_list.books.all %}
       <!-- BEGIN CONTENT -->
       <div class="col-md-9 col-sm-7">
         <h1>My Wish List</h1>
@@ -47,8 +36,57 @@
                 <th class="goods-page-image">Image</th>
                 <th class="goods-page-description">Description</th>
                 <th class="goods-page-stock">Stock</th>
+                <th class="goods-page-stock">Cart</th>
                 <th class="goods-page-price" colspan="2">Unit price</th>
               </tr>
+              {% for book in wish_list.books.published %}
+              <tr>
+                <td class="goods-page-image">
+                  <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"></a>
+                </td>
+                <td class="goods-page-description">
+                  <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+                  <p><strong>{{ book.author }}</strong></p>
+                  <p>Pages: {{ book.pages }}</p>
+                </td>
+                <td class="goods-page-stock">
+                  {% if book.is_available %}
+                    In Stock
+                  {% else %}
+                    Not in Stock
+                  {% endif %}
+                </td>
+                <td class="goods-page-stock">
+                  {% if book in user.cart.cart.all %}
+                    In Cart
+                  {% else %}
+                    Not in Cart
+                  {% endif %}
+                </td>
+                <td class="goods-page-price">
+                  {% if book.off %}
+                      <strong><span>$</span>{{ book.off }}</strong>
+                      <em>$<span>{{ book.price }}</span></em>
+                  {% else %}
+                      <strong><span>$</span>{{ book.price }}</strong>
+                  {% endif %}
+                </td>
+                <td class="del-goods-col">
+                  <form method="post" action="{% url 'account_user_wishlist_update' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="book_id" value="{{ book.id }}">
+                      <button name="delete" value="1" type="submit" class="del-goods">&nbsp;</button>
+                  </form>
+                  {% if book.is_available and not book in user.cart.cart.all %}
+                  <form method="post" action="{% url 'account_user_cart_update' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="book_id" value="{{ book.id }}">
+                      <button name="book_add" value="1" type="submit" class="add-goods">&nbsp;</button>
+                  </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
               <tr>
                 <td class="goods-page-image">
                   <a href="javascript:;"><img src="{% static 'assets/pages/img/products/model3.jpg' %}" alt="Berry Lace Dress"></a>
@@ -95,9 +133,21 @@
         </div>
       </div>
       <!-- END CONTENT -->
+      {% else %}
+      <!-- BEGIN CONTENT -->
+      <div class="col-md-9 col-sm-7">
+        <h1>My Wish List</h1>
+        <div class="goods-page">
+            <p style="font-size: 17px">Your wish list is empty!</p>
+        </div>
+      </div>
+      <!-- END CONTENT -->
+      {% endif %}
     </div>
     <!-- END SIDEBAR & CONTENT -->
 {% endblock %}
+
+{% block down_suggestions_title %}Most Popular Books{% endblock %}
 
 {% block page_level_javascripts %}
 <!-- BEGIN PAGE LEVEL JAVASCRIPTS (REQUIRED ONLY FOR CURRENT PAGE) -->

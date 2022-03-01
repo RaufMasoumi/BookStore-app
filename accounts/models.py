@@ -20,13 +20,16 @@ class CustomUser(AbstractUser):
     address = models.CharField(max_length=300, blank=True, null=True)
     card_number = models.CharField(max_length=200, blank=True, null=True)
 
+    def get_absolute_url(self):
+        return reverse('account_user_detail')
+
 
 from books.models import Book
 
 
 class UserCart(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='carts')
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='cart')
     cart = models.ManyToManyField(Book, related_name='in_carts', blank=True)
 
     def calculate_total_price(self):
@@ -50,6 +53,15 @@ class UserCart(models.Model):
         return f'{self.user.username}\'s cart'
 
 
+class UserWish(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='wish_list')
+    books = models.ManyToManyField(Book, blank=True)
+
+    def __str__(self):
+        return f'{self.user.username}\'s wishlist'
+
+
 class UserCartBooksNumber(models.Model):
     cart = models.ForeignKey(UserCart, on_delete=models.CASCADE, related_name='books_numbers')
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='carts_numbers')
@@ -69,14 +81,16 @@ class UserCartBooksNumber(models.Model):
 
 @receiver(post_save, sender=get_user_model())
 def create_user_cart(instance, created, **kwargs):
-    if created:
-        if UserCart.objects.filter(user=instance).exists():
-            return HttpResponse('The singed up user already have a user cart!!', status=409)
-        else:
-            UserCart.objects.create(user=instance)
-            return print('the user cart created for the new user!')
-    else:
-        return HttpResponse('The user signing up was unsuccessful!!')
+    if created or not UserCart.objects.filter(user=instance).exists():
+        UserCart.objects.create(user=instance)
+        return print(f'the user cart created for {instance.username}!')
+
+
+@receiver(post_save, sender=get_user_model())
+def create_user_wish(instance, created, **kwargs):
+    if created or not UserWish.objects.filter(user=instance).exists():
+        UserWish.objects.create(user=instance)
+        return print(f'the user wish list created for {instance.username}!')
 
 
 @receiver(m2m_changed, sender=UserCart.cart.through)

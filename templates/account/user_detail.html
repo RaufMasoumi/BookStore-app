@@ -9,15 +9,13 @@
     <h1>My Profile</h1>
     <div class="content-page">
       <img style="vertical-align: middle;width: 175px;height: 200px;" src="{{ profile.image.url }}">
-      <ul>
-          {% for field, value in profile_fields.items %}
-            <li><h3>{{ field }}: {{ value }}</h3></li>
-          {% endfor %}
-      </ul>
+      {% for field, value in profile_fields.items %}
+        <h3>{{ field }}: {{ value }}</h3>
+      {% endfor %}
       <hr>
         <div class="row">
           <div class="col-lg-8">
-            <a class="btn btn-default" href="{% url 'account_user_update' user.pk %}">Update</a>
+            <a class="btn btn-default" href="{% url 'account_user_update' %}">Update</a>
           </div>
         </div>
     </div>

@@ -1,18 +1,18 @@
 {% load static %}
 
 <div class="top-cart-block">
-  {% if user.is_authenticated%}
+  {% if user.is_authenticated %}
   <div class="top-cart-info">
-    <a href="{{ user.carts.get_absolute_url }}" class="top-cart-info-count">{{ user.carts.cart.count }} items</a>
-    <a href="{{ user.carts.get_absolute_url }}" class="top-cart-info-value">${{ user.carts.calculate_total_price }}</a>
+    <a href="{{ user.cart.get_absolute_url }}" class="top-cart-info-count">{{ user.cart.cart.count }} items</a>
+    <a href="{{ user.cart.get_absolute_url }}" class="top-cart-info-value">${{ user.cart.calculate_total_price }}</a>
   </div>
   <i class="fa fa-shopping-cart"></i>
 
   <div class="top-cart-content-wrapper">
     <div class="top-cart-content">
       <ul class="scroller" style="height: 250px;">
-      {% for book in user.carts.cart.all %}
-          {% for number in user.carts.books_numbers.all %}
+      {% for book in user.cart.cart.all %}
+          {% for number in user.cart.books_numbers.all %}
             {% if number.book == book %}
              <li>
               <a href="{{ book.get_absolute_url }}"><img src="{{ book.cover.url }}" alt="{{ book.title }}" width="37" height="34"></a>
@@ -33,7 +33,7 @@
       {% endfor %}
       </ul>
       <div class="text-right">
-        <a href="{{ user.carts.get_absolute_url }}" class="btn btn-default">View Cart</a>
+        <a href="{{ user.cart.get_absolute_url }}" class="btn btn-default">View Cart</a>
         <a href="../shop-checkout.html" class="btn btn-primary">Checkout</a>
       </div>
     </div>

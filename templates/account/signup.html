@@ -11,7 +11,7 @@
 {% block account_content %}
     <h1>Sign Up</h1>
     <div class="content-form-page">
-        <form method="post" class="form-horizontal form-without-legend">
+        <form method="post">
             {% csrf_token %}
             {{ form | crispy }}
             <div class="row">

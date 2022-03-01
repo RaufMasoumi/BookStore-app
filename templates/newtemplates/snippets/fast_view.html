@@ -36,7 +36,7 @@
               {% endif %}
             </div>
             <div class="availability">
-              {% if book.stock > 0 %}
+              {% if book.is_available %}
                 Availability: <strong>In Stock</strong>
               {% else %}
                 Availability: <strong style="color: red">Not in Stock</strong>
@@ -47,7 +47,7 @@
             <p>{{ book.summary }}</p>
           </div>
           <div class="product-page-cart">
-            {% if book.stock > 0 %}
+            {% if book.is_available %}
                 <div class="product-quantity">
                 <form action="{% url 'account_user_cart_update' %}" method="post">
                   {% csrf_token %}

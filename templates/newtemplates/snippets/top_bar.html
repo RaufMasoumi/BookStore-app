@@ -30,7 +30,7 @@
                 <ul class="list-unstyled list-inline pull-right">
                     {% if user.is_authenticated %}
                         <li><a href="{% url 'account' %}">My Account</a></li>
-                        <li><a href="../shop-wishlist.html">My Wishlist</a></li>
+                        <li><a href="{% url 'account_user_wishlist_detail' %}">My Wishlist</a></li>
                         <li><a href="../shop-checkout.html">Checkout</a></li>
                         <li><a href="{% url 'account_logout' %}">Logout</a></li>
                     {% else %}

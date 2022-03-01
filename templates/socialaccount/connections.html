@@ -43,8 +43,7 @@
     <p style="font-size: 16px">{% trans 'You currently have no social network accounts connected to this account.' %}</p>
     {% endif %}
     <h2 style="padding-top: 10px">{% trans 'Add a 3rd Party Account' %}</h2>
-    <div class="content-form-page">
-
+    <div class="content-page">
         <ul class="socialaccount_providers">
         {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
         </ul>

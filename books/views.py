@@ -50,7 +50,7 @@ class BookDetailView(DetailView):
         context['down_suggestions'] = Book.objects.all()[:4]
         context['sidebar_suggestions'] = Book.objects.bestseller()
         context['active_category_set'] = active_category_set
-        context['category_list'] = Category.objects.active()
+        context['sidebar_category_list'] = Category.objects.active()
         context['fast_view_books'] = context['down_suggestions']
         context['book_fields'] = book_fields
         context['review_form'] = review_form
@@ -156,7 +156,7 @@ class CategoryBooksListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
-        context['category_list'] = Category.objects.active()
+        context['sidebar_category_list'] = Category.objects.active()
         context['fast_view_books'] = context['category_books']
         context['active_category_set'] = make_active(self.category)
         context['sidebar_suggestions'] = Book.objects.published()[:4]

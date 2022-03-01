@@ -120,6 +120,12 @@ class Book(models.Model):
         else:
             return reverse('draft_book_detail', kwargs={'pk': self.pk})
 
+    def is_available(self):
+        return True if self.stock > 0 else False
+
+    def is_published(self):
+        return True if self.status == 'p' else False
+
 
 class BookImage(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images')
