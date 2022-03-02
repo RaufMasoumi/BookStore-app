@@ -98,6 +98,9 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     <div class="main">
       <div class="container">
         {% block sale_product_and_new_arrivals %}{% endblock %}
+        {% if page_location_list %}
+            {% include 'newtemplates/snippets/location.html' %}
+        {% endif %}
         {% block content %}{% endblock %}
         {% block two_products_and_promo %}{% endblock %}
         {% if down_suggestions %}

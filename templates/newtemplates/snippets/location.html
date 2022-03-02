@@ -1,0 +1,9 @@
+<ul class="breadcrumb">
+    {% for location in page_location_list %}
+        {% if location.is_active %}
+            <li class="active">{{ location.title }}</li>
+        {% else %}
+            <li><a href="{{ location.make_full_url }}">{{ location.title }}</a></li>
+        {% endif %}
+    {% endfor %}
+</ul>

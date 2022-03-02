@@ -47,6 +47,11 @@ class BookDetailView(DetailView):
         book_fields['category'] = book_categories
         review_form = ReviewForm(initial={'book': self.object.pk})
         review_reply_form = ReviewReplyForm()
+        page_location_list = [
+            PageLocation('Home', 'home'), PageLocation('Store', 'index'), PageLocation('Books', 'book_list'),
+            PageLocation(self.object.title, self.object.get_absolute_url, True)
+        ]
+        context['page_location_list'] = page_location_list
         context['down_suggestions'] = Book.objects.all()[:4]
         context['sidebar_suggestions'] = Book.objects.bestseller()
         context['active_category_set'] = active_category_set
@@ -325,6 +330,16 @@ class SearchResultsView(ListView):
         return context
 
 
+class PageLocation:
+    def __init__(self, title: str, view_name: str, is_active=False):
+        self.title = title
+        self.view_name = view_name
+        self.is_active = is_active
+
+    def make_full_url(self):
+        return reverse(self.view_name)
+
+
 def search_by_title_author(request):
     query = request.GET.get('search')
     elem = []
@@ -467,17 +482,3 @@ def make_active(category=None, query_set=None, check_list=None):
             category = category.parent
 
     return active_category_set
-
-
-# @require_POST
-# @login_required(login_url='account_login')
-# def create_review(request):
-#     book = Book.objects.get(id=request.META['HTTP_REFERER'].split('/')[-2])
-#     if int(request.POST['author']) != request.user.id or UUID(request.POST['book']) != book.id:
-#         return HttpResponseForbidden('<h1>401 Forbidden!</h1>')
-#     form = ReviewForm(request.POST)
-#     if form.is_valid():
-#         form.save()
-#         return redirect(request.META['HTTP_REFERER'])
-#
-#     return HttpResponse('<h1>409 Error when submitting the review!<409>', status=409)

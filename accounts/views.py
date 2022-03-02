@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from decimal import Decimal
 from books.models import Book, Category
+from books.views import PageLocation
 from .models import UserCart, UserWish, UserCartBooksNumber
 # Create your views here.
 
@@ -89,6 +90,8 @@ class UserWishDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'),
+                                         PageLocation('My WishList', 'account_user_wishlist_detail', True)]
         context['down_suggestions'] = Book.objects.published()
         context['sidebar_category_list'] = Category.objects.active()
         context['fast_view_books'] = context['down_suggestions']
