@@ -3,7 +3,7 @@
 <div class="top-cart-block">
   {% if user.is_authenticated %}
   <div class="top-cart-info">
-    <a href="{{ user.cart.get_absolute_url }}" class="top-cart-info-count">{{ user.cart.cart.count }} items</a>
+    <a href="{{ user.cart.get_absolute_url }}" class="top-cart-info-count">{{ user.cart.books.count }} items</a>
     <a href="{{ user.cart.get_absolute_url }}" class="top-cart-info-value">${{ user.cart.calculate_total_price }}</a>
   </div>
   <i class="fa fa-shopping-cart"></i>
@@ -11,7 +11,7 @@
   <div class="top-cart-content-wrapper">
     <div class="top-cart-content">
       <ul class="scroller" style="height: 250px;">
-      {% for book in user.cart.cart.all %}
+      {% for book in user.cart.books.all %}
           {% for number in user.cart.books_numbers.all %}
             {% if number.book == book %}
              <li>

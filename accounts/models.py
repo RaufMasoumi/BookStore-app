@@ -30,15 +30,12 @@ from books.models import Book
 class UserCart(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='cart')
-    cart = models.ManyToManyField(Book, related_name='in_carts', blank=True)
+    books = models.ManyToManyField(Book, related_name='in_carts', blank=True)
 
     def calculate_total_price(self):
         total_price = Decimal('00.00')
-        for book in self.cart.all():
-            if book.off:
-                price = book.off
-            else:
-                price = book.price
+        for book in self.books.all():
+            price = book.off if book.off else book.price
             total_price += price * UserCartBooksNumber.objects.get(cart=self, book=book).number
         return total_price
 
@@ -93,14 +90,14 @@ def create_user_wish(instance, created, **kwargs):
         return print(f'the user wish list created for {instance.username}!')
 
 
-@receiver(m2m_changed, sender=UserCart.cart.through)
+@receiver(m2m_changed, sender=UserCart.books.through)
 def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
     user_cart = UserCart.objects.get(pk=instance.pk)
 
     if action != 'pre_clear' and action != 'post_clear':
         pk_list = list(pk_set)
 
-    if model != Book:
+    if not isinstance(model, Book):
         return HttpResponse('Error when calculating the number of user cart books!!', status=409)
 
     if action == 'post_add':
@@ -136,7 +133,7 @@ def update_user_cart_books_number_number(instance, created, **kwargs):
         if number.number == 0:
             book = Book.objects.get(id=number.book.id)
             cart = UserCart.objects.get(id=number.cart.id)
-            cart.cart.remove(book)
+            cart.books.remove(book)
             return print('the book deleted from cart cause its number is zero!')
 
 
@@ -144,7 +141,7 @@ def update_user_cart_books_number_number(instance, created, **kwargs):
 def update_user_profile_image(instance, **kwargs):
     if not instance.user.image:
         response = requests.get(instance.extra_data['picture'])
-        user = get_user_model().objects.get(id=instance.user.id)
+        user = instance.user
         path = f'{django.conf.settings.MEDIA_ROOT}/accounts/pictures/{user.username}.png'
         image = open(path, 'wb')
         image.write(response.content)

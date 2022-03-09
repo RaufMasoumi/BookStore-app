@@ -76,31 +76,31 @@ class UserCartTests(TestCase):
 
     def test_user_cart_detail_view_for_test_passed_user(self):
         self.client.force_login(self.user)
-        self.user_cart.cart.add(self.book)
+        self.user_cart.books.add(self.book)
         response = self.client.get(reverse('account_user_cart_detail', kwargs={'pk': self.user_cart.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'User Cart')
         self.assertContains(response, self.book.title)
         self.assertNotContains(response, 'Log In')
         self.assertTemplateUsed(response, 'account/user_cart_detail.html')
-        self.user_cart.cart.remove(self.book)
+        self.user_cart.books.remove(self.book)
 
     def test_user_cart_books_number_updating(self):
-        self.user_cart.cart.add(self.book)
+        self.user_cart.books.add(self.book)
         self.assertEqual(UserCartBooksNumber.objects.count(), 1)
         number = UserCartBooksNumber.objects.all()[0]
         self.assertEqual(number.book, self.book)
         self.assertEqual(number.cart, self.user_cart)
-        self.user_cart.cart.remove(self.book)
+        self.user_cart.books.remove(self.book)
         self.assertFalse(UserCartBooksNumber.objects.filter(id=number.id).exists())
         new_book = Book.objects.create(title='The hello', author='hello', price=1)
-        self.user_cart.cart.add(new_book)
-        self.user_cart.cart.add(self.book)
-        self.user_cart.cart.clear()
+        self.user_cart.books.add(new_book)
+        self.user_cart.books.add(self.book)
+        self.user_cart.books.clear()
         self.assertEqual(UserCartBooksNumber.objects.count(), 0)
 
     def test_user_cart_books_number_number_updating(self):
-        self.user_cart.cart.add(self.book)
+        self.user_cart.books.add(self.book)
         number = UserCartBooksNumber.objects.get(cart=self.user_cart, book=self.book)
         number.number = 0
         number.save()
@@ -115,8 +115,8 @@ class UserCartTests(TestCase):
         book_add_response = self.client.post(path, {'book_add': self.book.id})
         self.assertEqual(book_add_response.status_code, 302)
         self.assertRedirects(book_add_response, user_cart_path)
-        self.assertEqual(self.user_cart.cart.count(), 1)
-        added_book = self.user_cart.cart.all()[0]
+        self.assertEqual(self.user_cart.books.count(), 1)
+        added_book = self.user_cart.books.all()[0]
         self.assertEqual(added_book, self.book)
         book_number = UserCartBooksNumber.objects.get(cart=self.user_cart, book=added_book)
         old_number = book_number.number
@@ -144,4 +144,4 @@ class UserCartTests(TestCase):
         book.refresh_from_db()
         self.user_cart.refresh_from_db()
         self.assertEqual(book.stock, old_stock + old_number)
-        self.assertEqual(self.user_cart.cart.count(), 0)
+        self.assertEqual(self.user_cart.books.count(), 0)

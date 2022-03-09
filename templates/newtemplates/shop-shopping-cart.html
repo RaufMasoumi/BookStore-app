@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if user.cart.cart.all %}
+    {% if user.cart.books.all %}
     <!-- BEGIN SIDEBAR & CONTENT -->
     <div class="row margin-bottom-40">
       <!-- BEGIN CONTENT -->
@@ -32,7 +32,7 @@
                 <th class="goods-page-price">Unit price</th>
                 <th class="goods-page-total" colspan="2">Total</th>
               </tr>
-              {% for book in cart.cart.all %}
+              {% for book in cart.books.all %}
               {% for number in cart.books_numbers.all %}
               {% if number.book == book %}
               <tr>

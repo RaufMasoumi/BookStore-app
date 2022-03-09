@@ -42,15 +42,15 @@ class BookDetailView(DetailView):
                           'length', 'width', 'summary')
         book_fields = {field.name: getattr(self.object, field.name) for field in self.object._meta.get_fields()
                       if field.name in display_fields}
-        book_categories = [category for category in self.object.category.all()]
-        active_category_set = make_active(query_set=Category.objects.active(), check_list=book_categories)
-        book_fields['category'] = book_categories
+        active_category_set = self.object.category.all()
+        book_fields['category'] = active_category_set
         review_form = ReviewForm(initial={'book': self.object.pk})
         review_reply_form = ReviewReplyForm()
         page_location_list = [
             PageLocation('Home', 'home'), PageLocation('Store', 'index'), PageLocation('Books', 'book_list'),
             PageLocation(self.object.title, self.object.get_absolute_url, True)
         ]
+        self.object.is_in_cart = is_book_in_cart(self.object, self.request.user)
         context['page_location_list'] = page_location_list
         context['down_suggestions'] = Book.objects.all()[:4]
         context['sidebar_suggestions'] = Book.objects.bestseller()
@@ -163,7 +163,7 @@ class CategoryBooksListView(ListView):
         context['category'] = self.category
         context['sidebar_category_list'] = Category.objects.active()
         context['fast_view_books'] = context['category_books']
-        context['active_category_set'] = make_active(self.category)
+        context['active_category_set'] = make_active_category_set(self.category)
         context['sidebar_suggestions'] = Book.objects.published()[:4]
         context['available_on_key'] = self.available_on_key
         context['availability_on_key'] = self.availability_on_key
@@ -468,17 +468,14 @@ def book_make_published(request):
     return HttpResponseBadRequest('There was a problem in publishing the book!')
 
 
-def make_active(category=None, query_set=None, check_list=None):
+def make_active_category_set(category=None):
     active_category_set = set()
-    if query_set:
-        for category in query_set:
-            if (check_list and category in check_list) or check_list == None:
-                while category:
-                    active_category_set.add(category)
-                    category = category.parent
-    elif category:
-        while category:
-            active_category_set.add(category)
-            category = category.parent
-
+    while category:
+        active_category_set.add(category)
+        category = category.parent
     return active_category_set
+
+def is_book_in_cart(book:Book, user)-> bool:
+    if isinstance(book, Book):
+        return True if user.cart.books.filter(pk=book.pk).exists() else False
+    return False

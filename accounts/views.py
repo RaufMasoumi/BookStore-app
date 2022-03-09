@@ -117,7 +117,7 @@ def user_cart_update_view(request):
                 return HttpResponseBadRequest('The book is not published!')
 
             if book.stock >= quantity:
-                user_cart.cart.add(book)
+                user_cart.books.add(book)
                 user_cart.save()
                 if UserCartBooksNumber.objects.filter(book=book).exists():
                     book_number = UserCartBooksNumber.objects.get(book=book)
@@ -186,7 +186,7 @@ def user_cart_update_view(request):
             return HttpResponseForbidden('<h1>403 Forbidden</h1>')
         book.stock += number.number
         book.save()
-        cart.cart.remove(book)
+        cart.books.remove(book)
         cart.save()
         return redirect(url)
 
@@ -197,7 +197,7 @@ def user_cart_update_view(request):
             return HttpResponseBadRequest('The book is not published!')
         user_cart = UserCart.objects.get(user=request.user)
         if book.is_available():
-            user_cart.cart.add(book)
+            user_cart.books.add(book)
             user_cart.save()
             book.stock -= 1
             book.save()
@@ -244,9 +244,8 @@ def user_wish_update_view(request):
     wish.save()
     return redirect(url)
 
-
 def calculate_user_cart_total_price(user_cart):
     total_price = Decimal('00.00')
-    for book in user_cart.cart.all():
+    for book in user_cart.books.all():
         total_price += book.price * UserCartBooksNumber.objects.get(cart=user_cart, book=book).number
     return total_price

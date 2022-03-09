@@ -14,7 +14,11 @@
 {% endblock %}
 
 {% block item_list_number %}
-    <div class="title-wrapper">
+  {% if category.thumbnail %}
+    <div class="title-wrapper" style="background: #72c2ff url({{category.thumbnail.url}}) no-repeat 100% 100%;">
+  {% else %}
+    <div class="title-wrapper">    
+  {% endif %}
       <div class="container"><div class="container-inner">
         <h1><span>{{ category.title }}</span> CATEGORY</h1>
         <em>Over {{ category.books.count }} Items are available here</em>
@@ -143,10 +147,10 @@
               {% else %}
                 <div class="pi-price">${{ book.price }}</div>
               {% endif %}
-              {% if book in user.carts.cart.all %}
-                  <a href="{% url 'account_user_cart_detail' user.carts.pk %}" class="btn btn-default add2cart">Is in cart</a>
+              {% if book in user.cart.books.all %}
+                  <a href="{% url 'account_user_cart_detail' %}" class="btn btn-default add2cart">Is in cart</a>
               {% else %}
-                  {% if book.stock > 0 %}
+                  {% if book.is_available %}
                       <form action="{% url 'account_user_cart_update' %}" method="post">
                           {% csrf_token %}
                           <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>

@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 import uuid
 # Create your models here.
@@ -176,6 +176,13 @@ class ReviewReply(models.Model):
     def get_absolute_url(self):
         return reverse('book_detail', kwargs={'pk': self.review.book.pk})
 
+@receiver(m2m_changed, sender=Book.category.through)
+def update_book_category(instance, action, pk_set,  **kwargs):
+    if action == 'post_add':
+        pk_list = list(pk_set)
+        for pk in pk_list:
+            update_book_category_with_category(instance, Category.objects.get(pk=pk))
+        instance.save()
 
 @receiver(post_save, sender=Review)
 def update_book_rating(instance, **kwargs):
@@ -184,4 +191,10 @@ def update_book_rating(instance, **kwargs):
     ave_rating = sum(ratings) / book.reviews.count()
     book.rating = round(ave_rating, 1)
     book.save()
-    return
+
+def update_book_category_with_category(instance, category):
+    category_parent = category.parent
+    while category_parent:
+        instance.category.add(category_parent)
+        category_parent = category_parent.parent
+    return instance

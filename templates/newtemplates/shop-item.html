@@ -53,7 +53,7 @@
                 </div>
                 <div class="availability">
                   Availability:
-                  {% if book.stock > 0 %}
+                  {% if book.is_available %}
                     <strong>In Stock</strong>
                   {% else %}
                     <strong>Not in Stock</strong>
@@ -64,25 +64,25 @@
                 <p>{{ book.summary }}</p>
               </div>
                 <div class="product-page-cart">
-                {% if book.stock > 0 %}
+                {% if book.is_available %}
                   <form action="{% url 'account_user_cart_update' %}" method="post">
                       {% csrf_token %}
-                        {% if book in user.carts.cart.all %}
-                            {% for number in user.carts.books_numbers.all %}
-                            {% if number.book == book %}
-                            <div class="product-quantity">
-                                <input id="product-quantity" name="quantity" type="text" value="{{ number.number }}" readonly class="form-control input-sm">
-                            </div>
-                                <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">Edit cart</button>
-                                | <button class="btn btn-danger" name="delete" value="{{ number.id }}" type="submit">Delete from cart</button>
-                            {% endif %}
-                            {% endfor %}
-                        {% else %}
-                            <div class="product-quantity">
-                                <input id="product-quantity" name="quantity" type="text" value="1" readonly class="form-control input-sm">
-                            </div>
-                            <button class="btn btn-primary" name="book" value="{{ book.id }}" type="submit">Add to cart</button>
-                        {% endif %}
+                      {% if book.is_in_cart %}
+                          {% for number in user.cart.books_numbers.all %}
+                          {% if number.book == book %}
+                          <div class="product-quantity">
+                              <input id="product-quantity" name="quantity" type="text" value="{{ number.number }}" readonly class="form-control input-sm">
+                          </div>
+                              <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">Edit cart</button>
+                              | <button class="btn btn-danger" name="delete" value="{{ number.id }}" type="submit">Delete from cart</button>
+                          {% endif %}
+                          {% endfor %}
+                      {% else %}
+                          <div class="product-quantity">
+                              <input id="product-quantity" name="quantity" type="text" value="1" readonly class="form-control input-sm">
+                          </div>
+                          <button class="btn btn-primary" name="book" value="{{ book.id }}" type="submit">Add to cart</button>
+                      {% endif %}
                   </form>
                 {% else %}
                     <button class="btn btn-primary" type="button">Unavailable</button>

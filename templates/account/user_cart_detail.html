@@ -6,7 +6,7 @@
 {% block content %}
     <h1>Shopping Cart</h1>
     <hr>
-    {% for book in cart.cart.all %}
+    {% for book in cart.books.all %}
         <div>
         <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
         {% for number in cart.books_numbers.all %}
@@ -37,6 +37,6 @@
         </div>
         <hr>
     {% endfor %}
-    <h2>{{ cart.cart.count }} items</h2>
+    <h2>{{ cart.books.count }} items</h2>
     <h2>Total Price:{{ total_price }}$</h2>
 {% endblock %}
