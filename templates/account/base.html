@@ -11,11 +11,13 @@
 {% endblock %}
 
 {% block content %}
-    <ul class="breadcrumb">
-        <li><a href="{% url 'home' %}">Home</a></li>
-        <li><a href="{% url 'account' %}">Account</a></li>
-        {% block account_status %}{% endblock %}
-    </ul>
+    {% if not page_location_list %}
+        <ul class="breadcrumb">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'account' %}">Account</a></li>
+            {% block account_status %}{% endblock %}
+        </ul>
+    {% endif %}
     <div class="row margin-bottom-40">
         {% include 'newtemplates/snippets/account_sidebar.html' %}
         <div class="col-md-9 col-sm-9">
@@ -37,7 +39,6 @@
         jQuery(document).ready(function() {
             Layout.init();
             Layout.initOWL();
-            Layout.initTwitter();
             Layout.initImageZoom();
             Layout.initTouchspin();
             Layout.initUniform();

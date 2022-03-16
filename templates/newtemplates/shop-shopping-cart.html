@@ -1,7 +1,7 @@
-{% extends 'newtemplates/base.html' %}
+{% extends 'account/base.html' %}
 {% load static %}
 
-{% block title %}Shopping cart | Metronic Shop UI{% endblock %}
+{% block title %}Shopping cart {% endblock %}
 
 {% block page_level_plugin_styles %}
 <!-- Page level plugin styles START -->
@@ -13,111 +13,102 @@
 <!-- Page level plugin styles END -->
 {% endblock %}
 
-{% block content %}
-    {% if user.cart.books.all %}
-    <!-- BEGIN SIDEBAR & CONTENT -->
-    <div class="row margin-bottom-40">
-      <!-- BEGIN CONTENT -->
-      <div class="col-md-12 col-sm-12">
-        <h1>Shopping cart</h1>
-        <div class="goods-page">
-          <div class="goods-data clearfix">
-            <div class="table-wrapper-responsive">
-            <table summary="Shopping cart">
-              <tr>
-                <th class="goods-page-image">Image</th>
-                <th class="goods-page-description">Description</th>
-                <th class="goods-page-ref-no">Ref No</th>
-                <th class="goods-page-quantity">Quantity</th>
-                <th class="goods-page-price">Unit price</th>
-                <th class="goods-page-total" colspan="2">Total</th>
-              </tr>
-              {% for book in cart.books.all %}
-              {% for number in cart.books_numbers.all %}
-              {% if number.book == book %}
-              <tr>
-                <td class="goods-page-image">
-                  <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"></a>
-                </td>
-                <td class="goods-page-description">
-                  <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
-                  <p><strong>{{ book.author }}</strong></p>
-                  <p>Pages: {{ book.pages }}</p>
-                </td>
-                <td class="goods-page-ref-no">
-                  javc2133
-                </td>
-                <td class="goods-page-quantity">
-                      <form action="{% url 'account_user_cart_update' %}" method="post">
-                        {% csrf_token %}
-                        <div class="product-quantity">
-                            <input id="product-quantity" name="quantity" value="{{ number.number }}" readonly class="form-control input-sm">
-                        </div>
-                          <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">update</button>
-                      </form>
-                </td>
-                <td class="goods-page-price">
-                  {% if book.off %}
-                      <strong><span>$</span>{{ book.off }}</strong>
-                      <em>$<span>{{ book.price }}</span></em>
-                  {% else %}
-                      <strong><span>$</span>{{ book.price }}</strong>
-                  {% endif %}
-                </td>
-                <td class="goods-page-total">
-                  <strong><span>$</span>{{ number.calculate_total_price }}</strong>
-                </td>
-                <td class="del-goods-col">
-                  <form method="post" action="{% url 'account_user_cart_update' %}">
-                      {% csrf_token %}
-                      <button class="del-goods" name="delete" value="{{ number.id }}">&nbsp;</button>
+{% block account_content %}
+  {% if user.cart.books.all %}
+  <!-- BEGIN CONTENT -->
+    <h1>Shopping cart</h1>
+    <div class="goods-page">
+      <div class="goods-data clearfix">
+        <div class="table-wrapper-responsive">
+        <table summary="Shopping cart">
+          <tr>
+            <th class="goods-page-image">Image</th>
+            <th class="goods-page-description">Description</th>
+            {% comment %} <th class="goods-page-ref-no">Ref No</th> {% endcomment %}
+            <th class="goods-page-quantity">Quantity</th>
+            <th class="goods-page-price">Unit price</th>
+            <th class="goods-page-total" colspan="2">Total</th>
+          </tr>
+          {% for book in cart.books.all %}
+          {% for number in cart.books_numbers.all %}
+          {% if number.book == book %}
+          <tr>
+            <td class="goods-page-image">
+              <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"></a>
+            </td>
+            <td class="goods-page-description">
+              <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+              <p><strong>{{ book.author }}</strong></p>
+              <p>Pages: {{ book.pages }}</p>
+            </td>
+            {% comment %} <td class="goods-page-ref-no">
+              javc2133
+            </td> {% endcomment %}
+            <td class="goods-page-quantity">
+                  <form action="{% url 'account_user_cart_update' %}" method="post">
+                    {% csrf_token %}
+                    <div class="product-quantity">
+                        <input id="product-quantity" name="quantity" value="{{ number.number }}" readonly class="form-control input-sm">
+                    </div>
+                      <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">update</button>
                   </form>
-                </td>
-              </tr>
+            </td>
+            <td class="goods-page-price">
+              {% if book.off %}
+                  <strong><span>$</span>{{ book.off }}</strong>
+                  <em>$<span>{{ book.price }}</span></em>
+              {% else %}
+                  <strong><span>$</span>{{ book.price }}</strong>
               {% endif %}
-              {% endfor %}
-              {% endfor %}
-            </table>
-            </div>
+            </td>
+            <td class="goods-page-total">
+              <strong><span>$</span>{{ number.calculate_total_price }}</strong>
+            </td>
+            <td class="del-goods-col">
+              <form method="post" action="{% url 'account_user_cart_update' %}">
+                  {% csrf_token %}
+                  <button class="del-goods" name="delete" value="{{ number.id }}">&nbsp;</button>
+              </form>
+            </td>
+          </tr>
+          {% endif %}
+          {% endfor %}
+          {% endfor %}
+        </table>
+        </div>
 
-            <div class="shopping-total">
-              <ul>
-                <li>
-                  <em>Sub total</em>
-                  <strong class="price"><span>$</span>{{ cart.calculate_total_price }}</strong>
-                </li>
-                <li>
-                  <em>Shipping cost</em>
-                  <strong class="price"><span>$</span>3.00</strong>
-                </li>
-                <li class="shopping-total-price">
-                  <em>Total</em>
-                  <strong class="price"><span>$</span>{{ cart.calculate_total_price_with_cost }}</strong>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <a href="{% url 'home' %}" class="btn btn-default" type="submit">Continue shopping <i class="fa fa-shopping-cart"></i></a>
-          <button class="btn btn-primary" type="submit">Checkout <i class="fa fa-check"></i></button>
+        <div class="shopping-total">
+          <ul>
+            <li>
+              <em>Sub total</em>
+              <strong class="price"><span>$</span>{{ cart.calculate_total_price }}</strong>
+            </li>
+            <li>
+              <em>Shipping cost</em>
+              <strong class="price"><span>$</span>3.00</strong>
+            </li>
+            <li class="shopping-total-price">
+              <em>Total</em>
+              <strong class="price"><span>$</span>{{ cart.calculate_total_price_with_cost }}</strong>
+            </li>
+          </ul>
         </div>
       </div>
-      <!-- END CONTENT -->
+      <a href="{% url 'home' %}" class="btn btn-default" type="submit">Continue shopping <i class="fa fa-shopping-cart"></i></a>
+      <button class="btn btn-primary" type="submit">Checkout <i class="fa fa-check"></i></button>
     </div>
-    <!-- END SIDEBAR & CONTENT -->
-    {% else %}
-      <div class="row margin-bottom-40">
-      <!-- BEGIN CONTENT -->
-      <div class="col-md-12 col-sm-12">
-        <h1>Shopping cart</h1>
-        <div class="shopping-cart-page">
-          <div class="shopping-cart-data clearfix">
-            <p>Your shopping cart is empty!</p>
-          </div>
-        </div>
+  <!-- END CONTENT -->
+  <!-- END SIDEBAR & CONTENT -->
+  {% else %}
+    <!-- START CONTENT -->
+    <h1>Shopping cart</h1>
+    <div class="shopping-cart-page">
+      <div class="shopping-cart-data clearfix">
+        <p style="font-size:17px;">Your shopping cart is empty!</p>
       </div>
-      <!-- END CONTENT -->
     </div>
-    {% endif %}
+    <!-- END CONTENT -->
+  {% endif %}
 {% endblock %}
 
 {% block down_suggestions_title %}Most Popular Books{% endblock %}
@@ -137,7 +128,7 @@
         jQuery(document).ready(function() {
             Layout.init();
             Layout.initOWL();
-            Layout.initTwitter();
+
             Layout.initImageZoom();
             Layout.initTouchspin();
             Layout.initUniform();

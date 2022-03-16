@@ -1,0 +1,25 @@
+{% extends 'account/base.html' %}
+
+{% block title %}Addresses{% endblock %}
+
+{% block account_status %}<li class="active">Address Book</li>{% endblock %}
+
+{% block account_content %}
+    <h1>Addresses</h1>
+    {% if address_list %}
+        {% for address in address_list %}
+            <div class="content-page">
+                <p style="font-size:17px;"><a href="{% url 'account_user_address_update' address.pk %}">{{address.address}}</a><p>
+                <div class="btn-group">
+                    <a href="{% url 'account_user_address_update' address.pk %}" style="color:white;" class="btn btn-success">Update</a>
+                    <a href="{% url 'account_user_address_delete' address.pk %}" style="color:white;" class="btn btn-danger">delete</a>
+                </div>
+            </div>
+            <hr>
+        {% endfor %}
+    {% else %}
+        <p style="font-size:17px;">You have not saved any addresses!</p>
+        <hr>
+    {% endif %}
+    <a href="{% url 'account_user_address_create' %}" class="btn btn-primary">Create Address</a>
+{% endblock %}

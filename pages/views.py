@@ -32,8 +32,7 @@ class AccountView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Store', 'home'),
-                                         PageLocation('Account', 'account', True)]
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account', True)]
         return context
 class CheckoutView(TemplateView):
     template_name = 'newtemplates/shop-checkout.html'

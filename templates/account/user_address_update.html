@@ -1,0 +1,20 @@
+{% extends 'account/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Update Address{% endblock %}
+
+{% block account_status %}
+    <li><a href="{% url 'account_user_address_list' %}">Address Book</a></li>
+    <li class="active">Update Address</li>
+{% endblock %}
+
+{% block account_content %}
+    <h1>Update Address</h1>
+    <div class="content-form-page">
+        <form method="post">
+            {% csrf_token %}
+            {{form | crispy}}
+            <button type="submit" class="btn btn-primary">update</button>
+        </form>
+    </div>
+{% endblock %}

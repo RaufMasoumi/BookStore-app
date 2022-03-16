@@ -6,6 +6,7 @@ from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.http import HttpResponse
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 from allauth.socialaccount.models import SocialAccount
 from decimal import Decimal
 import requests
@@ -17,13 +18,25 @@ import uuid
 class CustomUser(AbstractUser):
     image = models.ImageField(upload_to='accounts/pictures/', blank=True)
     phone_number = models.CharField(max_length=100, blank=True, null=True)
-    address = models.CharField(max_length=300, blank=True, null=True)
     card_number = models.CharField(max_length=200, blank=True, null=True)
 
     def get_absolute_url(self):
         return reverse('account_user_detail')
 
 
+class UserAddress(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='addresses')
+    address = models.CharField(max_length=500)
+
+    class Meta:
+        verbose_name_plural = 'user addresses'
+
+    def __str__(self):
+        return f'{self.user}\'s address'
+
+    def get_absolute_url(self):
+        return reverse("user_address_detail", kwargs={'pk': self.pk})
+    
 from books.models import Book
 
 
@@ -73,7 +86,7 @@ class UserCartBooksNumber(models.Model):
         return total_price
 
     def __str__(self):
-        return f'{self.cart.user.username}\'s cart{self.cart.pk} number of {self.book.title}'
+        return f'{self.cart.user.username}\'s cart number of {self.book.title}'
 
 
 @receiver(post_save, sender=get_user_model())
@@ -93,12 +106,12 @@ def create_user_wish(instance, created, **kwargs):
 @receiver(m2m_changed, sender=UserCart.books.through)
 def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
     user_cart = UserCart.objects.get(pk=instance.pk)
-
+    print(action)
     if action != 'pre_clear' and action != 'post_clear':
         pk_list = list(pk_set)
 
-    if not isinstance(model, Book):
-        return HttpResponse('Error when calculating the number of user cart books!!', status=409)
+    if not model == Book:
+        return 'Error when calculating the number of user cart books!!'
 
     if action == 'post_add':
         for i in range(len(pk_list)):

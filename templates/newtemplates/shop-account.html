@@ -1,7 +1,7 @@
 {% extends 'newtemplates/base.html' %}
 {% load static %}
 
-{% block title %}My Account | Metronic Shop UI{% endblock %}
+{% block title %}My Account {% endblock %}
 
 {% block page_level_plugin_styles %}
 <!-- Page level plugin styles START -->
@@ -25,9 +25,10 @@
             <li><a href="{% url 'account_user_detail' %}">Check your account information</a></li>
             <li><a href="{% url 'account_user_update' %}">Edit your account information</a></li>
             <li><a href="{% url 'account_email' %}">Manage your Email</a></li>
+            <li><a href="{% url 'account_user_wishlist_detail' %}">Manage your Wishlist</a></li>
+            <li><a href="{% url 'account_user_address_list' %}">Manage your addresses</a></li>
             <li><a href="{% url 'account_change_password' %}">Change your password</a></li>
             <li><a href="{% url 'account_reset_password' %}">Reset your password</a></li>
-            <li><a href="javascript:;">Modify your wish list</a></li>
           </ul>
         </div>
       </div>
@@ -46,7 +47,7 @@
         jQuery(document).ready(function() {
             Layout.init();
             Layout.initOWL();
-            Layout.initTwitter();
+
         });
     </script>
 <!-- END PAGE LEVEL JAVASCRIPTS -->

@@ -1,7 +1,7 @@
 {% extends 'newtemplates/base.html' %}
 {% load static %}
 
-{% block titel %}Product Comparison | Metronic Shop UI{% endblock %}
+{% block titel %}Product Comparison {% endblock %}
 
 {% block page_level_plugin_styles %}
 <!-- Page level plugin styles START -->
@@ -154,7 +154,7 @@
         jQuery(document).ready(function() {
             Layout.init();
             Layout.initOWL();
-            Layout.initTwitter();
+
             Layout.initImageZoom();
             Layout.initTouchspin();
             Layout.initUniform();

@@ -51,14 +51,13 @@
                 <div class="product-quantity">
                 <form action="{% url 'account_user_cart_update' %}" method="post">
                   {% csrf_token %}
-                    {% if book in user.carts.cart.all %}
-                        {% for number in user.carts.books_numbers.all %}
+                    {% if book in user.cart.books.all %}
+                        {% for number in user.cart.books_numbers.all %}
                         {% if number.book == book %}
                             <input id="product-quantity" name="quantity" type="text" value="{{ number.number }}" readonly class="form-control input-sm">
                         </div>
                             <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">Edit cart</button>
                             | <button class="btn btn-danger" name="delete" value="{{ number.id }}" type="submit">Delete from cart</button>
-                            <hr>
                         {% endif %}
                         {% endfor %}
                     {% else %}
@@ -70,6 +69,16 @@
             {% else %}
                 <button class="btn btn-primary" type="button">Unavailable</button>
             {% endif %}
+            {% if book in user.wish_list.books.all %}
+              <a href="{{ user.wish_list.get_absolute_url }}" class="btn btn-danger"><span class="glyphicon glyphicon-heart"></span></a>
+            {% else %}
+              <form method="post" action="{% url 'account_user_wishlist_update' %}">
+                {% csrf_token %}
+                <input type="hidden" name="book_id" value="{{ book.id }}">
+                <button type="submit" name="add" value="1" class="btn btn-danger"><span class="glyphicon glyphicon-heart-empty"></span></button>
+              </form>  
+            {% endif %}
+            <hr>
             <a href="{{ book.get_absolute_url }}" class="btn btn-default">More details</a>
           </div>
         </div>

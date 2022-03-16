@@ -1,17 +1,15 @@
 {% extends 'account/base.html' %}
 {% load static %}
 
-{% block title %}My Profile | Metronic Shop UI{% endblock %}
-
-{% block account_status %}<li class="active">Profile</li>{% endblock %}
+{% block title %}My Profile {% endblock %}
 
 {% block account_content %}
     <h1>My Profile</h1>
     <div class="content-page">
       {% if profile.image %}
-        <img style="vertical-align: middle;width: 175px;height: 200px;" src="{{ profile.image.url }}">
+        <img style="vertical-align: middle;width: 160px;height: 160px;" src="{{ profile.image.url }}">
       {% else %}
-        <img style="vertical-align: middle;width: 175px;height: 200px;" src="{% static 'images/anonymous-user.jpg' %}">
+        <img style="vertical-align: middle;width: 160px;height: 160px;" src="{% static 'images/anonymous-user.jpg' %}">
       {% endif %}
       {% for field, value in profile_fields.items %}
         <h3>{{ field }}: {{ value }}</h3>

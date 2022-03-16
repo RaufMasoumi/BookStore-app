@@ -1,5 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import UpdateView, DetailView
+from distutils.log import Log
+from multiprocessing import context
+from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
+from django.views.generic import UpdateView, DetailView, ListView, CreateView, DeleteView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
@@ -9,19 +11,8 @@ from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequ
 from decimal import Decimal
 from books.models import Book, Category
 from books.views import PageLocation
-from .models import UserCart, UserWish, UserCartBooksNumber
+from .models import UserAddress, UserCart, UserWish, UserCartBooksNumber
 # Create your views here.
-
-
-class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
-    fields = ('first_name', 'last_name', 'image', 'phone_number', 'address', 'card_number')
-    template_name = 'account/user_update.html'
-    success_url = reverse_lazy('home')
-    login_url = 'account_login'
-
-    def get_object(self, queryset=None):
-        return get_user_model().objects.get(pk=self.request.user.pk)
-
 
 class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = 'account/user_detail.html'
@@ -33,7 +24,7 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        display_fields = ('username', 'first_name', 'last_name', 'email', 'address', 'phone_number',
+        display_fields = ('username', 'first_name', 'last_name', 'phone_number',
                           'card_number', 'date_joined')
         unsorted_profile_fields = {}
         for field in self.object._meta.get_fields():
@@ -47,12 +38,98 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
 
         sorted_readable_profile_fields = {field.replace('_', ' '): unsorted_profile_fields.get(field) for field in display_fields}
         context['profile_fields'] = sorted_readable_profile_fields
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
+                                         PageLocation('Profile', 'account_user_detail', True)]
         return context
 
     def test_func(self):
         obj = self.get_object()
         return obj == self.request.user
 
+
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
+    fields = ('first_name', 'last_name', 'image', 'phone_number', 'card_number')
+    template_name = 'account/user_update.html'
+    success_url = reverse_lazy('home')
+    login_url = 'account_login'
+
+    def get_object(self, queryset=None):
+        return get_user_model().objects.get(pk=self.request.user.pk)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
+                                             PageLocation('Profile', 'account_user_detail'), PageLocation('Update', 'account_user_profile_update', True)]
+        return context
+
+
+class UserAddressListView(LoginRequiredMixin, ListView):
+    model = UserAddress
+    context_object_name = 'address_list'
+    login_url = 'account_login'
+    template_name = 'account/user_address_list.html'
+
+    def get_queryset(self):
+        self.user = get_object_or_404(get_user_model(), pk=self.kwargs['user_pk'] 
+            if self.kwargs.get('user_pk') else self.request.user.pk)
+        queryset = UserAddress.objects.get(user=self.user) if UserAddress.objects.filter(user=self.user).exists() else None
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
+                                                PageLocation('Address', 'account_user_address_list', True)]
+        return context
+
+class UserAddressCreateView(LoginRequiredMixin, CreateView):
+    model = UserAddress
+    fields = ('address',)
+    login_url = 'account_login'
+    success_url = reverse_lazy('account_user_address_list')
+    template_name = 'account/user_address_create.html'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
+                                                PageLocation('Address', 'account_user_address_list'), PageLocation('Create', 'account_user_address_create', True)]
+        return context
+
+class UserAddressUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = UserAddress
+    fields = ('address',)
+    login_url = 'account_login'
+    success_url = reverse_lazy('account_user_address_list')
+    template_name = 'account/user_address_update.html'
+    
+    def test_func(self):
+        obj = self.get_object()
+        return True if obj.user == self.request.user else False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
+                                                PageLocation('Address', 'account_user_address_list'), PageLocation('Update', 'account_user_address_update', True)]
+        return context
+
+class UserAddressDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = UserAddress
+    login_url = 'account_login'
+    success_url = reverse_lazy('account_user_address_list')
+    template_name = 'account/user_address_delete.html'
+
+    def test_func(self):
+        obj = self.get_object()
+        return True if obj.user == self.request.user else False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
+                                                PageLocation('Address', 'account_user_address_list'), PageLocation('Delete', 'account_user_address_delete', True)]
+        return context
 
 class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = UserCart
@@ -72,6 +149,8 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context['total_price'] = calculate_user_cart_total_price(self.object)
         context['down_suggestions'] = Book.objects.published()
         context['fast_view_books'] = context['down_suggestions']
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
+                                            PageLocation('Shopping Cart', 'account_user_cart_detail', True)]
         return context
 
 
@@ -90,7 +169,7 @@ class UserWishDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'),
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
                                          PageLocation('My WishList', 'account_user_wishlist_detail', True)]
         context['down_suggestions'] = Book.objects.published()
         context['sidebar_category_list'] = Category.objects.active()
@@ -216,7 +295,7 @@ def user_wish_update_view(request):
         url = request.META['HTTP_REFERER']
     except ValueError:
         url = reverse('account_user_wishlist_detail')
-    print(request.POST)
+        
     if request.POST.get('wish_id'):
         wish_id = request.POST.get('wish_id')
         wish = get_object_or_404(UserWish, id=wish_id)
