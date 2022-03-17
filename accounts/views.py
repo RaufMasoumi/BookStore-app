@@ -147,10 +147,9 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['total_price'] = calculate_user_cart_total_price(self.object)
-        context['down_suggestions'] = Book.objects.published()
-        context['fast_view_books'] = context['down_suggestions']
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
                                             PageLocation('Shopping Cart', 'account_user_cart_detail', True)]
+        context['has_down_suggestions'] = True
         return context
 
 
@@ -171,9 +170,7 @@ class UserWishDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
                                          PageLocation('My WishList', 'account_user_wishlist_detail', True)]
-        context['down_suggestions'] = Book.objects.published()
-        context['sidebar_category_list'] = Category.objects.active()
-        context['fast_view_books'] = context['down_suggestions']
+        context['has_down_suggestions'] = True
         return context
 
 
@@ -208,7 +205,7 @@ def user_cart_update_view(request):
                 book.save()
                 return redirect(url)
             else:
-                return HttpResponse('<h1>409 The book has not enough stock!', status=409)
+                return HttpResponse('<h1>409 The book has not enough stock!</h1>', status=409)
 
         elif request.POST.get('number'):
             number = UserCartBooksNumber.objects.get(id=request.POST.get('number'))

@@ -1,12 +1,27 @@
-{% for book in sidebar_suggestions %}
-    <div class="item">
-        <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"
-                                                                    style="height: 65px; width: 65px"></a>
-        <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
-        {% if book.off %}
-            <div class="price">${{ book.off }}</div>
-        {% else %}
-            <div class="price">${{ book.price }}</div>
-        {% endif %}
-    </div>
-{% endfor %}
+{% if sidebar_suggestions %}
+    {% for book in sidebar_suggestions %}
+        <div class="item">
+            <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"
+                                                                        style="height: 65px; width: 65px"></a>
+            <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+            {% if book.off %}
+                <div class="price">${{ book.off }}</div>
+            {% else %}
+                <div class="price">${{ book.price }}</div>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% else %}
+    {% for book in bestseller_books %}
+        <div class="item">
+            <a href="#product-pop-up-{{ book.pk }}" class="fancybox-fast-view"><img src="{{ book.cover.url }}" alt="{{ book.title }}"
+                                                                        style="height: 65px; width: 65px"></a>
+            <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+            {% if book.off %}
+                <div class="price">${{ book.off }}</div>
+            {% else %}
+                <div class="price">${{ book.price }}</div>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endif %}

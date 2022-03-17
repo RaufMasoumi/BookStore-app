@@ -121,8 +121,8 @@
                   </div>
                   <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
                   <div class="pi-price">{{ book.price }}</div>
-                  {% if book in user..cart.all %}
-                      <a href="{% url 'account_user_cart_detail' user.cart.pk %}" class="btn btn-default add2cart">Is in cart</a>
+                  {% if book in user.cart.books.all %}
+                      <a href="{% url 'account_user_cart_detail' %}" class="btn btn-default add2cart">Is in cart</a>
                   {% else %}
                       {% if book.is_available %}
                           <form action="{% url 'account_user_cart_update' %}" method="post">

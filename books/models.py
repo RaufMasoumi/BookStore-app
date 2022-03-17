@@ -1,3 +1,4 @@
+from tkinter import N
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -28,7 +29,7 @@ class BookManager(models.Manager):
         return self.filter(stock__lt=1)
 
     def bestseller(self):
-        return self.filter(bestseller=True)
+        return self.filter(status='p', bestseller=True)
 
     def new(self):
         return self.filter(new=True)
@@ -37,7 +38,7 @@ class BookManager(models.Manager):
         return self.filter(sale=True)
 
     def mostpopular(self):
-        return self.filter(mostpopular=True)
+        return self.filter(status='p', mostpopular=True)
 
 
 class Category(models.Model):
@@ -95,6 +96,7 @@ class Book(models.Model):
     time_to_sell = models.DateTimeField(auto_now_add=True, editable=False)
     stock = models.PositiveIntegerField(default=0, blank=True)
     buys = models.PositiveIntegerField(default=0, blank=True)
+    views = models.PositiveIntegerField(default=0, blank=True, null=True)
     category = models.ManyToManyField(Category, related_name='books', blank=True)
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='p', blank=True)
     objects = BookManager()

@@ -86,3 +86,179 @@
     </div>
 </div>
 {% endfor %}
+{% for book in bestseller_books %}
+<div id="product-pop-up-{{ book.pk }}" style="display: none; width: 700px;">
+    <div class="product-page product-pop-up">
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-3">
+          <div class="product-main-image">
+            <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="img-responsive">
+            {% if book.sale %}
+              <dev class="sticker sticker-sale"></dev>
+            {% endif %}
+            {% if book.new %}
+              <div class="sticker sticker-new"></div>
+            {% endif %}
+            {% if book.bestseller %}
+              <div class="sticker sticker-bestseller"></div>
+            {% endif %}
+            {% if book.mostpopular %}
+              <div class="sticker sticker-mostpopular"></div>
+            {% endif %}
+          </div>
+          <div class="product-other-images">
+            {% for image in book.images.all %}
+                <a href="{{ book.get_absolute_url }}"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-9">
+          <h2>{{ book.title }}</h2>
+          <div class="price-availability-block clearfix">
+            <div class="price">
+              {% if book.off %}
+                  <strong><span>$</span>{{ book.off }}</strong>
+                  <em>$<span>{{ book.price }}</span></em>
+              {% else %}
+                  <strong><span>$</span>{{ book.price }}</strong>
+              {% endif %}
+            </div>
+            <div class="availability">
+              {% if book.is_available %}
+                Availability: <strong>In Stock</strong>
+              {% else %}
+                Availability: <strong style="color: red">Not in Stock</strong>
+              {% endif %}
+            </div>
+          </div>
+          <div class="description">
+            <p>{{ book.summary }}</p>
+          </div>
+          <div class="product-page-cart">
+            {% if book.is_available %}
+                <div class="product-quantity">
+                <form action="{% url 'account_user_cart_update' %}" method="post">
+                  {% csrf_token %}
+                    {% if book in user.cart.books.all %}
+                        {% for number in user.cart.books_numbers.all %}
+                        {% if number.book == book %}
+                            <input id="product-quantity" name="quantity" type="text" value="{{ number.number }}" readonly class="form-control input-sm">
+                        </div>
+                            <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">Edit cart</button>
+                            | <button class="btn btn-danger" name="delete" value="{{ number.id }}" type="submit">Delete from cart</button>
+                        {% endif %}
+                        {% endfor %}
+                    {% else %}
+                            <input id="product-quantity" name="quantity" type="text" value="1" readonly class="form-control input-sm">
+                        </div>
+                        <button class="btn btn-primary" name="book" value="{{ book.id }}" type="submit">Add to cart</button>
+                    {% endif %}
+                </form>
+            {% else %}
+                <button class="btn btn-primary" type="button">Unavailable</button>
+            {% endif %}
+            {% if book in user.wish_list.books.all %}
+              <a href="{{ user.wish_list.get_absolute_url }}" class="btn btn-danger"><span class="glyphicon glyphicon-heart"></span></a>
+            {% else %}
+              <form method="post" action="{% url 'account_user_wishlist_update' %}">
+                {% csrf_token %}
+                <input type="hidden" name="book_id" value="{{ book.id }}">
+                <button type="submit" name="add" value="1" class="btn btn-danger"><span class="glyphicon glyphicon-heart-empty"></span></button>
+              </form>  
+            {% endif %}
+            <hr>
+            <a href="{{ book.get_absolute_url }}" class="btn btn-default">More details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endfor %}
+{% for book in mostpopular_books %}
+<div id="product-pop-up-{{ book.pk }}" style="display: none; width: 700px;">
+    <div class="product-page product-pop-up">
+      <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-3">
+          <div class="product-main-image">
+            <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="img-responsive">
+            {% if book.sale %}
+              <dev class="sticker sticker-sale"></dev>
+            {% endif %}
+            {% if book.new %}
+              <div class="sticker sticker-new"></div>
+            {% endif %}
+            {% if book.bestseller %}
+              <div class="sticker sticker-bestseller"></div>
+            {% endif %}
+            {% if book.mostpopular %}
+              <div class="sticker sticker-mostpopular"></div>
+            {% endif %}
+          </div>
+          <div class="product-other-images">
+            {% for image in book.images.all %}
+                <a href="{{ book.get_absolute_url }}"><img alt="{{ book.title }}" src="{{ image.image.url }}"></a>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-9">
+          <h2>{{ book.title }}</h2>
+          <div class="price-availability-block clearfix">
+            <div class="price">
+              {% if book.off %}
+                  <strong><span>$</span>{{ book.off }}</strong>
+                  <em>$<span>{{ book.price }}</span></em>
+              {% else %}
+                  <strong><span>$</span>{{ book.price }}</strong>
+              {% endif %}
+            </div>
+            <div class="availability">
+              {% if book.is_available %}
+                Availability: <strong>In Stock</strong>
+              {% else %}
+                Availability: <strong style="color: red">Not in Stock</strong>
+              {% endif %}
+            </div>
+          </div>
+          <div class="description">
+            <p>{{ book.summary }}</p>
+          </div>
+          <div class="product-page-cart">
+            {% if book.is_available %}
+                <div class="product-quantity">
+                <form action="{% url 'account_user_cart_update' %}" method="post">
+                  {% csrf_token %}
+                    {% if book in user.cart.books.all %}
+                        {% for number in user.cart.books_numbers.all %}
+                        {% if number.book == book %}
+                            <input id="product-quantity" name="quantity" type="text" value="{{ number.number }}" readonly class="form-control input-sm">
+                        </div>
+                            <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">Edit cart</button>
+                            | <button class="btn btn-danger" name="delete" value="{{ number.id }}" type="submit">Delete from cart</button>
+                        {% endif %}
+                        {% endfor %}
+                    {% else %}
+                            <input id="product-quantity" name="quantity" type="text" value="1" readonly class="form-control input-sm">
+                        </div>
+                        <button class="btn btn-primary" name="book" value="{{ book.id }}" type="submit">Add to cart</button>
+                    {% endif %}
+                </form>
+            {% else %}
+                <button class="btn btn-primary" type="button">Unavailable</button>
+            {% endif %}
+            {% if book in user.wish_list.books.all %}
+              <a href="{{ user.wish_list.get_absolute_url }}" class="btn btn-danger"><span class="glyphicon glyphicon-heart"></span></a>
+            {% else %}
+              <form method="post" action="{% url 'account_user_wishlist_update' %}">
+                {% csrf_token %}
+                <input type="hidden" name="book_id" value="{{ book.id }}">
+                <button type="submit" name="add" value="1" class="btn btn-danger"><span class="glyphicon glyphicon-heart-empty"></span></button>
+              </form>  
+            {% endif %}
+            <hr>
+            <a href="{{ book.get_absolute_url }}" class="btn btn-default">More details</a>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endfor %}

@@ -52,14 +52,13 @@ class BookDetailView(DetailView):
         ]
         self.object.is_in_cart = is_book_in_cart(self.object, self.request.user)
         context['page_location_list'] = page_location_list
-        context['down_suggestions'] = Book.objects.all()[:4]
-        context['sidebar_suggestions'] = Book.objects.bestseller()
         context['active_category_set'] = active_category_set
-        context['sidebar_category_list'] = Category.objects.active()
-        context['fast_view_books'] = context['down_suggestions']
+        context['has_down_suggestions'] = True
         context['book_fields'] = book_fields
         context['review_form'] = review_form
         context['review_reply_form'] = review_reply_form
+        self.object.views += 1
+        self.object.save()
         return context
 
 
@@ -121,8 +120,6 @@ class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
 class CategoryListView(ListView):
     model = Category
     template_name = 'books/category/category_list.html'
-    context_object_name = 'category_list'
-
 
 class CategoryBooksListView(ListView):
     template_name = 'newtemplates/shop-product-list.html'
@@ -161,10 +158,8 @@ class CategoryBooksListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
-        context['sidebar_category_list'] = Category.objects.active()
         context['fast_view_books'] = context['category_books']
         context['active_category_set'] = make_active_category_set(self.category)
-        context['sidebar_suggestions'] = Book.objects.published()[:4]
         context['available_on_key'] = self.available_on_key
         context['availability_on_key'] = self.availability_on_key
         context['price_on_key'] = self.price_on_key
@@ -315,7 +310,6 @@ class SearchResultsView(ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sidebar_suggestions'] = Book.objects.all()[:5]
         context['fast_view_books'] = self.get_queryset()
         context['searched'] = self.searched
         context['available'] = self.search_queryset.filter(stock__gt=0).count()

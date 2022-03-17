@@ -103,17 +103,17 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
         {% endif %}
         {% block content %}{% endblock %}
         {% block two_products_and_promo %}{% endblock %}
-        {% if down_suggestions %}
-            <!-- BEGIN DOWN SUGGESTIONS -->
-            <div class="row margin-bottom-40">
-              <div class="col-md-12 col-sm-12">
-                <h2>{% block down_suggestions_title %}Suggestions{% endblock %}</h2>
-                <div class="owl-carousel owl-carousel4">
-                    {% include 'newtemplates/snippets/down_suggestions.html' %}
-                </div>
+        {% if has_down_suggestions %}
+          <!-- BEGIN DOWN SUGGESTIONS -->
+          <div class="row margin-bottom-40">
+            <div class="col-md-12 col-sm-12">
+              <h2>{% block down_suggestions_title %}Most Popular{% endblock %}</h2>
+              <div class="owl-carousel owl-carousel4">
+                  {% include 'newtemplates/snippets/down_suggestions.html' %}
               </div>
             </div>
-            <!-- END DOWN SUGGESTIONS -->
+          </div>
+          <!-- END DOWN SUGGESTIONS -->
         {% endif %}
       </div>
     </div>
@@ -135,9 +135,7 @@ Purchase Premium Metronic Admin Theme: http://themeforest.net/item/metronic-resp
     <!-- END FOOTER -->
 
     <!-- BEGIN fast view of products -->
-    {% if fast_view_books %}
-        {% include 'newtemplates/snippets/fast_view.html' %}
-    {% endif %}
+    {% include 'newtemplates/snippets/fast_view.html' %}
     <!-- END fast view of products -->
 
     <!-- Load javascripts at bottom, this will reduce page load time -->

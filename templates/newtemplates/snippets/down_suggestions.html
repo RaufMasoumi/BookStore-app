@@ -1,4 +1,5 @@
 {% load static %}
+{% if down_suggestions %}
 {% for book in down_suggestions %}
   <div>
     <div class="product-item">
@@ -15,10 +16,10 @@
       {% else %}
         <div class="pi-price">${{ book.price }}</div>
       {% endif %}
-      {% if book in user.carts.cart.all %}
-          <a href="{% url 'account_user_cart_detail' user.carts.pk %}" class="btn btn-default add2cart">Is in cart</a>
+      {% if book in user.cart.books.all %}
+          <a href="{% url 'account_user_cart_detail' %}" class="btn btn-default add2cart">Is in cart</a>
       {% else %}
-          {% if book.stock > 0 %}
+          {% if book.is_available %}
               <form action="{% url 'account_user_cart_update' %}" method="post">
                   {% csrf_token %}
                   <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
@@ -42,6 +43,40 @@
     </div>
   </div>
 {% endfor %}
+{% else %}
+{% for book in mostpopular_books %}
+<div>
+  <div class="product-item">
+    <div class="pi-img-wrapper">
+      <img src="{{ book.cover.url }}" class="img-responsive" alt="{{ book.title }}" style="height: 232px; width: 300px">
+      <div>
+        <a href="{{ book.cover.url }}" class="btn btn-default fancybox-button">Zoom</a>
+        <a href="#product-pop-up-{{ book.pk }}" class="btn btn-default fancybox-fast-view">View</a>
+      </div>
+    </div>
+    <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+    {% if book.off %}
+      <div class="pi-price">${{ book.off }}</div>
+    {% else %}
+      <div class="pi-price">${{ book.price }}</div>
+    {% endif %}
+    {% if book in user.cart.books.all %}
+        <a href="{% url 'account_user_cart_detail' %}" class="btn btn-default add2cart">Is in cart</a>
+    {% else %}
+      {% if book.is_available %}
+        <form action="{% url 'account_user_cart_update' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
+        </form>
+      {% else %}
+        <button class="btn btn-default add2cart">Unavailable</button>
+      {% endif %}
+    {% endif %}
+    <div class="sticker sticker-mostpopular"></div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
   <div>
     <div class="product-item">
       <div class="pi-img-wrapper">

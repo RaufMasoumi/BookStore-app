@@ -106,46 +106,33 @@
         <li>
           <div class="header-navigation-content">
             <div class="row">
-              <div class="col-md-3 col-sm-4 col-xs-6">
-                <div class="product-item">
-                  <div class="pi-img-wrapper">
-                    <a href="../shop-item.html"><img src="{% static 'assets/pages/img/products/model4.jpg' %}" class="img-responsive" alt="Berry Lace Dress"></a>
+              {% for book in new_books %}
+                <div class="col-md-3 col-sm-4 col-xs-6">
+                  <div class="product-item">
+                    <div class="pi-img-wrapper">
+                      <a href="{{ book.get_absolute_url }}"><img src="{{ book.cover.url }}" style="width: 300px; height: 300px" class="img-responsive" alt="{{ book.title }}"></a>
+                    </div>
+                    <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+                    {% if book.off %}
+                      <div class="pi-price">${{ book.off }}</div>
+                    {% else %}
+                      <div class="pi-price">${{ book.price }}</div>
+                    {% endif %}
+                    {% if book in user.cart.books.all %}
+                      <a href="{% url 'account_user_cart_detail' %}" class="btn btn-default add2cart">Is in cart</a>
+                    {% else %}
+                        {% if book.is_available %}
+                            <form action="{% url 'account_user_cart_update' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
+                            </form>
+                        {% else %}
+                            <button class="btn btn-default add2cart">Unavailable</button>
+                        {% endif %}
+                    {% endif %}
                   </div>
-                  <h3><a href="../shop-item.html">Berry Lace Dress</a></h3>
-                  <div class="pi-price">$29.00</div>
-                  <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
                 </div>
-              </div>
-              <div class="col-md-3 col-sm-4 col-xs-6">
-                <div class="product-item">
-                  <div class="pi-img-wrapper">
-                    <a href="../shop-item.html"><img src="{% static 'assets/pages/img/products/model3.jpg' %}" class="img-responsive" alt="Berry Lace Dress"></a>
-                  </div>
-                  <h3><a href="../shop-item.html">Berry Lace Dress</a></h3>
-                  <div class="pi-price">$29.00</div>
-                  <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-4 col-xs-6">
-                <div class="product-item">
-                  <div class="pi-img-wrapper">
-                    <a href="../shop-item.html"><img src="{% static 'assets/pages/img/products/model7.jpg' %}" class="img-responsive" alt="Berry Lace Dress"></a>
-                  </div>
-                  <h3><a href="../shop-item.html">Berry Lace Dress</a></h3>
-                  <div class="pi-price">$29.00</div>
-                  <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-                </div>
-              </div>
-              <div class="col-md-3 col-sm-4 col-xs-6">
-                <div class="product-item">
-                  <div class="pi-img-wrapper">
-                    <a href="../shop-item.html"><img src="{% static 'assets/pages/img/products/model4.jpg' %}" class="img-responsive" alt="Berry Lace Dress"></a>
-                  </div>
-                  <h3><a href="../shop-item.html">Berry Lace Dress</a></h3>
-                  <div class="pi-price">$29.00</div>
-                  <a href="javascript:;" class="btn btn-default add2cart">Add to cart</a>
-                </div>
-              </div>
+              {% endfor %}
             </div>
           </div>
         </li>

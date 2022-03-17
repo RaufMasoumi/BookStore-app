@@ -55,7 +55,6 @@ class IndexView(TemplateView):
         context['new_arrivals'] = Book.objects.new()
         context['bestsellers'] = Book.objects.bestseller()
         context['fast_view_books'] = context['sales'] | context['new_arrivals'] | context['bestsellers']
-        context['sidebar_category_list'] = [category for category in Category.objects.active()]
         return context
 
 class ItemView(TemplateView):
