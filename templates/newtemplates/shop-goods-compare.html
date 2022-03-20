@@ -1,7 +1,7 @@
 {% extends 'newtemplates/base.html' %}
 {% load static %}
 
-{% block titel %}Product Comparison {% endblock %}
+{% block title %}Comparison {% endblock %}
 
 {% block page_level_plugin_styles %}
 <!-- Page level plugin styles START -->
@@ -17,124 +17,86 @@
     <div class="row margin-bottom-40">
       <!-- BEGIN SIDEBAR -->
       <div class="sidebar col-md-3 col-sm-5">
-        <ul class="list-group margin-bottom-25 sidebar-menu">
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Ladies</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Kids</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Accessories</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Sports</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Brands</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Electronics</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Home & Garden</a></li>
-          <li class="list-group-item clearfix"><a href="shop-product-list.html"><i class="fa fa-angle-right"></i> Custom Link</a></li>
-        </ul>
+        {% include 'newtemplates/snippets/sidebar_category.html' %}
       </div>
       <!-- END SIDEBAR -->
 
       <!-- BEGIN CONTENT -->
       <div class="col-md-9 col-sm-7">
-        <h1>Product Comparison</h1>
+        <h1>Comparison</h1>
+        {% if books_count %}
         <div class="goods-page">
           <div class="goods-data compare-goods clearfix">
             <div class="table-wrapper-responsive">
               <table summary="Product Details">
                 <tr>
                   <td class="compare-info">
-                    <p>There are 2 goods in the list.</p>
+                    <h2>There are {{ books_count }} books in the list.</h2>
                   </td>
-                  <td class="compare-item">
-                    <a href="javascript:;"><img src="{% static 'assets/pages/img/products/model3.jpg' %}" alt="Berry Lace Dress"></a>
-                    <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                    <strong class="compare-price"><span>$</span>47.00</strong>
-                  </td>
-                  <td class="compare-item">
-                    <a href="javascript:;"><img src="{% static 'assets/pages/img/products/model4.jpg' %}" alt="Berry Lace Dress"></a>
-                    <h3><a href="javascript:;">Cool green dress with red bell</a></h3>
-                    <strong class="compare-price"><span>$</span>42.00</strong>
-                  </td>
+                  {% for book in books %}
+                    <td class="compare-item">
+                      <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"></a>
+                      <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
+                      {% if book.off %}
+                        <strong class="compare-price"><span>$</span>{{ book.off }}</strong>
+                        <em>$<span>{{ book.price }}</span></em>
+                      {% else %}
+                        <strong class="compare-price"><span>$</span>{{ book.price }}</strong>
+                      {% endif %}
+                    </td>
+                  {% endfor %}
                 </tr>
-
                 <tr>
                   <th colspan="3">
-                    <h2>Product Details</h2>
+                    <h2>Details</h2>
                   </th>
                 </tr>
-                <tr>
-                  <td class="compare-info">
-                    Attribute
-                  </td>
-                  <td class="compare-item">
-                    Lorem ipsum
-                  </td>
-                  <td class="compare-item">
-                    Duis autem
-                  </td>
-                </tr>
-                <tr>
-                  <td class="compare-info">
-                    Attribute
-                  </td>
-                  <td class="compare-item">
-                    13.00cm x 0.00cm x 0.00cm
-                  </td>
-                  <td class="compare-item">
-                    13.00cm x 0.00cm x 0.00cm
-                  </td>
-                </tr>
-                <tr>
-                  <td class="compare-info">
-                    Attribute
-                  </td>
-                  <td class="compare-item">
-                    110.00g
-                  </td>
-                  <td class="compare-item">
-                    110.00g
-                  </td>
-                </tr>
-
-                <tr>
-                  <th colspan="3">
-                    <h2>Features</h2>
-                  </th>
-                </tr>
-                <tr>
-                  <td class="compare-info">
-                    Attribute
-                  </td>
-                  <td class="compare-item">
-                    13 cm
-                  </td>
-                  <td class="compare-item">
-                    –
-                  </td>
-                </tr>
-                <tr>
-                  <td class="compare-info">
-                    Attribute
-                  </td>
-                  <td class="compare-item">
-                    In Stock
-                  </td>
-                  <td class="compare-item">
-                    In Stock
-                  </td>
-                </tr>
+                {% for attr, value_list in comparing_dict.items %}
+                  <tr>
+                    <td class="compare-info">
+                      {{ attr }}
+                    </td>
+                    {% for value in value_list %}
+                      <td class="compare-item">
+                        {% if value %}
+                          {{value}}
+                        {% else %}
+                         -
+                        {% endif %}
+                      </td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
                 <tr>
                   <td class="compare-info">&nbsp;</td>
-                  <td class="compare-item">
-                    <a class="btn btn-primary" href="javascript:;">Add to cart</a><br>
-                    <a class="btn btn-default" href="javascript:;">Delete</a>
-                  </td>
-                  <td class="compare-item">
-                    <a class="btn btn-primary" href="javascript:;">Add to cart</a><br>
-                    <a class="btn btn-default" href="javascript:;">Delete</a>
-                  </td>
+                  {% for book in books %}
+                    <td class="compare-item">
+                      {% if book.is_in_cart %}
+                        <a class="btn btn-primary" href="{% url 'account_user_cart_detail' %}">Is in cart</a><br>
+                      {% else %}
+                        <form method="post" action="{% url 'account_user_cart_update' %}">
+                          {% csrf_token %}
+                          <input name="book_add" value="{{ book.id }}" type="hidden">
+                          <button class="btn btn-primary" type="submit">Add to cart</button><br>
+                        </form>
+                      {% endif %}
+                      <form method="get">
+                        {% for pattern, pk in books_get_dict.items %}
+                          <input name="{{ pattern }}" value="{{ pk }}" type="hidden">
+                        {% endfor %}  
+                        <button class="btn btn-default" type="submit" name="delete_book" value="{{ book.pk }}">Delete</button>
+                      </form>
+                    </td>
+                  {% endfor %}
                 </tr>
               </table>
               <p class="padding-top-20"><strong>Notice:</strong> Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam sit nonummy nibh euismod tincidunt ut laoreet dolore magna aliquarm erat sit volutpat. Nostrud exerci tation ullamcorper suscipit lobortis nisl aliquip commodo consequat. </p>
             </div>
           </div>
         </div>
+        {% else %}
+        <p style="font-size:17px;">There is no books to compare!</p>
+        {% endif %}
       </div>
       <!-- END CONTENT -->
     </div>
@@ -154,7 +116,6 @@
         jQuery(document).ready(function() {
             Layout.init();
             Layout.initOWL();
-
             Layout.initImageZoom();
             Layout.initTouchspin();
             Layout.initUniform();

@@ -13,7 +13,6 @@ def bestseller_books(request):
 
 def mostpopular_books(request):
     ordered_books = Book.objects.mostpopular()
-    print([book for book in ordered_books])
     books_dict = {'mostpopular_books': ordered_books}
     return books_dict
 

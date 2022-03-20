@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required, permission_required
 from django.views.decorators.http import require_POST
@@ -8,6 +8,7 @@ from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from .models import Book, Category, Review, ReviewReply
 from .forms import BookImageFormSet, BookMakePublishedForm, ReviewForm, ReviewReplyForm
+from uuid import UUID
 import re
 # Create your views here.
 
@@ -60,7 +61,6 @@ class BookDetailView(DetailView):
         self.object.views += 1
         self.object.save()
         return context
-
 
 class DraftBookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     queryset = Book.objects.draft()
@@ -323,7 +323,51 @@ class SearchResultsView(ListView):
         context['paginate_by'] = self.get_paginate_by()
         return context
 
+class BookComparingView(TemplateView):
+    template_name = 'newtemplates/shop-goods-compare.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        display_fields = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
+                          'length', 'width', 'summary')
+
+        comparing_dict = {field:[] for field in display_fields if field in [field.name for field in Book._meta.get_fields()]}
+        books = []
+        pattern = 'book-'
+        pattern_list = []
+        get = self.request.GET
+        for number in range(len(get)):
+            pattern_list.append(pattern+str(number+1))
+
+        for get_pattern in pattern_list:
+            if get.get(get_pattern):
+                pk = get[get_pattern]
+                if Book.objects.filter(pk=pk).exists():
+                    book = Book.objects.get(pk=pk)
+                    book.is_in_cart = is_book_in_cart(book, self.request.user)
+                    books.append(book)
+
+        if get.get('delete_book'):
+            pk = get['delete_book']
+            if Book.objects.filter(pk=pk).exists():
+                book = Book.objects.get(pk=pk)
+                if book in books:
+                    books.remove(book)
+
+        for field in comparing_dict:
+            for book in books:
+                comparing_dict[field].append(getattr(book, field))
+
+        books_get_dict = {}
+        for index in range(len(books)):
+            books_get_dict[pattern_list[index]] = books[index].pk
+
+        context['comparing_dict'] = comparing_dict
+        context['books'] = books
+        context['books_get_dict'] = books_get_dict
+        context['books_count'] = len(books)
+        return context
+        
 class PageLocation:
     def __init__(self, title: str, view_name: str, is_active=False):
         self.title = title
@@ -338,7 +382,7 @@ def search_by_title_author(request):
     query = request.GET.get('search')
     elem = []
     if request.GET.get('title'):
-        elem.append('title')
+        elem.append('tsitle')
     if request.GET.get('author'):
         elem.append('author')
 

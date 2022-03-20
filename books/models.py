@@ -128,7 +128,6 @@ class Book(models.Model):
     def is_published(self):
         return True if self.status == 'p' else False
 
-
 class BookImage(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='books/images/', max_length=200, blank=True)

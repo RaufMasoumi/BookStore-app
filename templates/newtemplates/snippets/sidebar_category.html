@@ -27,30 +27,30 @@
   {% endfor %}
 </ul>
 {% else %}
-<div class="sidebar col-md-3 col-sm-4">
-    <ul class="list-group margin-bottom-25 sidebar-menu">
-      {% for category in categories %}
-        {% if not category.parent %}
-            {% if category.children.active %}
-                <li class="list-group-item collapse dropdown">
-                    <a href="{{ category.get_absolute_url }}">
-                        <i class="fa fa-angle-right"></i>
-                        {{ category.title }}
-                    </a>
-                    {% if category.children.active %}
-                        {% include 'newtemplates/snippets/category_loop.html' %}
-                    {% endif %}
-                </li>
-            {% else %}
-              <li class="list-group-item collapse">
-                <a href="{{ category.get_absolute_url }}">
-                    <i class="fa fa-angle-right"></i>
-                    {{ category.title }}
-                </a>
+{% comment %} <div class="sidebar col-md-3 col-sm-4"> {% endcomment %}
+  <ul class="list-group margin-bottom-25 sidebar-menu">
+    {% for category in categories %}
+      {% if not category.parent %}
+          {% if category.children.active %}
+              <li class="list-group-item collapse dropdown">
+                  <a href="{{ category.get_absolute_url }}">
+                      <i class="fa fa-angle-right"></i>
+                      {{ category.title }}
+                  </a>
+                  {% if category.children.active %}
+                      {% include 'newtemplates/snippets/category_loop.html' %}
+                  {% endif %}
               </li>
-            {% endif %}
-        {% endif %}
-      {% endfor %}
-    </ul>
-</div>
+          {% else %}
+            <li class="list-group-item collapse">
+              <a href="{{ category.get_absolute_url }}">
+                  <i class="fa fa-angle-right"></i>
+                  {{ category.title }}
+              </a>
+            </li>
+          {% endif %}
+      {% endif %}
+    {% endfor %}
+  </ul>
+{% comment %} </div> {% endcomment %}
 {% endif %}
