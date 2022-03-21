@@ -132,7 +132,7 @@
                     <tr>
                       <td class="datasheet-features-type">{{ field }}</td>
                       {% if value %}
-                        {% if field == 'category' %}
+                        {% if field == 'Category' %}
                             <td>
                             {% for category in value %}
                                 <a href="{{ category.get_absolute_url }}">#{{ category }}</a>

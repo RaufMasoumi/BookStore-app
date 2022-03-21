@@ -41,10 +41,10 @@ class BookDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         display_fields = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
                           'length', 'width', 'summary')
-        book_fields = {field.name: getattr(self.object, field.name) for field in self.object._meta.get_fields()
-                      if field.name in display_fields}
-        active_category_set = self.object.category.all()
-        book_fields['category'] = active_category_set
+        book_fields = {field.replace('_', ' ').capitalize(): getattr(self.object, field) for field in display_fields
+                      if field in [field.name for field in self.object._meta.get_fields()]}
+        active_category_set = self.object.category.active()
+        book_fields['Category'] = active_category_set
         review_form = ReviewForm(initial={'book': self.object.pk})
         review_reply_form = ReviewReplyForm()
         page_location_list = [
@@ -132,17 +132,18 @@ class CategoryBooksListView(ListView):
         self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key \
             = [False, False, '', '', '']
 
-        if self.request.GET.get('filter'):
-            if self.request.GET.get('use_price'):
+        get = self.request.GET
+        if get.get('filter'):
+            if get.get('use_price'):
                 queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
                 self.price_on_key = True
 
-            if self.request.GET.get('use_availability'):
+            if get.get('use_availability'):
                 queryset, self.available_on_key = available_limit(queryset, self.request)
                 self.availability_on_key = True
 
 
-        if self.request.GET.get('showing'):
+        if get.get('showing'):
             queryset, self.order_by = sort_books(queryset, self.request)
         else:
             self.order_by = None
@@ -279,24 +280,25 @@ class SearchResultsView(ListView):
     template_name = 'newtemplates/shop-search-result.html'
 
     def get_queryset(self):
-        self.searched = self.request.GET.get('search')
+        get = self.request.GET
+        self.searched = get.get('search')
         queryset = search_by_title_author(self.request)
         self.search_queryset = queryset
         queryset = published_limit(queryset, self.request)
         self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key \
             = [False, False, '', '', '']
 
-        if self.request.GET.get('filter'):
-            if self.request.GET.get('use_price'):
+        if get.get('filter'):
+            if get.get('use_price'):
                 queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
                 self.price_on_key = True
 
-            if self.request.GET.get('use_availability'):
+            if get.get('use_availability'):
                 queryset, self.available_on_key = available_limit(queryset, self.request)
                 self.availability_on_key = True
 
 
-        if self.request.GET.get('showing'):
+        if get.get('showing'):
             queryset, self.order_by = sort_books(queryset, self.request)
         else:
             self.order_by = None
@@ -331,7 +333,7 @@ class BookComparingView(TemplateView):
         display_fields = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
                           'length', 'width', 'summary')
 
-        comparing_dict = {field:[] for field in display_fields if field in [field.name for field in Book._meta.get_fields()]}
+        comparing_dict = {field.replace('_', ' ').capitalize():[] for field in display_fields if field in [field.name for field in Book._meta.get_fields()]}
         books = []
         pattern = 'book-'
         pattern_list = []
@@ -354,9 +356,10 @@ class BookComparingView(TemplateView):
                 if book in books:
                     books.remove(book)
 
-        for field in comparing_dict:
+        for field in display_fields:
             for book in books:
-                comparing_dict[field].append(getattr(book, field))
+                comparing_dict[field.replace('_', ' ').capitalize()].append(getattr(book, field))
+        
 
         books_get_dict = {}
         for index in range(len(books)):
@@ -467,14 +470,14 @@ def paginate_books(request):
 @require_POST
 @login_required(login_url='account_login')
 def update_votes(request):
-
-    if request.POST.get('positive'):
+    post = request.POST
+    if post.get('positive'):
         pos_vote = True
     else:
         pos_vote = False
 
-    if request.POST.get('review'):
-        review = Review.objects.get(pk=request.POST.get('review'))
+    if post.get('review'):
+        review = Review.objects.get(pk=post['review'])
         if pos_vote:
             review.votes += 1
         else:
@@ -482,8 +485,8 @@ def update_votes(request):
         review.save()
         return redirect(reverse('book_detail', kwargs={'pk': review.book.pk}))
 
-    if request.POST.get('reply'):
-        reply = ReviewReply.objects.get(pk=request.POST.get('reply'))
+    if post.get('reply'):
+        reply = ReviewReply.objects.get(pk=post.get['reply'])
         if pos_vote:
             reply.votes += 1
         else:
@@ -496,9 +499,10 @@ def update_votes(request):
 @login_required(login_url='account_login')
 @permission_required(perm='books.change_book')
 def book_make_published(request):
-    if request.POST.get('book') and request.POST.get('publish'):
-        book = Book.objects.get(pk=request.POST.get('book'))
-        if request.POST.get('publish') == 'on':
+    post = request.POST
+    if post.get('book') and post.get('publish'):
+        book = Book.objects.get(pk=post['book'])
+        if post['publish'] == 'on':
             book.status = 'p'
             book.save()
             return redirect(reverse('draft_book_list'))
