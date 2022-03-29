@@ -97,6 +97,13 @@
         {% else %}
         <p style="font-size:17px;">There is no books to compare!</p>
         {% endif %}
+        <hr>
+        <form action="{% url 'search_results' %}">
+          {% for pattern, pk in books_get_dict.items %}
+            <input name="{{ pattern }}" value="{{ pk }}" type="hidden">
+          {% endfor %}
+          <button class="btn btn-primary" type="submit" name="come_from_comparing" value="1">Add book</button>
+        </form>
       </div>
       <!-- END CONTENT -->
     </div>

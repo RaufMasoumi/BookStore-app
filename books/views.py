@@ -1,3 +1,4 @@
+from typing import List
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -277,12 +278,20 @@ class ReviewReplyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 class SearchResultsView(ListView):
     model = Book
     context_object_name = 'search_book_list'
-    template_name = 'newtemplates/shop-search-result.html'
+
+    def get_template_names(self):
+        template_names = []
+        if self.request.GET.get('come_from_comparing'):
+            template_names.append('newtemplates/book_add_to_comparing_list.html')
+        else:
+            template_names.append('newtemplates/shop-search-result.html')
+        return template_names
 
     def get_queryset(self):
         get = self.request.GET
-        self.searched = get.get('search')
-        queryset = search_by_title_author(self.request)
+        self.searched = get['search'] if get.get('search') else ''
+        queryset = Book.objects.all()
+        queryset = search_by_title_author(queryset, self.request)
         self.search_queryset = queryset
         queryset = published_limit(queryset, self.request)
         self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key \
@@ -323,6 +332,24 @@ class SearchResultsView(ListView):
         context['price_more_key'] = self.price_more_key
         context['order_by'] = self.order_by
         context['paginate_by'] = self.get_paginate_by()
+        get = self.request.GET
+        if get.get('come_from_comparing'):
+            books = []
+            books_get_dict = {}
+            pattern = 'book-'
+            if get.get('book-1'):
+                pattern_list = []
+                for number in range(len(get)):
+                    get_pattern = pattern + str(number+1)
+                    pattern_list.append(get_pattern)
+                for get_pattern in pattern_list:
+                    if get.get(get_pattern) and Book.objects.filter(pk=get[get_pattern]).exists:
+                        book = Book.objects.get(pk=get[get_pattern])
+                        books.append(book)
+                for index in range(len(books)):
+                    books_get_dict[pattern_list[index]] = books[index].pk
+            context['books_comparing_get_dict'] = books_get_dict
+            context['new_book_comparing_get_pattern'] = pattern + str(len(books)+1)
         return context
 
 class BookComparingView(TemplateView):
@@ -370,7 +397,7 @@ class BookComparingView(TemplateView):
         context['books_get_dict'] = books_get_dict
         context['books_count'] = len(books)
         return context
-        
+
 class PageLocation:
     def __init__(self, title: str, view_name: str, is_active=False):
         self.title = title
@@ -381,22 +408,25 @@ class PageLocation:
         return reverse(self.view_name)
 
 
-def search_by_title_author(request):
-    query = request.GET.get('search')
+def search_by_title_author(queryset, request):
+    get = request.GET
+    query = get.get('search')
+    if not query:
+        return queryset
     elem = []
-    if request.GET.get('title'):
-        elem.append('tsitle')
-    if request.GET.get('author'):
+    if get.get('title'):
+        elem.append('title')
+    if get.get('author'):
         elem.append('author')
 
     if len(elem) == 2 or len(elem) == 0:
-        queryset = Book.objects.filter(Q(title__icontains=query) | Q(author__icontains=query))
+        queryset = queryset.filter(Q(title__icontains=query) | Q(author__icontains=query))
 
     elif len(elem) == 1:
         if elem[0] == 'title':
-            queryset = Book.objects.filter(Q(title__icontains=query))
+            queryset = queryset.filter(Q(title__icontains=query))
         elif elem[0] == 'author':
-            queryset = Book.objects.filter(Q(author__icontains=query))
+            queryset = queryset.filter(Q(author__icontains=query))
 
     return queryset
 
@@ -429,10 +459,11 @@ def price_limit(queryset, request):
 
 def available_limit(queryset, request):
     on_key = ''
-    if request.GET.get('available') and not request.GET.get('unavailable'):
+    get = request.GET
+    if get.get('available') and not get.get('unavailable'):
         queryset = queryset.filter(stock__gt=0)
         on_key = 'available'
-    elif request.GET.get('unavailable')  and not request.GET.get('available'):
+    elif get.get('unavailable')  and not get.get('available'):
         queryset = queryset.filter(stock__lt=1)
         on_key = 'unavailable'
     return queryset, on_key
