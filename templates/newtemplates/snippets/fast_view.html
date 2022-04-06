@@ -80,6 +80,11 @@
             {% endif %}
             <hr>
             <a href="{{ book.get_absolute_url }}" class="btn btn-default">More details</a>
+            <hr>
+            <form method="get" action="{% url 'book_comparing' %}">
+              <input name="book-1" value="{{ book.pk }}" type="hidden">
+              <button type="submit" class="btn btn-danger">Add to Comparing</button>
+            </form>
           </div>
         </div>
       </div>

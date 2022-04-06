@@ -20,6 +20,7 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
     context_object_name = 'profile'
 
     def get_object(self, queryset=None):
+        pk = self.request.kwargs['pk'] if self.request.kwargs.get('pk') else self.request.user.pk
         return get_user_model().objects.get(pk=self.request.user.pk)
 
     def get_context_data(self, **kwargs):

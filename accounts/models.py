@@ -152,7 +152,9 @@ def update_user_cart_books_number_number(instance, created, **kwargs):
 
 @receiver(post_save, sender=SocialAccount)
 def update_user_profile_image(instance, **kwargs):
-    if not instance.user.image:
+    if instance.user.image:
+        return
+    else:
         response = requests.get(instance.extra_data['picture'])
         user = instance.user
         path = f'{django.conf.settings.MEDIA_ROOT}/accounts/pictures/{user.username}.png'
@@ -161,4 +163,5 @@ def update_user_profile_image(instance, **kwargs):
         image.close()
         user.image = path.split('media')[1]
         user.save()
-        return print('image sat for the user.')
+        
+    return print('image sat for the user.')

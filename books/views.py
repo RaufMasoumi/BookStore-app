@@ -289,7 +289,7 @@ class SearchResultsView(ListView):
 
     def get_queryset(self):
         get = self.request.GET
-        self.searched = get['search'] if get.get('search') else ''
+        self.searched = get['query'] if get.get('query') else ''
         queryset = Book.objects.all()
         queryset = search_by_title_author(queryset, self.request)
         self.search_queryset = queryset
@@ -410,7 +410,7 @@ class PageLocation:
 
 def search_by_title_author(queryset, request):
     get = request.GET
-    query = get.get('search')
+    query = get.get('query')
     if not query:
         return queryset
     elem = []
