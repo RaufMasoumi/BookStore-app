@@ -1,28 +1,28 @@
 <div class="sidebar col-md-3 col-sm-3">
-    <ul class="list-group margin-bottom-25 sidebar-menu">
-      {% if user.is_authenticated %}
-        <li class="list-group-item clearfix"><a href="{% url 'account_logout' %}"><i class="fa fa-angle-right"></i> Logout</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_user_detail' %}"><i class="fa fa-angle-right"></i> My Profile</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_email' %}"><i class="fa fa-angle-right"></i>Email</a></li>
-        <li class="list-group-item clearfix"><a href={% url 'account_user_cart_detail' %}><i class="fa fa-angle-right"></i>Shopping Cart</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_user_wishlist_detail' %}"><i class="fa fa-angle-right"></i> Wish list</a></li>
-        <li class="list-group-item clearfix"><a href={% url 'account_user_address_list' %}><i class="fa fa-angle-right"></i> Address book</a></li>
-        {% if user.password and user.has_usable_password %}
-          <li class="list-group-item clearfix"><a href="{% url 'account_change_password' %}"><i class="fa fa-angle-right"></i> Change Password</a></li>
-        {% else %}
-          <li class="list-group-item clearfix"><a href="{% url 'account_set_password' %}"><i class="fa fa-angle-right"></i> Set Password</a></li>
-        {% endif %}
-        <li class="list-group-item clearfix"><a href="{% url 'account_reset_password' %}"><i class="fa fa-angle-right"></i> Reset Password</a></li>
-      {% else %}
-        <li class="list-group-item clearfix"><a href="{% url 'account_login' %}"><i class="fa fa-angle-right"></i> Login</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_signup' %}"><i class="fa fa-angle-right"></i> SignUp</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_user_detail' %}"><i class="fa fa-angle-right"></i> My Profile</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_email' %}"><i class="fa fa-angle-right"></i>Email</a></li>
-        <li class="list-group-item clearfix"><a href={% url 'account_user_cart_detail' %}><i class="fa fa-angle-right"></i>Shopping Cart</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_user_wishlist_detail' %}"><i class="fa fa-angle-right"></i> Wish list</a></li>
-        <li class="list-group-item clearfix"><a href={% url 'account_user_address_list' %}><i class="fa fa-angle-right"></i> Address book</a></li>
+  <ul class="list-group margin-bottom-25 sidebar-menu">
+    {% if user.is_authenticated %}
+      <li class="list-group-item clearfix"><a href="{% url 'account_logout' %}"><i class="fa fa-angle-right"></i> Logout</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_user_detail' %}"><i class="fa fa-angle-right"></i> My Profile</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_email' %}"><i class="fa fa-angle-right"></i>Email</a></li>
+      <li class="list-group-item clearfix"><a href={% url 'account_user_cart_detail' %}><i class="fa fa-angle-right"></i>Shopping Cart</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_user_wishlist_detail' %}"><i class="fa fa-angle-right"></i> Wish list</a></li>
+      <li class="list-group-item clearfix"><a href={% url 'account_user_address_list' %}><i class="fa fa-angle-right"></i> Address book</a></li>
+      {% if user.password and user.has_usable_password %}
         <li class="list-group-item clearfix"><a href="{% url 'account_change_password' %}"><i class="fa fa-angle-right"></i> Change Password</a></li>
-        <li class="list-group-item clearfix"><a href="{% url 'account_reset_password' %}"><i class="fa fa-angle-right"></i> Reset Password</a></li>
+      {% else %}
+        <li class="list-group-item clearfix"><a href="{% url 'account_set_password' %}"><i class="fa fa-angle-right"></i> Set Password</a></li>
       {% endif %}
-    </ul>
+      <li class="list-group-item clearfix"><a href="{% url 'account_reset_password' %}"><i class="fa fa-angle-right"></i> Reset Password</a></li>
+    {% else %}
+      <li class="list-group-item clearfix"><a href="{% url 'account_login' %}"><i class="fa fa-angle-right"></i> Login</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_signup' %}"><i class="fa fa-angle-right"></i> SignUp</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_user_detail' %}"><i class="fa fa-angle-right"></i> My Profile</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_email' %}"><i class="fa fa-angle-right"></i>Email</a></li>
+      <li class="list-group-item clearfix"><a href={% url 'account_user_cart_detail' %}><i class="fa fa-angle-right"></i>Shopping Cart</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_user_wishlist_detail' %}"><i class="fa fa-angle-right"></i> Wish list</a></li>
+      <li class="list-group-item clearfix"><a href={% url 'account_user_address_list' %}><i class="fa fa-angle-right"></i> Address book</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_change_password' %}"><i class="fa fa-angle-right"></i> Change Password</a></li>
+      <li class="list-group-item clearfix"><a href="{% url 'account_reset_password' %}"><i class="fa fa-angle-right"></i> Reset Password</a></li>
+    {% endif %}
+  </ul>
 </div>

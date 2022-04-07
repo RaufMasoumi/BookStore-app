@@ -7,15 +7,15 @@ var ContactUs = function () {
 			$(document).ready(function(){
 			  map = new GMaps({
 				div: '#map',
-	            lat: -13.004333,
-				lng: -38.494333,
+	            lat: 37.552673,
+				lng: 45.076046,
 			  });
 			   var marker = map.addMarker({
-		            lat: -13.004333,
-					lng: -38.494333,
+		            lat: 37.552673,
+					lng: 45.076046,
 		            title: 'Loop, Inc.',
 		            infoWindow: {
-		                content: "<b>Loop, Inc.</b> 795 Park Ave, Suite 120<br>San Francisco, CA 94107"
+		                content: "<b>Urmia</b>"
 		            }
 		        });
 

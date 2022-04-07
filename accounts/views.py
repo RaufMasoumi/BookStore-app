@@ -20,7 +20,7 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
     context_object_name = 'profile'
 
     def get_object(self, queryset=None):
-        pk = self.request.kwargs['pk'] if self.request.kwargs.get('pk') else self.request.user.pk
+        pk = self.kwargs['pk'] if self.kwargs.get('pk') else self.request.user.pk
         return get_user_model().objects.get(pk=self.request.user.pk)
 
     def get_context_data(self, **kwargs):
@@ -51,8 +51,11 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
 class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
     fields = ('first_name', 'last_name', 'image', 'phone_number', 'card_number')
     template_name = 'account/user_update.html'
-    success_url = reverse_lazy('home')
     login_url = 'account_login'
+
+    def get_success_url(self):
+        obj = self.get_object()
+        return obj.get_absolute_url()
 
     def get_object(self, queryset=None):
         return get_user_model().objects.get(pk=self.request.user.pk)
@@ -71,9 +74,9 @@ class UserAddressListView(LoginRequiredMixin, ListView):
     template_name = 'account/user_address_list.html'
 
     def get_queryset(self):
-        self.user = get_object_or_404(get_user_model(), pk=self.kwargs['user_pk'] 
+        user = get_object_or_404(get_user_model(), pk=self.kwargs['user_pk'] 
             if self.kwargs.get('user_pk') else self.request.user.pk)
-        queryset = UserAddress.objects.get(user=self.user) if UserAddress.objects.filter(user=self.user).exists() else None
+        queryset = UserAddress.objects.filter(user=user)
         return queryset
 
     def get_context_data(self, **kwargs):

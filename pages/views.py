@@ -26,6 +26,10 @@ def hello(request):
 class AboutView(TemplateView):
     template_name = 'newtemplates/shop-about.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), PageLocation('About', 'about', True)]
+        return context
 
 class AccountView(TemplateView):
     template_name = 'newtemplates/shop-account.html'
@@ -39,9 +43,21 @@ class CheckoutView(TemplateView):
 
 class ContenctsView(TemplateView):
     template_name = 'newtemplates/shop-contacts.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
+            PageLocation('Contacts', 'contacts', True)]
+        return context
 
 class FaqView(TemplateView):
     template_name = 'newtemplates/shop-faq.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
+            PageLocation('Frequently Asked Questions', 'faq', True)]
+        return context
 
 class GoodsView(TemplateView):
     template_name = 'newtemplates/shop-goods-compare.html'
@@ -62,6 +78,12 @@ class ItemView(TemplateView):
 
 class PrivacyPolicyView(TemplateView):
     template_name = 'newtemplates/shop-privacy-policy.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
+            PageLocation('Privacy and Policy', 'privacy', True)]
+        return context
 
 class ProductListView(TemplateView):
     template_name = 'newtemplates/shop-product-list.html'
@@ -80,6 +102,12 @@ class StandardFormsView(TemplateView):
 
 class TermsConditionsView(TemplateView):
     template_name = 'newtemplates/shop-terms-conditions-page.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
+            PageLocation('Terms and Conditions', 'terms', True)]
+        return context
 
 class WishListView(TemplateView):
     template_name = 'newtemplates/shop-wishlist.html'

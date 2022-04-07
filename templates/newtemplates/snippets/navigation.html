@@ -2,101 +2,42 @@
 
 <div class="header-navigation">
   <ul>
-    <li class="dropdown">
-      <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">
-        Woman
-
-      </a>
-
-      <!-- BEGIN DROPDOWN MENU -->
-      <ul class="dropdown-menu">
-        <li class="dropdown-submenu">
-          <a href="../shop-product-list.html">Hi Tops <i class="fa fa-angle-right"></i></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="../shop-product-list.html">Second Level Link</a></li>
-            <li><a href="../shop-product-list.html">Second Level Link</a></li>
-            <li class="dropdown-submenu">
-              <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">
-                Second Level Link
-                <i class="fa fa-angle-right"></i>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="../shop-product-list.html">Third Level Link</a></li>
-                <li><a href="../shop-product-list.html">Third Level Link</a></li>
-                <li><a href="../shop-product-list.html">Third Level Link</a></li>
-              </ul>
-            </li>
-          </ul>
-        </li>
-        <li><a href="../shop-product-list.html">Running Shoes</a></li>
-        <li><a href="../shop-product-list.html">Jackets and Coats</a></li>
-      </ul>
-      <!-- END DROPDOWN MENU -->
-    </li>
     <li class="dropdown dropdown-megamenu">
       <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">
-        Man
+        Categories
 
       </a>
       <ul class="dropdown-menu">
         <li>
           <div class="header-navigation-content">
             <div class="row">
-              <div class="col-md-4 header-navigation-col">
-                <h4>Footwear</h4>
-                <ul>
-                  <li><a href="../shop-product-list.html">Astro Trainers</a></li>
-                  <li><a href="../shop-product-list.html">Basketball Shoes</a></li>
-                  <li><a href="../shop-product-list.html">Boots</a></li>
-                  <li><a href="../shop-product-list.html">Canvas Shoes</a></li>
-                  <li><a href="../shop-product-list.html">Football Boots</a></li>
-                  <li><a href="../shop-product-list.html">Golf Shoes</a></li>
-                  <li><a href="../shop-product-list.html">Hi Tops</a></li>
-                  <li><a href="../shop-product-list.html">Indoor and Court Trainers</a></li>
-                </ul>
-              </div>
-              <div class="col-md-4 header-navigation-col">
-                <h4>Clothing</h4>
-                <ul>
-                  <li><a href="../shop-product-list.html">Base Layer</a></li>
-                  <li><a href="../shop-product-list.html">Character</a></li>
-                  <li><a href="../shop-product-list.html">Chinos</a></li>
-                  <li><a href="../shop-product-list.html">Combats</a></li>
-                  <li><a href="../shop-product-list.html">Cricket Clothing</a></li>
-                  <li><a href="../shop-product-list.html">Fleeces</a></li>
-                  <li><a href="../shop-product-list.html">Gilets</a></li>
-                  <li><a href="../shop-product-list.html">Golf Tops</a></li>
-                </ul>
-              </div>
-              <div class="col-md-4 header-navigation-col">
-                <h4>Accessories</h4>
-                <ul>
-                  <li><a href="../shop-product-list.html">Belts</a></li>
-                  <li><a href="../shop-product-list.html">Caps</a></li>
-                  <li><a href="../shop-product-list.html">Gloves, Hats and Scarves</a></li>
-                </ul>
+              {% for category in categories %}
+                {% if not category.parent %}
+                  {% if category.children.count >= 0 %}
+                    <div class="col-md-4 header-navigation-col">
+                      <h4>{{ category.title }}</h4>
+                      <ul>
+                        {% for child in category.children.all %}
+                          <li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% else %}
 
-                <h4>Clearance</h4>
-                <ul>
-                  <li><a href="../shop-product-list.html">Jackets</a></li>
-                  <li><a href="../shop-product-list.html">Bottoms</a></li>
-                </ul>
-              </div>
-              <div class="col-md-12 nav-brands">
-                <ul>
-                  <li><a href="../shop-product-list.html"><img title="esprit" alt="esprit" src="{% static 'assets/pages/img/brands/esprit.jpg' %}"></a></li>
-                  <li><a href="../shop-product-list.html"><img title="gap" alt="gap" src="{% static 'assets/pages/img/brands/gap.jpg' %}"></a></li>
-                  <li><a href="../shop-product-list.html"><img title="next" alt="next" src="{% static 'assets/pages/img/brands/next.jpg' %}"></a></li>
-                  <li><a href="../shop-product-list.html"><img title="puma" alt="puma" src="{% static 'assets/pages/img/brands/puma.jpg' %}"></a></li>
-                  <li><a href="../shop-product-list.html"><img title="zara" alt="zara" src="{% static 'assets/pages/img/brands/zara.jpg' %}"></a></li>
-                </ul>
-              </div>
+                    <h4>{{ category.title }}</h4>
+                    <ul>
+                      {% for child in category.children.all %}
+                        <li><a href="{{ child.get_absolute_url }}">{{ child.title }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
             </div>
           </div>
         </li>
       </ul>
     </li>
-    <li><a href="../shop-item.html">Kids</a></li>
     <li class="dropdown dropdown100 nav-catalogue">
       <a class="dropdown-toggle" data-toggle="dropdown" data-target="#" href="javascript:;">
         New
@@ -164,10 +105,11 @@
         <li><a href="{% url 'privacy' %}">Privacy Policy</a></li>
         <li><a href="{% url 'terms' %}">Terms &amp; Conditions</a></li>
       </ul>
+      <li><a href="{% url 'book_comparing' %}">Comparison</a></li>
+      <li><a href="{% url 'contacts' %}">Contacts</a></li>
+      <li><a href="{% url 'faq' %}">Faq</a></li>
+      <li><a href="{% url 'new-about' %}">About</a></li>
     </li>
-
-
-    <li><a href="http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes&amp;utm_source=download&amp;utm_medium=banner&amp;utm_campaign=metronic_frontend_freebie" target="_blank">Admin theme</a></li>
 
     <!-- BEGIN TOP SEARCH -->
     <li class="menu-search">

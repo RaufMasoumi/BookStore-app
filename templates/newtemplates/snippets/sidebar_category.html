@@ -37,9 +37,7 @@
                       <i class="fa fa-angle-right"></i>
                       {{ category.title }}
                   </a>
-                  {% if category.children.active %}
-                      {% include 'newtemplates/snippets/category_loop.html' %}
-                  {% endif %}
+                  {% include 'newtemplates/snippets/category_loop.html' %}
               </li>
           {% else %}
             <li class="list-group-item collapse">
