@@ -9,7 +9,7 @@
     {% if address_list %}
         {% for address in address_list %}
             <div class="content-page">
-                <p style="font-size:17px;"><a href="{% url 'account_user_address_update' address.pk %}">{{address.address}}</a><p>
+                <p style="font-size:17px;"><a href="{% url 'account_user_address_update' address.pk %}">{{address.reciever_first_name}} {{address.reciever_last_name}}, {{address.country}}, {{address.city}}, {{address.street}}, {{address.no}}, {{address.postal_code}}</a>
                 <div class="btn-group">
                     <a href="{% url 'account_user_address_update' address.pk %}" style="color:white;" class="btn btn-success">Update</a>
                     <a href="{% url 'account_user_address_delete' address.pk %}" style="color:white;" class="btn btn-danger">delete</a>

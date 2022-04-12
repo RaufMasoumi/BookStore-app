@@ -26,7 +26,14 @@ class CustomUser(AbstractUser):
 
 class UserAddress(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='addresses')
-    address = models.CharField(max_length=500)
+    reciever_first_name = models.CharField(max_length=100)
+    reciever_last_name = models.CharField(max_length=100)
+    reciever_phone_number = models.CharField(max_length=100)
+    country = models.CharField(max_length=50)
+    city = models.CharField(max_length=100)
+    street = models.CharField(max_length=100)
+    no = models.PositiveIntegerField()
+    postal_code = models.CharField(max_length=100)
 
     class Meta:
         verbose_name_plural = 'user addresses'
@@ -66,7 +73,7 @@ class UserCart(models.Model):
 class UserWish(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.OneToOneField(get_user_model(), on_delete=models.CASCADE, related_name='wish_list')
-    books = models.ManyToManyField(Book, blank=True)
+    books = models.ManyToManyField(Book, related_name='in_wishlists', blank=True)
 
     def __str__(self):
         return f'{self.user.username}\'s wishlist'
@@ -78,10 +85,7 @@ class UserCartBooksNumber(models.Model):
     number = models.PositiveIntegerField(default=1)
 
     def calculate_total_price(self):
-        if self.book.off:
-            price = self.book.off
-        else:
-            price = self.book.price
+        price = self.book.off if self.book.off else self.book.price
         total_price = price * self.number
         return total_price
 
@@ -93,25 +97,21 @@ class UserCartBooksNumber(models.Model):
 def create_user_cart(instance, created, **kwargs):
     if created or not UserCart.objects.filter(user=instance).exists():
         UserCart.objects.create(user=instance)
-        return print(f'the user cart created for {instance.username}!')
+        return
 
 
 @receiver(post_save, sender=get_user_model())
 def create_user_wish(instance, created, **kwargs):
     if created or not UserWish.objects.filter(user=instance).exists():
         UserWish.objects.create(user=instance)
-        return print(f'the user wish list created for {instance.username}!')
+        return
 
 
 @receiver(m2m_changed, sender=UserCart.books.through)
-def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
+def update_user_cart_books_number(instance, action, pk_set, **kwargs):
     user_cart = UserCart.objects.get(pk=instance.pk)
-    print(action)
     if action != 'pre_clear' and action != 'post_clear':
         pk_list = list(pk_set)
-
-    if not model == Book:
-        return 'Error when calculating the number of user cart books!!'
 
     if action == 'post_add':
         for i in range(len(pk_list)):
@@ -120,48 +120,42 @@ def update_user_cart_books_number(instance, action, pk_set, model, **kwargs):
                 cart=user_cart,
                 book=book
             )
-            print(f'the number for book with \"{book.title}\" title added.')
         return
 
     if action == 'post_remove':
         for i in range(len(pk_list)):
             book = Book.objects.get(pk=pk_list[i])
-            if UserCartBooksNumber.objects.filter(cart=user_cart, book=book).exists():
-                UserCartBooksNumber.objects.get(cart=user_cart, book=book).delete()
-            print(f'the number for book with \"{book.title}\" title removed.')
+            book_cart_number = UserCartBooksNumber.objects.get(cart=user_cart, book=book)
+            book_cart_number.delete()
         return
 
     if action == 'post_clear':
-        if UserCartBooksNumber.objects.filter(cart=user_cart).exists():
-            for number in UserCartBooksNumber.objects.filter(cart=user_cart):
-                number.delete()
-        return print(f'the numbers for books of user cart with {user_cart.pk} pk'
-                     f' for {user_cart.user.username} cleared.')
+        user_cart_numbers = UserCartBooksNumber.objects.filter(cart=user_cart)
+        for number in user_cart_numbers:
+            number.delete()
+        return
 
 
 @receiver(post_save, sender=UserCartBooksNumber)
 def update_user_cart_books_number_number(instance, created, **kwargs):
     if not created:
-        number = UserCartBooksNumber.objects.get(id=instance.id)
+        number = UserCartBooksNumber.objects.get(pk=instance.pk)
         if number.number == 0:
-            book = Book.objects.get(id=number.book.id)
-            cart = UserCart.objects.get(id=number.cart.id)
+            book = Book.objects.get(pk=number.book.pk)
+            cart = UserCart.objects.get(pk=number.cart.pk)
             cart.books.remove(book)
-            return print('the book deleted from cart cause its number is zero!')
+            return
 
 
 @receiver(post_save, sender=SocialAccount)
 def update_user_profile_image(instance, **kwargs):
     if instance.user.image:
         return
-    else:
-        response = requests.get(instance.extra_data['picture'])
-        user = instance.user
-        path = f'{django.conf.settings.MEDIA_ROOT}/accounts/pictures/{user.username}.png'
-        image = open(path, 'wb')
+    response = requests.get(instance.extra_data['picture'])
+    user = instance.user
+    path = f'{django.conf.settings.MEDIA_ROOT}/accounts/pictures/{user.username}.png'
+    with open(path, 'wb') as image:
         image.write(response.content)
-        image.close()
-        user.image = path.split('media')[1]
-        user.save()
-        
-    return print('image sat for the user.')
+    user.image = path.split('media')[1]
+    user.save()
+    return

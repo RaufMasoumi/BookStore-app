@@ -11,7 +11,6 @@ CustomUser = get_user_model()
 class UserCartInline(admin.TabularInline):
     model = UserCart
 
-
 class UserWishInline(admin.TabularInline):
     model = UserWish
 
@@ -25,8 +24,9 @@ class CustomUserAdmin(UserAdmin):
     inlines = [UserAddressInline, UserCartInline, UserWishInline]
     list_display = ['username', 'email', 'is_staff']
     user_fieldsets = UserAdmin.fieldsets
+    new_personal_data_fields = user_fieldsets[1][1]['fields'] + ('image', 'phone_number', 'card_number', )
     user_fieldsets[1][1].update(
-        {'fields': user_fieldsets[1][1]['fields'] + ('image', 'phone_number', 'card_number', )}
+        {'fields': new_personal_data_fields}
     )
     fieldsets = user_fieldsets
 
