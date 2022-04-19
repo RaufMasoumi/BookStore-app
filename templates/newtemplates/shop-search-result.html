@@ -35,6 +35,9 @@
               {% elif available_on_key == 'available' %}
                 <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
                 <label><input type="checkbox" name="available" checked> In Stock ({{ available }})</label>
+              {% elif available_on_key == 'both' %}
+                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ unavailbale }})</label>
+                <label><input type="checkbox" name="available" checked> In Stock ({{ available }})</label>
               {% else %}
                 <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
                 <label><input type="checkbox" name="available"> In Stock ({{ available }})</label>

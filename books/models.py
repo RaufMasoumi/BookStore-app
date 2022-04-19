@@ -23,41 +23,35 @@ class BookManager(models.Manager):
         return self.filter(status='d')
 
     def available(self):
-        return self.filter(stock__gt=0)
+        return self.filter(stock__gt=0, status='p')
 
     def unavailable(self):
-        return self.filter(stock__lt=1)
+        return self.filter(stock__lt=1, status='p')
 
     def bestseller(self):
-        return self.filter(status='p', bestseller=True)
+        return self.filter(bestseller=True, status='p')
 
     def new(self):
-        return self.filter(new=True)
+        return self.filter(new=True, status='p')
 
     def sale(self):
-        return self.filter(sale=True)
+        return self.filter(sale=True, status='p')
 
     def mostpopular(self):
-        return self.filter(status='p', mostpopular=True)
+        return self.filter(mostpopular=True, status='p')
 
 
 class Category(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='children')
     title = models.CharField(max_length=100)
     thumbnail = models.ImageField(upload_to='categories', blank=True)
-    status = models.BooleanField(default=True, verbose_name='To be displayed?', blank=True)
+    status = models.BooleanField(default=True, verbose_name='To be displayed?')
     position = models.IntegerField()
     objects = CategoryManager()
 
     class Meta:
         verbose_name_plural = 'Categories'
         ordering = ['parent_id', 'position']
-
-    def get_available_books(self):
-        return self.books.filter(stock__gt=0)
-
-    def get_unavailable_books(self):
-        return self.books.filter(stock__lt=1)
 
     def __str__(self):
         return self.title
@@ -78,18 +72,18 @@ class Book(models.Model):
     author = models.CharField(max_length=250)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     off = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
-    sale = models.BooleanField(default=False, blank=True)
-    bestseller = models.BooleanField(default=False, blank=True)
-    mostpopular = models.BooleanField(default=False, blank=True)
-    new = models.BooleanField(default=False, blank=True)
-    cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=200)
+    sale = models.BooleanField(default=False, blank=True, verbose_name='Set as a sale book?(will show in sale products)')
+    bestseller = models.BooleanField(default=False, blank=True, verbose_name='Set as a bestseller book?(will show in bestseller products)')
+    mostpopular = models.BooleanField(default=False, blank=True, verbose_name='Set as a mostpopular book?(will show in mostpopular products)')
+    new = models.BooleanField(default=False, blank=True, verbose_name='Set as a newarrival book?(will show in newarrival products)')
+    cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=300)
     pages = models.PositiveIntegerField(default=0, blank=True)
     subject = models.CharField(max_length=50, blank=True, null=True)
     rating = models.FloatField(default=0, blank=True)
     publisher = models.CharField(max_length=200, blank=True, null=True)
     age_range = models.CharField(max_length=100, blank=True, null=True)
     grade_range = models.CharField(max_length=100, blank=True, null=True)
-    page_size = models.CharField(max_length=10, blank=True, null=True)
+    page_size = models.CharField(max_length=10, blank=True, null=True, verbose_name='page size(like A4)')
     length = models.FloatField(blank=True, null=True, verbose_name='length(cm)')
     width = models.FloatField(blank=True, null=True, verbose_name='width(cm)')
     summary = models.TextField(blank=True, null=True)
@@ -130,7 +124,7 @@ class Book(models.Model):
 
 class BookImage(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='books/images/', max_length=200, blank=True)
+    image = models.ImageField(upload_to='books/images/', max_length=300, blank=True)
 
     def __str__(self):
         return f'{self.book}\'s image'
@@ -141,19 +135,19 @@ class BookImage(models.Model):
 
 class Review(models.Model):
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, blank=True, null=True)
-    name = models.CharField(max_length=50, blank=True)
-    email = models.EmailField(null=True, blank=True)
+    name = models.CharField(default='guest', max_length=50, blank=True)
+    email = models.EmailField(blank=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='reviews')
-    review = models.CharField(max_length=250)
+    review = models.TextField(max_length=250)
     rating = models.FloatField(default=0, blank=True)
     submitted = models.DateTimeField(auto_now_add=True, editable=False)
     votes = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['-submitted']
+        ordering = ['votes', '-submitted']
 
     def __str__(self):
-        return self.review[:20]
+        return f'{self.review[:20]}...'
 
     def get_absolute_url(self):
         return reverse('book_detail', kwargs={'pk': self.book.pk})
@@ -161,18 +155,20 @@ class Review(models.Model):
 
 class ReviewReply(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='replies')
+    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(default='guest', max_length=50)
+    email = models.EmailField()
     reply = models.CharField(max_length=250)
-    author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    add = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='add_replies')
+    addsign = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='addsign_replies')
     replied = models.DateTimeField(auto_now_add=True)
     votes = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['replied']
-        verbose_name_plural = 'ReviewReplies'
+        ordering = ['votes', '-replied']
+        verbose_name_plural = 'Review Replies'
 
     def __str__(self):
-        return f'{self.reply[:20]} reply for {self.review}'
+        return f'{self.reply[:20]}... reply for {self.review}...'
 
     def get_absolute_url(self):
         return reverse('book_detail', kwargs={'pk': self.review.book.pk})

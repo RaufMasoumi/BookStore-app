@@ -9,7 +9,7 @@ BookImageFormSet = forms.inlineformset_factory(Book, BookImage, fields='__all__'
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ('name', 'email',  'review', 'rating', 'book')
+        fields = ('author', 'name', 'email', 'review', 'rating', 'book')
         widgets = {'book': forms.HiddenInput}
 
 

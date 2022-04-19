@@ -13,6 +13,8 @@ from uuid import UUID
 import re
 # Create your views here.
 
+BOOK_DISPLAY_FIELDS = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
+                          'length', 'width', 'summary')
 
 class BookListView(ListView):
     queryset = Book.objects.published()
@@ -40,25 +42,20 @@ class BookDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        display_fields = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
-                          'length', 'width', 'summary')
-        book_fields = {field.replace('_', ' ').capitalize(): getattr(self.object, field) for field in display_fields
-                      if field in [field.name for field in self.object._meta.get_fields()]}
-        active_category_set = self.object.category.active()
-        book_fields['Category'] = active_category_set
+        book_fields = {field.replace('_', ' ').capitalize(): getattr(self.object, field, '') for field in BOOK_DISPLAY_FIELDS}
+        active_category_queryset = self.object.category.active()
+        book_fields['Category'] = active_category_queryset
         review_form = ReviewForm(initial={'book': self.object.pk})
-        review_reply_form = ReviewReplyForm()
         page_location_list = [
-            PageLocation('Home', 'home'), PageLocation('Store', 'index'), PageLocation('Books', 'book_list'),
-            PageLocation(self.object.title, self.object.get_absolute_url, True)
+            PageLocation('Home', 'home'), PageLocation('Books', 'book_list'),
+            PageLocation(self.object.title, self.object.get_absolute_url(), True)
         ]
         self.object.is_in_cart = is_book_in_cart(self.object, self.request.user)
         context['page_location_list'] = page_location_list
-        context['active_category_set'] = active_category_set
+        context['active_category_set'] = active_category_queryset
         context['has_down_suggestions'] = True
         context['book_fields'] = book_fields
         context['review_form'] = review_form
-        context['review_reply_form'] = review_reply_form
         self.object.views += 1
         self.object.save()
         return context
@@ -104,10 +101,11 @@ class BookUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        response = super().form_valid(form)
         formset = BookImageFormSet(self.request.POST, self.request.FILES, instance=self.object)
         if formset.is_valid():
             formset.save()
-        return super().form_valid(form)
+        return response 
 
 
 class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
@@ -129,26 +127,8 @@ class CategoryBooksListView(ListView):
     def get_queryset(self):
         pk = self.kwargs.get('pk')
         self.category = Category.objects.get(pk=pk)
-        queryset = self.category.books.published()
-        self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key \
-            = [False, False, '', '', '']
-
-        get = self.request.GET
-        if get.get('filter'):
-            if get.get('use_price'):
-                queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
-                self.price_on_key = True
-
-            if get.get('use_availability'):
-                queryset, self.available_on_key = available_limit(queryset, self.request)
-                self.availability_on_key = True
-
-
-        if get.get('showing'):
-            queryset, self.order_by = sort_books(queryset, self.request)
-        else:
-            self.order_by = None
-
+        queryset = self.category.books.all()
+        queryset, self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key, self.order_by = book_list_filtering_showing(queryset, self.request)
         return queryset
 
     def get_paginate_by(self, *args):
@@ -204,10 +184,11 @@ class ReviewCreateView(CreateView):
     template_name = 'books/reviews/review_create.html'
 
     def form_valid(self, form):
-        if self.request.user.is_authenticated:
-            form.instance.author = self.request.user
-            form.instance.name = self.request.user.username
-            form.instance.email = self.request.user.email
+        user = self.request.user
+        if user.is_authenticated:
+            form.instance.author = user
+            form.instance.name = user.username
+            form.instance.email = user.email
         return super().form_valid(form)
 
 
@@ -219,7 +200,7 @@ class ReviewUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def test_func(self):
         obj = self.get_object()
-        return obj.author == self.request.user
+        return obj.author == self.request.user or self.request.user.has_perm('books.change_review')
 
 
 class ReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -237,14 +218,17 @@ class ReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class ReviewReplyCreateView(LoginRequiredMixin, CreateView):
     model = ReviewReply
-    fields = ('review', 'reply', 'add')
+    fields = ('review', 'reply', 'addsign')
     template_name = 'books/reviews/replies/review_reply_create.html'
     login_url = 'account_login'
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
+        if self.request.user.is_authenticated:
+            form.instance.author = self.request.user
+            form.instance.name = self.request.user.username
+            form.instance.email = self.request.user.email
         if self.request.POST.get('add'):
-            form.instance.add = ReviewReply.objects.get(pk=self.request.POST.get('add'))
+            form.instance.addsign = ReviewReply.objects.get(pk=self.request.POST['add'])
         # if self.request.POST.get('review'):
         #     form.instance.review = Review.objects.get(pk=self.request.POST.get('review'))
         return super().form_valid(form)
@@ -252,13 +236,13 @@ class ReviewReplyCreateView(LoginRequiredMixin, CreateView):
 
 class ReviewReplyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = ReviewReply
-    fields = ('reply', 'add')
+    fields = ('reply', 'addsign')
     template_name = 'books/reviews/replies/review_reply_update.html'
     login_url = 'account_login'
 
     def test_func(self):
         obj = self.get_object()
-        return obj.author == self.request.user
+        return obj.author == self.request.user or self.request.user.has_perm('books.change_reviewreply')
 
 
 class ReviewReplyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -276,7 +260,6 @@ class ReviewReplyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 
 
 class SearchResultsView(ListView):
-    model = Book
     context_object_name = 'search_book_list'
 
     def get_template_names(self):
@@ -293,24 +276,7 @@ class SearchResultsView(ListView):
         queryset = Book.objects.all()
         queryset = search_by_title_author(queryset, self.request)
         self.search_queryset = queryset
-        queryset = published_limit(queryset, self.request)
-        self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key \
-            = [False, False, '', '', '']
-
-        if get.get('filter'):
-            if get.get('use_price'):
-                queryset, self.price_less_key, self.price_more_key = price_limit(queryset, self.request)
-                self.price_on_key = True
-
-            if get.get('use_availability'):
-                queryset, self.available_on_key = available_limit(queryset, self.request)
-                self.availability_on_key = True
-
-
-        if get.get('showing'):
-            queryset, self.order_by = sort_books(queryset, self.request)
-        else:
-            self.order_by = None
+        queryset, self.availability_on_key, self.price_on_key, self.available_on_key, self.price_less_key, self.price_more_key, self.order_by = book_list_filtering_showing(queryset, self.request)
         return queryset
 
     def get_paginate_by(self, *args):
@@ -342,10 +308,10 @@ class SearchResultsView(ListView):
                 for number in range(len(get)):
                     get_pattern = pattern + str(number+1)
                     pattern_list.append(get_pattern)
-                for get_pattern in pattern_list:
-                    if get.get(get_pattern) and Book.objects.filter(pk=get[get_pattern]).exists:
+                    if get.get(get_pattern) and Book.objects.filter(pk=get[get_pattern]).exists():
                         book = Book.objects.get(pk=get[get_pattern])
                         books.append(book)
+
                 for index in range(len(books)):
                     books_get_dict[pattern_list[index]] = books[index].pk
             context['books_comparing_get_dict'] = books_get_dict
@@ -357,18 +323,14 @@ class BookComparingView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        display_fields = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
-                          'length', 'width', 'summary')
-
-        comparing_dict = {field.replace('_', ' ').capitalize():[] for field in display_fields if field in [field.name for field in Book._meta.get_fields()]}
+        comparing_dict = {field.replace('_', ' ').capitalize():[] for field in BOOK_DISPLAY_FIELDS}
         books = []
         pattern = 'book-'
         pattern_list = []
         get = self.request.GET
         for number in range(len(get)):
-            pattern_list.append(pattern+str(number+1))
-
-        for get_pattern in pattern_list:
+            get_pattern = pattern + str(number+1)
+            pattern_list.append(get_pattern)
             if get.get(get_pattern):
                 pk = get[get_pattern]
                 if Book.objects.filter(pk=pk).exists():
@@ -383,10 +345,10 @@ class BookComparingView(TemplateView):
                 if book in books:
                     books.remove(book)
 
-        for field in display_fields:
+        for field in BOOK_DISPLAY_FIELDS:
             for book in books:
-                comparing_dict[field.replace('_', ' ').capitalize()].append(getattr(book, field))
-        
+                human_readable_field = field.replace('_', ' ').capitalize()
+                comparing_dict[human_readable_field].append(getattr(book, field, ''))
 
         books_get_dict = {}
         for index in range(len(books)):
@@ -411,23 +373,8 @@ class PageLocation:
 def search_by_title_author(queryset, request):
     get = request.GET
     query = get.get('query')
-    if not query:
-        return queryset
-    elem = []
-    if get.get('title'):
-        elem.append('title')
-    if get.get('author'):
-        elem.append('author')
-
-    if len(elem) == 2 or len(elem) == 0:
+    if query:
         queryset = queryset.filter(Q(title__icontains=query) | Q(author__icontains=query))
-
-    elif len(elem) == 1:
-        if elem[0] == 'title':
-            queryset = queryset.filter(Q(title__icontains=query))
-        elif elem[0] == 'author':
-            queryset = queryset.filter(Q(author__icontains=query))
-
     return queryset
 
 
@@ -437,11 +384,9 @@ def price_limit(queryset, request):
 
     if request.GET.get('amount'):
         pattern = '\$(\d+) - \$(\d+)'
-        amount = re.match(pattern,  request.GET.get('amount'))
+        amount = re.match(pattern,  request.GET['amount'])
         if not amount:
             return queryset, less, more
-    else:
-        return queryset, less, more
 
     more, less = amount.groups()
 
@@ -454,18 +399,25 @@ def price_limit(queryset, request):
 
     elif less:
         queryset = queryset.filter(price__lt=less)
+
     return queryset, less, more
 
 
 def available_limit(queryset, request):
     on_key = ''
     get = request.GET
+
     if get.get('available') and not get.get('unavailable'):
         queryset = queryset.filter(stock__gt=0)
         on_key = 'available'
-    elif get.get('unavailable')  and not get.get('available'):
+
+    elif get.get('unavailable') and not get.get('available'):
         queryset = queryset.filter(stock__lt=1)
         on_key = 'unavailable'
+
+    else:
+        on_key = 'both'
+
     return queryset, on_key
 
 
@@ -517,7 +469,7 @@ def update_votes(request):
         return redirect(reverse('book_detail', kwargs={'pk': review.book.pk}))
 
     if post.get('reply'):
-        reply = ReviewReply.objects.get(pk=post.get['reply'])
+        reply = ReviewReply.objects.get(pk=post['reply'])
         if pos_vote:
             reply.votes += 1
         else:
@@ -541,7 +493,7 @@ def book_make_published(request):
     return HttpResponseBadRequest('There was a problem in publishing the book!')
 
 
-def make_active_category_set(category=None):
+def make_active_category_set(category):
     active_category_set = set()
     while category:
         active_category_set.add(category)
@@ -549,6 +501,25 @@ def make_active_category_set(category=None):
     return active_category_set
 
 def is_book_in_cart(book:Book, user)-> bool:
-    if isinstance(book, Book):
+    if isinstance(book, Book) and user.is_authenticated:
         return True if user.cart.books.filter(pk=book.pk).exists() else False
     return False
+
+def book_list_filtering_showing(queryset, request):
+    queryset = published_limit(queryset, request)
+    get = request.GET
+    availability_on_key, price_on_key, available_on_key, price_less_key, price_more_key, order_by = (False, False, '', '', '', None)
+
+    if get.get('filter'):
+        if get.get('use_price'):
+            queryset, price_less_key, price_more_key = price_limit(queryset, request)
+            price_on_key = True
+
+        if get.get('use_availability'):
+            queryset, available_on_key = available_limit(queryset, request)
+            availability_on_key = True
+
+    if get.get('showing'):
+        queryset, order_by = sort_books(queryset, request)
+
+    return queryset, availability_on_key, price_on_key, available_on_key, price_less_key, price_more_key, order_by

@@ -43,14 +43,17 @@
               {% endif %}
               <div class="checkbox-inline">
               {% if available_on_key == 'unavailable' %}
-                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ category.get_unavailable_books.count }})</label>
-                <label><input type="checkbox" name="available"> In Stock ({{ category.get_available_books.count }})</label>
+                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ category.books.unavailable.count }})</label>
+                <label><input type="checkbox" name="available"> In Stock ({{ category.books.available.count }})</label>
               {% elif available_on_key == 'available' %}
-                <label><input type="checkbox" name="unavailable"> Not Available ({{ category.get_unavailable_books.count }})</label>
-                <label><input type="checkbox" name="available" checked> In Stock ({{ category.get_available_books.count }})</label>
+                <label><input type="checkbox" name="unavailable"> Not Available ({{ category.books.unavailable.count }})</label>
+                <label><input type="checkbox" name="available" checked> In Stock ({{ category.books.available.count }})</label>
+              {% elif available_on_key == 'both' %}
+                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ category.books.unavailable.count }})</label>
+                <label><input type="checkbox" name="available" checked> In Stock ({{ category.books.available.count }})</label>
               {% else %}
-                <label><input type="checkbox" name="unavailable"> Not Available ({{ category.get_unavailable_books.count }})</label>
-                <label><input type="checkbox" name="available"> In Stock ({{ category.get_available_books.count }})</label>
+                <label><input type="checkbox" name="unavailable"> Not Available ({{ category.books.unavailable.count }})</label>
+                <label><input type="checkbox" name="available"> In Stock ({{ category.books.available.count }})</label>
               {% endif %}
               </div>
               {% if price_on_key %}
