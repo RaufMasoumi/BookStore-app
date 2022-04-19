@@ -10,6 +10,7 @@
 
   <div class="top-cart-content-wrapper">
     <div class="top-cart-content">
+    {% if user.cart.books.all %}
       <ul class="scroller" style="height: 250px;">
       {% for book in user.cart.books.all %}
           {% for number in user.cart.books_numbers.all %}
@@ -36,6 +37,9 @@
         <a href="{{ user.cart.get_absolute_url }}" class="btn btn-default">View Cart</a>
         <a href="../shop-checkout.html" class="btn btn-primary">Checkout</a>
       </div>
+    {% else %}
+      <p style="font-size: large; padding-left: 5%;">There is nothing in your shopping cart!</h1>
+    {% endif %}
     </div>
   </div>
   {% else %}
