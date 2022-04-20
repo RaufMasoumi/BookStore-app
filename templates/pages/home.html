@@ -1,4 +1,4 @@
-{% extends 'newtemplates/base.html' %}
+{% extends '_base.html' %}
 {% load static %}
 
 {% block title %}Home {% endblock %}
@@ -149,7 +149,7 @@
         <div class="row margin-bottom-40 ">
           <!-- BEGIN SIDEBAR -->
           <div class="sidebar col-md-3 col-sm-4">
-            {% include 'newtemplates/snippets/sidebar_category.html' %}
+            {% include 'snippets/sidebar_category.html' %}
           </div>
           <!-- END SIDEBAR -->
           <!-- BEGIN CONTENT -->
@@ -230,7 +230,7 @@
             </div>
           <!-- END TWO PRODUCTS -->
           <!-- BEGIN PROMO -->
-          {% include 'newtemplates/snippets/promo.html' %}
+          {% include 'snippets/promo.html' %}
           <!-- END PROMO -->
         </div>        
         <!-- END TWO PRODUCTS & PROMO -->

@@ -9,7 +9,7 @@
                             {{ category.title }}
                         </a>
                         {% if category.children.active %}
-                            {% include 'newtemplates/snippets/category_loop.html' %}
+                            {% include 'snippets/category_loop.html' %}
                         {% endif %}
                     </li>
                 </ul>
@@ -21,7 +21,7 @@
                             {{ category.title }}
                         </a>
                         {% if category.children.active %}
-                            {% include 'newtemplates/snippets/category_loop.html' %}
+                            {% include 'snippets/category_loop.html' %}
                         {% endif %}
                     </li>
                 </ul>
@@ -36,7 +36,7 @@
                         {{ category.title }}
                     </a>
                     {% if category.children.active %}
-                        {% include 'newtemplates/snippets/category_loop.html' %}
+                        {% include 'snippets/category_loop.html' %}
                     {% endif %}
                 </li>
             </ul>
@@ -51,7 +51,7 @@
                 {{ category.title }}
             </a>
             {% if category.children.active %}
-                {% include 'newtemplates/snippets/category_loop.html' %}
+                {% include 'snippets/category_loop.html' %}
             {% endif %}
         </li>
     {% endfor %}

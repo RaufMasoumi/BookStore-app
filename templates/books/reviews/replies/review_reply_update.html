@@ -1,9 +1,9 @@
-{% extends '_base.html' %}
+{% extends 'books/admin_base.html' %}
 {% load crispy_forms_tags %}
 
 {% block title %}Update Review Reply{% endblock %}
 
-{% block content %}
+{% block admin_content %}
     <h1>Update Review Reply</h1>
     <form method="post">
         {% csrf_token %}

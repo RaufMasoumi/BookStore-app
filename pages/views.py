@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 # Create your views here.
 
 class HomePageView(TemplateView):
-    template_name = 'newtemplates/shop-index.html'
+    template_name = 'pages/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -18,7 +18,7 @@ class HomePageView(TemplateView):
         return context
 
 class AboutPageView(TemplateView):
-    template_name = 'newtemplates/shop-about.html'
+    template_name = 'pages/about.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -26,7 +26,7 @@ class AboutPageView(TemplateView):
         return context
 
 class AccountPageView(TemplateView):
-    template_name = 'newtemplates/shop-account.html'
+    template_name = 'pages/account.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -34,10 +34,10 @@ class AccountPageView(TemplateView):
         return context
 
 class CheckoutView(TemplateView):
-    template_name = 'newtemplates/shop-checkout.html'
+    template_name = 'pages/checkout.html'
 
 class ContactsPageView(TemplateView):
-    template_name = 'newtemplates/shop-contacts.html'
+    template_name = 'pages/contacts.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -46,7 +46,7 @@ class ContactsPageView(TemplateView):
         return context
 
 class FaqPageView(TemplateView):
-    template_name = 'newtemplates/shop-faq.html'
+    template_name = 'pages/faq.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -55,7 +55,7 @@ class FaqPageView(TemplateView):
         return context
 
 class PrivacyPolicyPageView(TemplateView):
-    template_name = 'newtemplates/shop-privacy-policy.html'
+    template_name = 'pages/privacy_policy.html'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -64,7 +64,7 @@ class PrivacyPolicyPageView(TemplateView):
         return context
 
 class TermsConditionsPageView(TemplateView):
-    template_name = 'newtemplates/shop-terms-conditions-page.html'
+    template_name = 'pages/terms_conditions.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

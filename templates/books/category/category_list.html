@@ -1,8 +1,8 @@
-{% extends '_base.html' %}
+{% extends 'books/admin_base.html' %}
 
 {% block title %}Categories{% endblock %}
 
-{% block content %}
+{% block admin_content %}
     <h1>Categories List</h1>
     <ul>
     {% for category in category_list %}

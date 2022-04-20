@@ -38,7 +38,7 @@ class DraftBookListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 class BookDetailView(DetailView):
     queryset = Book.objects.published()
     context_object_name = 'book'
-    template_name = 'newtemplates/shop-item.html'
+    template_name = 'books/book_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -112,16 +112,19 @@ class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Book
     template_name = 'books/book_delete.html'
     login_url = 'account_login'
-    success_url = reverse_lazy('book_list')
+    success_url = reverse_lazy('home')
     permission_required = 'books.delete_book'
 
 
-class CategoryListView(ListView):
+class CategoryListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Category
     template_name = 'books/category/category_list.html'
+    login_url = 'account_login'
+    permission_required = 'books.category_list'
 
+    
 class CategoryBooksListView(ListView):
-    template_name = 'newtemplates/shop-product-list.html'
+    template_name = 'books/category/category_books_list.html'
     context_object_name = 'category_books'
 
     def get_queryset(self):
@@ -198,6 +201,10 @@ class ReviewUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'books/reviews/review_update.html'
     login_url = 'account_login'
 
+    def get_success_url(self):
+        obj = self.get_object()
+        return obj.book.get_absolute_url()
+
     def test_func(self):
         obj = self.get_object()
         return obj.author == self.request.user or self.request.user.has_perm('books.change_review')
@@ -209,7 +216,8 @@ class ReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = 'books/reviews/review_delete.html'
 
     def get_success_url(self):
-        return reverse('book_detail', kwargs={'pk': self.object.book.pk})
+        obj = self.get_object()
+        return obj.book.get_absolute_url()
 
     def test_func(self):
         obj = self.get_object()
@@ -265,9 +273,9 @@ class SearchResultsView(ListView):
     def get_template_names(self):
         template_names = []
         if self.request.GET.get('come_from_comparing'):
-            template_names.append('newtemplates/book_add_to_comparing_list.html')
+            template_names.append('books/book_add_to_comparing_list.html')
         else:
-            template_names.append('newtemplates/shop-search-result.html')
+            template_names.append('books/search_result.html')
         return template_names
 
     def get_queryset(self):
@@ -319,7 +327,7 @@ class SearchResultsView(ListView):
         return context
 
 class BookComparingView(TemplateView):
-    template_name = 'newtemplates/shop-goods-compare.html'
+    template_name = 'books/book_comparision.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

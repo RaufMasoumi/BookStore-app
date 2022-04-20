@@ -1,13 +1,13 @@
-{% extends '_base.html' %}
+{% extends 'books/admin_base.html' %}
 {% load crispy_forms_tags %}
 
 {% block title %}Create Review Reply{% endblock %}
 
-{% block content %}
+{% block admin_content %}
     <h1>Create Review Reply</h1>
     <form method="post">
         {% csrf_token %}
         {{ form | crispy }}
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 {% endblock %}

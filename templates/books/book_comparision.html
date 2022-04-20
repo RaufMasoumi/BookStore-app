@@ -1,4 +1,4 @@
-{% extends 'newtemplates/base.html' %}
+{% extends '_base.html' %}
 {% load static %}
 
 {% block title %}Comparison {% endblock %}
@@ -17,7 +17,7 @@
     <div class="row margin-bottom-40">
       <!-- BEGIN SIDEBAR -->
       <div class="sidebar col-md-3 col-sm-5">
-        {% include 'newtemplates/snippets/sidebar_category.html' %}
+        {% include 'snippets/sidebar_category.html' %}
       </div>
       <!-- END SIDEBAR -->
 

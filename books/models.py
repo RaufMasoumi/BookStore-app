@@ -52,6 +52,9 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = 'Categories'
         ordering = ['parent_id', 'position']
+        permissions = [
+            ('category_list', 'Can see category list')
+        ]
 
     def __str__(self):
         return self.title

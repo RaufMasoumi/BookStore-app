@@ -1,7 +1,7 @@
-{% extends 'newtemplates/base.html' %}
+{% extends '_base.html' %}
 {% load static %}
 
-{% block title %}{{ category.title }} category {% endblock %}
+{% block title %}Search result {% endblock %}
 
 {% block page_level_plugin_styles %}
 <!-- Page level plugin styles START -->
@@ -13,28 +13,15 @@
 <!-- Page level plugin styles END -->
 {% endblock %}
 
-{% block item_list_number %}
-  {% if category.thumbnail %}
-    <div class="title-wrapper" style="background: #72c2ff url({{category.thumbnail.url}}) no-repeat 100% 100%;">
-  {% else %}
-    <div class="title-wrapper">    
-  {% endif %}
-      <div class="container"><div class="container-inner">
-        <h1><span>{{ category.title }}</span> CATEGORY</h1>
-        <em>Over {{ category.books.count }} Items are available here</em>
-      </div></div>
-    </div>
-{% endblock %}
-
 {% block content %}
     <!-- BEGIN SIDEBAR & CONTENT -->
     <div class="row margin-bottom-40">
       <!-- BEGIN SIDEBAR -->
       <div class="sidebar col-md-3 col-sm-5">
-        {% include 'newtemplates/snippets/sidebar_category.html' %}
         <div class="sidebar-filter margin-bottom-25">
-          <h2>Filter</h2>
-          <form method="get">
+          <h2>Search categories</h2>
+          <form method="get" action="{% url 'search_results' %}">
+              <input name="query" type="hidden" value="{{ searched }}">
             <div class="checkbox-list">
               {% if availability_on_key %}
                 <label><input type="checkbox" name="use_availability" checked><h3 style="display: inline-block">Availability</h3></label>
@@ -43,19 +30,20 @@
               {% endif %}
               <div class="checkbox-inline">
               {% if available_on_key == 'unavailable' %}
-                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ category.books.unavailable.count }})</label>
-                <label><input type="checkbox" name="available"> In Stock ({{ category.books.available.count }})</label>
+                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ unavailable }})</label>
+                <label><input type="checkbox" name="available"> In Stock ({{ available }})</label>
               {% elif available_on_key == 'available' %}
-                <label><input type="checkbox" name="unavailable"> Not Available ({{ category.books.unavailable.count }})</label>
-                <label><input type="checkbox" name="available" checked> In Stock ({{ category.books.available.count }})</label>
+                <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
+                <label><input type="checkbox" name="available" checked> In Stock ({{ available }})</label>
               {% elif available_on_key == 'both' %}
-                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ category.books.unavailable.count }})</label>
-                <label><input type="checkbox" name="available" checked> In Stock ({{ category.books.available.count }})</label>
+                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ unavailbale }})</label>
+                <label><input type="checkbox" name="available" checked> In Stock ({{ available }})</label>
               {% else %}
-                <label><input type="checkbox" name="unavailable"> Not Available ({{ category.books.unavailable.count }})</label>
-                <label><input type="checkbox" name="available"> In Stock ({{ category.books.available.count }})</label>
+                <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
+                <label><input type="checkbox" name="available"> In Stock ({{ available }})</label>
               {% endif %}
               </div>
+
               {% if price_on_key %}
                 <label><input type="checkbox" name="use_price" checked><h3 style="display:inline-block;">Price</h3></label>
               {% else %}
@@ -66,26 +54,44 @@
                 <input type="text" id="amount" style="border:0; color:#f6931f; font-weight:bold;" name="amount">
                  <div id="slider-range"></div>
               </p>
-              <hr>
+                <hr>
             </div>
             <button type="submit" name="filter" value="1" class="btn btn-primary">Filter</button>
           </form>
         </div>
         <div class="sidebar-products clearfix">
-            <h2>Bestsellers</h2>
-            {% include 'newtemplates/snippets/sidebar_suggestions.html' %}
+          <h2>Bestsellers</h2>
+          {% include 'snippets/sidebar_suggestions.html' %}
         </div>
       </div>
       <!-- END SIDEBAR -->
       <!-- BEGIN CONTENT -->
       <div class="col-md-9 col-sm-7">
+        <div class="content-search margin-bottom-20">
+          <div class="row">
+            <div class="col-md-6">
+              <h1>Search result for <em>{{ searched }}</em></h1>
+            </div>
+            <div class="col-md-6">
+              <form method="get">
+                <div class="input-group">
+                  <input type="text" placeholder="Search again" class="form-control" name="query">
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary" type="submit">Search</button>
+                  </span>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
         <div class="row list-view-sorting clearfix">
           <div class="col-md-2 col-sm-2 list-view">
             <a href="javascript:;"><i class="fa fa-th-large"></i></a>
             <a href="javascript:;"><i class="fa fa-th-list"></i></a>
           </div>
           <div class="col-md-10 col-sm-10">
-              <form method="get">
+            <form method="get">
+                <input name="query" type="hidden" value="{{ searched }}">
                 <div class="pull-right">
                   <label class="control-label">Show:</label>
                   <select class="form-control input-sm" name="show">
@@ -109,7 +115,7 @@
                        {% for ordering, human_readable in order_by.items %}
                             <option value="{{ ordering }}" selected="selected">{{ human_readable }}</option>
                        {% endfor %}
-                        <option name="Default">Default</option>
+                        <option name="Defualt">Default</option>
                     {% else %}
                       <option selected="selected">Default</option>
                     {% endif %}
@@ -121,12 +127,12 @@
                     <option value="-rating">Rating (Lowest)</option>
                   </select>
                 </div>
-              </form>
+            </form>
           </div>
         </div>
         <!-- BEGIN PRODUCT LIST -->
         <div class="row product-list">
-        {% for book in category_books %}
+        {% for book in search_book_list %}
           <!-- PRODUCT ITEM START -->
           <div class="col-md-4 col-sm-6 col-xs-12">
             <div class="product-item">
@@ -144,7 +150,7 @@
                 {% elif book.bestseller %}
                   <div class="sticker sticker-bestseller"></div>
                 {% endif %}
-              <h3><a href="shop-item.html">{{ book.title }}</a></h3>
+              <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
               {% if book.off %}
                 <div class="pi-price">${{ book.off }}</div>
               {% else %}
@@ -175,7 +181,7 @@
           <div class="col-md-8 col-sm-8">
             <ul class="pagination pull-right">
               {% if page_obj.has_previous %}
-                <li><a href="{% url 'category_books_list' category.pk page_obj.previous_page_number %}">&laquo;</a></li>
+                    <li><a href="{% url 'search_results' page_obj.previous_page_number %}">&laquo;</a></li>
               {% else %}
                 <li><a>&laquo;</a></li>
               {% endif %}
@@ -183,11 +189,11 @@
                   {% if number == page_obj.number %}
                     <li><span>{{ number }}</span></li>
                   {% else %}
-                    <li><a href="{% url 'category_books_list' category.pk number %}">{{ number }}</a></li>
+                    <li><a href="{% url 'search_results' number %}">{{ number }}</a></li>
                   {% endif %}
               {% endfor %}
               {% if page_obj.has_next %}
-                <li><a href="{% url 'category_books_list' category.pk page_obj.next_page_number %}">&raquo;</a></li>
+                  <li><a href="{% url 'search_results' page_obj.next_page_number %}">&raquo;</a></li>
               {% else %}
                 <li><a>&raquo;</a></li>
               {% endif %}

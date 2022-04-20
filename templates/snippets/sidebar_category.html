@@ -9,7 +9,7 @@
                 {{ category.title }}
             </a>
             {% if category.children.active %}
-                {% include 'newtemplates/snippets/category_loop.html' %}
+                {% include 'snippets/category_loop.html' %}
             {% endif %}
         </li>
       {% else %}
@@ -19,7 +19,7 @@
                 {{ category.title }}
             </a>
             {% if category.children.active %}
-                {% include 'newtemplates/snippets/category_loop.html' %}
+                {% include 'snippets/category_loop.html' %}
             {% endif %}
         </li>
       {% endif %}
@@ -37,7 +37,7 @@
                       <i class="fa fa-angle-right"></i>
                       {{ category.title }}
                   </a>
-                  {% include 'newtemplates/snippets/category_loop.html' %}
+                  {% include 'snippets/category_loop.html' %}
               </li>
           {% else %}
             <li class="list-group-item collapse">

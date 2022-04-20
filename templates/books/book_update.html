@@ -1,25 +1,23 @@
-{% extends '_base.html' %}
+{% extends 'books/admin_base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
 
-{% block title %}Edit Book{% endblock %}
+{% block title %}Update Book{% endblock %}
 
-{% block content %}
+{% block admin_content %}
     <h1>Update Book</h1>
     {% if book.cover %}
         <p>
             <img src="{{ book.cover.url }}" class="bookcover">
         </p>
     {% endif %}
-    <p>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form | crispy }}
-            {{ image_formset | crispy }}
-            <button class="btn btn-success" type="submit">Update</button>
-        </form>
-        <hr>
-    </p>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form | crispy }}
+        {{ image_formset | crispy }}
+        <button class="btn btn-primary" type="submit">Update</button>
+    </form>
+    <hr>
     {% if 'books.delete_book' in user.get_all_permissions %}
         <p>
             <a href="{% url 'book_delete' book.pk %}"><button class="btn btn-danger">Delete</button></a>

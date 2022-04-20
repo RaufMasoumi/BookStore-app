@@ -151,7 +151,7 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = UserCart
     context_object_name = 'cart'
     login_url = 'account_login'
-    template_name = 'newtemplates/shop-shopping-cart.html'
+    template_name = 'account/user_cart_detail.html'
 
     def get_object(self, queryset=None):
         if not self.kwargs.get('pk'):
@@ -174,7 +174,7 @@ class UserWishDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = UserWish
     context_object_name = 'wish_list'
     login_url = 'account_login'
-    template_name = 'newtemplates/shop-wishlist.html'
+    template_name = 'account/user_wishlist_detail.html'
 
     def get_object(self, queryset=None):
         if not self.kwargs.get('pk'):

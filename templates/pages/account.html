@@ -1,4 +1,4 @@
-{% extends 'newtemplates/base.html' %}
+{% extends '_base.html' %}
 {% load static %}
 
 {% block title %}My Account {% endblock %}
@@ -14,7 +14,7 @@
     <!-- BEGIN SIDEBAR & CONTENT -->
     <div class="row margin-bottom-40">
       <!-- BEGIN SIDEBAR -->
-      {% include 'newtemplates/snippets/account_sidebar.html' %}
+      {% include 'snippets/account_sidebar.html' %}
       <!-- END SIDEBAR -->
 
       <!-- BEGIN CONTENT -->

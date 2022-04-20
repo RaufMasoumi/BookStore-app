@@ -1,7 +1,7 @@
-{% extends 'newtemplates/base.html' %}
+{% extends '_base.html' %}
 {% load static %}
 
-{% block title %}Search result {% endblock %}
+{% block title %}Add to comparing {% endblock %}
 
 {% block page_level_plugin_styles %}
 <!-- Page level plugin styles START -->
@@ -21,7 +21,11 @@
         <div class="sidebar-filter margin-bottom-25">
           <h2>Search categories</h2>
           <form method="get" action="{% url 'search_results' %}">
-              <input name="query" type="hidden" value="{{ searched }}">
+            <input name="come_from_comparing" value="1" type="hidden">
+            {% for pattern, pk in books_comparing_get_dict.items %}
+              <input type="hidden" name="{{ pattern }}" value="{{ pk }}">
+            {% endfor %}
+            <input name="search" type="hidden" value="{{ searched }}">
             <div class="checkbox-list">
               {% if availability_on_key %}
                 <label><input type="checkbox" name="use_availability" checked><h3 style="display: inline-block">Availability</h3></label>
@@ -34,9 +38,6 @@
                 <label><input type="checkbox" name="available"> In Stock ({{ available }})</label>
               {% elif available_on_key == 'available' %}
                 <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
-                <label><input type="checkbox" name="available" checked> In Stock ({{ available }})</label>
-              {% elif available_on_key == 'both' %}
-                <label><input type="checkbox" name="unavailable" checked> Not Available ({{ unavailbale }})</label>
                 <label><input type="checkbox" name="available" checked> In Stock ({{ available }})</label>
               {% else %}
                 <label><input type="checkbox" name="unavailable"> Not Available ({{ unavailable }})</label>
@@ -61,7 +62,7 @@
         </div>
         <div class="sidebar-products clearfix">
           <h2>Bestsellers</h2>
-          {% include 'newtemplates/snippets/sidebar_suggestions.html' %}
+          {% include 'snippets/sidebar_suggestions.html' %}
         </div>
       </div>
       <!-- END SIDEBAR -->
@@ -74,8 +75,12 @@
             </div>
             <div class="col-md-6">
               <form method="get">
+                {% for pattern, pk in books_comparing_get_dict.items %}
+                  <input type="hidden" name="{{ pattern }}" value="{{ pk }}">
+                {% endfor %}
+                <input name="come_from_comparing" value="1" type="hidden">
                 <div class="input-group">
-                  <input type="text" placeholder="Search again" class="form-control" name="query">
+                  <input type="text" placeholder="Search again" class="form-control" name="search">
                   <span class="input-group-btn">
                     <button class="btn btn-primary" type="submit">Search</button>
                   </span>
@@ -91,7 +96,11 @@
           </div>
           <div class="col-md-10 col-sm-10">
             <form method="get">
-                <input name="query" type="hidden" value="{{ searched }}">
+                <input name="come_from_comparing" value="1" type="hidden">
+                {% for pattern, pk in books_comparing_get_dict.items %}
+                  <input type="hidden" name="{{ pattern }}" value="{{ pk }}">
+                {% endfor %}
+                <input name="search" type="hidden" value="{{ searched }}">
                 <div class="pull-right">
                   <label class="control-label">Show:</label>
                   <select class="form-control input-sm" name="show">
@@ -150,24 +159,23 @@
                 {% elif book.bestseller %}
                   <div class="sticker sticker-bestseller"></div>
                 {% endif %}
-              <h3><a href="shop-item.html">{{ book.title }}</a></h3>
+              <h3><a href="{{ book.get_absolute_url }}">{{ book.title }}</a></h3>
               {% if book.off %}
                 <div class="pi-price">${{ book.off }}</div>
               {% else %}
                 <div class="pi-price">${{ book.price }}</div>
               {% endif %}
-              {% if book in user.cart.books.all %}
-                  <a href="{% url 'account_user_cart_detail' %}" class="btn btn-default add2cart">Is in cart</a>
-              {% else %}
-                  {% if book.is_available %}
-                      <form action="{% url 'account_user_cart_update' %}" method="post">
-                          {% csrf_token %}
-                          <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
-                      </form>
-                  {% else %}
-                      <button class="btn btn-default add2cart">Unavailable</button>
-                  {% endif %}
-              {% endif %}
+              <form action="{% url 'book_comparing' %}">
+                {% for pattern, pk in books_comparing_get_dict.items %}
+                  <input type="hidden" name="{{ pattern }}" value="{{ pk }}">
+                {% endfor %}
+                {% if book.pk in books_comparing_get_dict.values %}
+                  <button type="submit" class="btn btn-default add2cart">Is in comparing</button>
+                {% else %}
+                  <input type="hidden" name="{{ new_book_comparing_get_pattern }}" value="{{ book.pk }}">
+                  <button type="submit" class="btn btn-default add2cart">Add to Comparing</button>
+                {% endif %}
+              </form>
             </div>
           </div>
           <!-- PRODUCT ITEM END -->
