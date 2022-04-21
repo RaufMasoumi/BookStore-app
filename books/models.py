@@ -159,10 +159,10 @@ class Review(models.Model):
 class ReviewReply(models.Model):
     review = models.ForeignKey(Review, on_delete=models.CASCADE, related_name='replies')
     author = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, blank=True, null=True)
-    name = models.CharField(default='guest', max_length=50)
-    email = models.EmailField()
+    to = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='replies')
+    name = models.CharField(default='guest', max_length=50, blank=True)
+    email = models.EmailField(blank=True)
     reply = models.CharField(max_length=250)
-    addsign = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='addsign_replies')
     replied = models.DateTimeField(auto_now_add=True)
     votes = models.IntegerField(default=0)
 

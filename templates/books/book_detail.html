@@ -170,6 +170,12 @@
                         <div class="review-item-content">
                             <p>{{ review.review }}</p>
                         </div>
+                        {% if review.author == user %}
+                          <p>
+                            <a href="{% url 'review_update' review.pk %}">Edit</a> | 
+                            <a href="{% url 'review_delete' review.pk %}">Delete</a>
+                          </p>
+                        {% endif %}
                       </div>
                       {% endfor %}
                   {% endif %}

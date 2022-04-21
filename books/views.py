@@ -201,10 +201,6 @@ class ReviewUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'books/reviews/review_update.html'
     login_url = 'account_login'
 
-    def get_success_url(self):
-        obj = self.get_object()
-        return obj.book.get_absolute_url()
-
     def test_func(self):
         obj = self.get_object()
         return obj.author == self.request.user or self.request.user.has_perm('books.change_review')
@@ -218,33 +214,30 @@ class ReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         obj = self.get_object()
         return obj.book.get_absolute_url()
-
+        
     def test_func(self):
         obj = self.get_object()
         return obj.author == self.request.user or self.request.user.has_perm('books.change_review')
 
 
-class ReviewReplyCreateView(LoginRequiredMixin, CreateView):
+class ReviewReplyCreateView(CreateView):
     model = ReviewReply
-    fields = ('review', 'reply', 'addsign')
+    fields = ('author', 'name', 'email', 'review', 'to', 'reply')
     template_name = 'books/reviews/replies/review_reply_create.html'
     login_url = 'account_login'
 
     def form_valid(self, form):
-        if self.request.user.is_authenticated:
-            form.instance.author = self.request.user
-            form.instance.name = self.request.user.username
-            form.instance.email = self.request.user.email
-        if self.request.POST.get('add'):
-            form.instance.addsign = ReviewReply.objects.get(pk=self.request.POST['add'])
-        # if self.request.POST.get('review'):
-        #     form.instance.review = Review.objects.get(pk=self.request.POST.get('review'))
+        user = self.request.user
+        if user.is_authenticated:
+            form.instance.author = user
+            form.instance.name = user.username
+            form.instance.email = user.email
         return super().form_valid(form)
 
 
 class ReviewReplyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = ReviewReply
-    fields = ('reply', 'addsign')
+    fields = ('reply', )
     template_name = 'books/reviews/replies/review_reply_update.html'
     login_url = 'account_login'
 
@@ -260,7 +253,7 @@ class ReviewReplyDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
 
     def get_success_url(self):
         obj = self.get_object()
-        return reverse('book_detail', kwargs={'pk': obj.review.book.pk})
+        return obj.book.get_absolute_url()
 
     def test_func(self):
         obj = self.get_object()
@@ -308,20 +301,11 @@ class SearchResultsView(ListView):
         context['paginate_by'] = self.get_paginate_by()
         get = self.request.GET
         if get.get('come_from_comparing'):
-            books = []
+            pattern_list, books = get_books_from_comparision(get)
             books_get_dict = {}
             pattern = 'book-'
-            if get.get('book-1'):
-                pattern_list = []
-                for number in range(len(get)):
-                    get_pattern = pattern + str(number+1)
-                    pattern_list.append(get_pattern)
-                    if get.get(get_pattern) and Book.objects.filter(pk=get[get_pattern]).exists():
-                        book = Book.objects.get(pk=get[get_pattern])
-                        books.append(book)
-
-                for index in range(len(books)):
-                    books_get_dict[pattern_list[index]] = books[index].pk
+            for index in range(len(books)):
+                books_get_dict[pattern_list[index]] = books[index].pk
             context['books_comparing_get_dict'] = books_get_dict
             context['new_book_comparing_get_pattern'] = pattern + str(len(books)+1)
         return context
@@ -332,19 +316,8 @@ class BookComparingView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         comparing_dict = {field.replace('_', ' ').capitalize():[] for field in BOOK_DISPLAY_FIELDS}
-        books = []
-        pattern = 'book-'
-        pattern_list = []
         get = self.request.GET
-        for number in range(len(get)):
-            get_pattern = pattern + str(number+1)
-            pattern_list.append(get_pattern)
-            if get.get(get_pattern):
-                pk = get[get_pattern]
-                if Book.objects.filter(pk=pk).exists():
-                    book = Book.objects.get(pk=pk)
-                    book.is_in_cart = is_book_in_cart(book, self.request.user)
-                    books.append(book)
+        pattern_list, books = get_books_from_comparision(get)
 
         if get.get('delete_book'):
             pk = get['delete_book']
@@ -360,7 +333,9 @@ class BookComparingView(TemplateView):
 
         books_get_dict = {}
         for index in range(len(books)):
-            books_get_dict[pattern_list[index]] = books[index].pk
+            book = books[index]
+            book.is_in_cart = is_book_in_cart(book, self.request.user)
+            books_get_dict[pattern_list[index]] = book.pk
 
         context['comparing_dict'] = comparing_dict
         context['books'] = books
@@ -531,3 +506,18 @@ def book_list_filtering_showing(queryset, request):
         queryset, order_by = sort_books(queryset, request)
 
     return queryset, availability_on_key, price_on_key, available_on_key, price_less_key, price_more_key, order_by
+
+def get_books_from_comparision(get):
+    books = []
+    pattern_list = []
+    if get.get('book-1'):
+        pattern = 'book-'
+        for number in range(len(get)):
+            get_pattern = pattern + str(number+1)
+            pattern_list.append(get_pattern)
+            if get.get(get_pattern):
+                pk = get_pattern
+                if Book.objects.filter(pk=get[pk]).exists():
+                    book = Book.objects.get(pk=get[pk])
+                    books.append(book)
+    return pattern_list, books

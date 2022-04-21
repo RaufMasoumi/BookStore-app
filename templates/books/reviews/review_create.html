@@ -7,9 +7,7 @@
   <h1>Write a Review</h1>
   <form id="review_form" method="post" class="reviews-form" role="form">
       {% csrf_token %}
-      <div class="form-group">
-        {{ form.book }}
-      </div>
+      {{ form.book.as_hidden }}
       {% if user.is_authenticated %}
         <div class="form-group">
           <label for="review">Review <span class="require">*</span></label>
