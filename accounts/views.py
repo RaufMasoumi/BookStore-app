@@ -14,6 +14,7 @@ from books.views import PageLocation
 from .models import UserAddress, UserCart, UserWish, UserCartBooksNumber
 # Create your views here.
 
+
 class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     template_name = 'account/user_detail.html'
     login_url = 'account_login'
@@ -36,7 +37,8 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
                 value = getattr(self.object, field_name)
                 unsorted_profile_fields[field_name] = value if value else ''
 
-        sorted_readable_profile_fields = {field.replace('_', ' '): unsorted_profile_fields.get(field) for field in display_fields}
+        sorted_readable_profile_fields = {field.replace('_', ' '): unsorted_profile_fields.get(field)
+                                          for field in display_fields}
         context['profile_fields'] = sorted_readable_profile_fields
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
                                          PageLocation('Profile', 'account_user_detail', True)]
@@ -69,7 +71,7 @@ class UserProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
-                                             PageLocation('Profile', 'account_user_detail'), PageLocation('Update', 'account_user_profile_update', True)]
+                                         PageLocation('Profile', 'account_user_detail'), PageLocation('Update', 'account_user_profile_update', True)]
         return context
 
 

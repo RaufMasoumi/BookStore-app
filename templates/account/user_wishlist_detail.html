@@ -63,13 +63,13 @@
             <td class="del-goods-col">
               <form method="post" action="{% url 'account_user_wishlist_update' %}">
                   {% csrf_token %}
-                  <input type="hidden" name="book_id" value="{{ book.id }}">
+                  <input type="hidden" name="book_id" value="{{ book.pk }}">
                   <button name="delete" value="1" type="submit" class="del-goods">&nbsp;</button>
               </form>
               {% if book.is_available and not book in user.cart.books.all %}
               <form method="post" action="{% url 'account_user_cart_update' %}">
                   {% csrf_token %}
-                  <button name="book_add" value="{{ book.id }}" type="submit" class="add-goods">&nbsp;</button>
+                  <button name="book_add" value="{{ book.pk }}" type="submit" class="add-goods">&nbsp;</button>
               </form>
               {% endif %}
             </td>
