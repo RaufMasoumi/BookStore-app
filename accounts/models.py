@@ -1,12 +1,10 @@
-import django.conf
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
-from django.http import HttpResponse
-from django.urls import reverse
-from django.contrib.auth import get_user_model
+from django.conf.global_settings import MEDIA_ROOT
 from allauth.socialaccount.models import SocialAccount
 from decimal import Decimal
 import requests
@@ -26,9 +24,9 @@ class CustomUser(AbstractUser):
 
 class UserAddress(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='addresses')
-    reciever_first_name = models.CharField(max_length=100)
-    reciever_last_name = models.CharField(max_length=100)
-    reciever_phone_number = models.CharField(max_length=100)
+    receiver_first_name = models.CharField(max_length=100)
+    receiver_last_name = models.CharField(max_length=100)
+    receiver_phone_number = models.CharField(max_length=100)
     country = models.CharField(max_length=50)
     city = models.CharField(max_length=100)
     street = models.CharField(max_length=100)
@@ -43,7 +41,8 @@ class UserAddress(models.Model):
 
     def get_absolute_url(self):
         return reverse("user_address_detail", kwargs={'pk': self.pk})
-    
+
+
 from books.models import Book
 
 
@@ -56,15 +55,17 @@ class UserCart(models.Model):
         total_price = Decimal('00.00')
         for book in self.books.all():
             price = book.off if book.off else book.price
-            total_price += price * UserCartBooksNumber.objects.get(cart=self, book=book).number
+            number = UserCartBooksNumber.objects.get(cart=self, book=book).number
+            total_price += price * number
         return total_price
 
     def calculate_total_price_with_cost(self):
         total_price = self.calculate_total_price()
-        return total_price + 3
+        total_price_with_cost = total_price + 3
+        return total_price_with_cost
 
     def get_absolute_url(self):
-        return reverse('account_user_cart_detail', kwargs={'pk': self.pk})
+        return reverse('account_user_cart_detail')
 
     def __str__(self):
         return f'{self.user.username}\'s cart'
@@ -77,6 +78,9 @@ class UserWish(models.Model):
 
     def __str__(self):
         return f'{self.user.username}\'s wishlist'
+
+    def get_absolute_url(self):
+        return reverse('account_user_wishlist_detail')
 
 
 class UserCartBooksNumber(models.Model):
@@ -139,7 +143,7 @@ def update_user_cart_books_number(instance, action, pk_set, **kwargs):
 @receiver(post_save, sender=UserCartBooksNumber)
 def update_user_cart_books_number_number(instance, created, **kwargs):
     if not created:
-        number = UserCartBooksNumber.objects.get(pk=instance.pk)
+        number = instance
         if number.number == 0:
             book = Book.objects.get(pk=number.book.pk)
             cart = UserCart.objects.get(pk=number.cart.pk)
@@ -153,7 +157,7 @@ def update_user_profile_image(instance, **kwargs):
         return
     response = requests.get(instance.extra_data['picture'])
     user = instance.user
-    path = f'{django.conf.settings.MEDIA_ROOT}/accounts/pictures/{user.username}.png'
+    path = f'{MEDIA_ROOT}/accounts/pictures/{user.username}.png'
     with open(path, 'wb') as image:
         image.write(response.content)
     user.image = path.split('media')[1]

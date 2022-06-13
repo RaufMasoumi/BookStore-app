@@ -11,11 +11,14 @@ CustomUser = get_user_model()
 class UserCartInline(admin.TabularInline):
     model = UserCart
 
+
 class UserWishInline(admin.TabularInline):
     model = UserWish
 
+
 class UserAddressInline(admin.TabularInline):
     model = UserAddress
+
 
 class CustomUserAdmin(UserAdmin):
     form = CustomUserChangeForm
@@ -29,6 +32,7 @@ class CustomUserAdmin(UserAdmin):
         {'fields': new_personal_data_fields}
     )
     fieldsets = user_fieldsets
+
 
 class UserAddressAdmin(admin.ModelAdmin):
     plural_name = 'addresses'

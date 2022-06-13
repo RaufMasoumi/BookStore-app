@@ -1,4 +1,3 @@
-from tkinter import N
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -79,7 +78,7 @@ class Book(models.Model):
     bestseller = models.BooleanField(default=False, blank=True, verbose_name='Set as a bestseller book?(will show in bestseller products)')
     mostpopular = models.BooleanField(default=False, blank=True, verbose_name='Set as a mostpopular book?(will show in mostpopular products)')
     new = models.BooleanField(default=False, blank=True, verbose_name='Set as a newarrival book?(will show in newarrival products)')
-    cover = models.ImageField(upload_to='books/covers/', blank=True, max_length=300)
+    cover = models.ImageField(default='books/covers/unknownbook.png', upload_to='books/covers/', blank=True, max_length=300)
     pages = models.PositiveIntegerField(default=0, blank=True)
     subject = models.CharField(max_length=50, blank=True, null=True)
     rating = models.FloatField(default=0, blank=True)

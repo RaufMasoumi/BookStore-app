@@ -1,4 +1,3 @@
-from typing import List
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -8,13 +7,13 @@ from django.http import HttpResponseBadRequest
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from .models import Book, Category, Review, ReviewReply
-from .forms import BookImageFormSet, BookMakePublishedForm, ReviewForm, ReviewReplyForm
-from uuid import UUID
+from .forms import BookImageFormSet, BookMakePublishedForm, ReviewForm
 import re
 # Create your views here.
 
 BOOK_DISPLAY_FIELDS = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
-                          'length', 'width', 'summary')
+                        'length', 'width', 'summary')
+
 
 class BookListView(ListView):
     queryset = Book.objects.published()

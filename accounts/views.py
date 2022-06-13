@@ -1,21 +1,21 @@
-from distutils.log import Log
-from multiprocessing import context
-from django.shortcuts import render, redirect, get_object_or_404, get_list_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import UpdateView, DetailView, ListView, CreateView, DeleteView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
-from decimal import Decimal
-from books.models import Book, Category
+from books.models import Book
 from books.views import PageLocation
 from .models import UserAddress, UserCart, UserWish, UserCartBooksNumber
 # Create your views here.
 
+ACCOUNT_DISPLAY_FIELDS = ('username', 'first_name', 'last_name', 'phone_number', 'card_number', 'date_joined')
+
 
 class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = get_user_model()
     template_name = 'account/user_detail.html'
     login_url = 'account_login'
     context_object_name = 'profile'
@@ -28,17 +28,15 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        display_fields = ('username', 'first_name', 'last_name', 'phone_number',
-                          'card_number', 'date_joined')
         unsorted_profile_fields = {}
         for field in self.object._meta.get_fields():
-            if field.name in display_fields:
+            if field.name in ACCOUNT_DISPLAY_FIELDS:
                 field_name = field.name
                 value = getattr(self.object, field_name)
                 unsorted_profile_fields[field_name] = value if value else ''
 
         sorted_readable_profile_fields = {field.replace('_', ' '): unsorted_profile_fields.get(field)
-                                          for field in display_fields}
+                                          for field in ACCOUNT_DISPLAY_FIELDS}
         context['profile_fields'] = sorted_readable_profile_fields
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
                                          PageLocation('Profile', 'account_user_detail', True)]
@@ -50,6 +48,7 @@ class UserProfileDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView)
 
 
 class UserProfileUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = get_user_model()
     template_name = 'account/user_update.html'
     login_url = 'account_login'
     fields = ('first_name', 'last_name', 'image', 'phone_number', 'card_number')
@@ -89,19 +88,20 @@ class UserAddressListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     
     def test_func(self):
         if self.kwargs.get('user_pk'):
-            self.request.user.pk == self.kwargs['user_pk']
+            return self.request.user.pk == self.kwargs['user_pk']
         else:
             return True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
-                                                PageLocation('Address', 'account_user_address_list', True)]
+                                         PageLocation('Address', 'account_user_address_list', True)]
         return context
+
 
 class UserAddressCreateView(LoginRequiredMixin, CreateView):
     model = UserAddress
-    fields = ('reciever_first_name', 'reciever_last_name', 'reciever_phone_number', 'country', 'city', 'street', 'no', 'postal_code')
+    fields = ('receiver_first_name', 'receiver_last_name', 'receiver_phone_number', 'country', 'city', 'street', 'no', 'postal_code')
     login_url = 'account_login'
     success_url = reverse_lazy('account_user_address_list')
     template_name = 'account/user_address_create.html'
@@ -113,12 +113,13 @@ class UserAddressCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
-                                                PageLocation('Address', 'account_user_address_list'), PageLocation('Create', 'account_user_address_create', True)]
+                                         PageLocation('Address', 'account_user_address_list'), PageLocation('Create', 'account_user_address_create', True)]
         return context
+
 
 class UserAddressUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = UserAddress
-    fields = ('reciever_first_name', 'reciever_last_name', 'reciever_phone_number', 'country', 'city', 'street', 'no', 'postal_code')
+    fields = ('receiver_first_name', 'receiver_last_name', 'receiver_phone_number', 'country', 'city', 'street', 'no', 'postal_code')
     login_url = 'account_login'
     success_url = reverse_lazy('account_user_address_list')
     template_name = 'account/user_address_update.html'
@@ -130,8 +131,9 @@ class UserAddressUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
-                                                PageLocation('Address', 'account_user_address_list'), PageLocation('Update', 'account_user_address_update', True)]
+                                         PageLocation('Address', 'account_user_address_list'), PageLocation('Update', 'account_user_address_update', True)]
         return context
+
 
 class UserAddressDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = UserAddress
@@ -146,8 +148,9 @@ class UserAddressDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
-                                                PageLocation('Address', 'account_user_address_list'), PageLocation('Delete', 'account_user_address_delete', True)]
+                                         PageLocation('Address', 'account_user_address_list'), PageLocation('Delete', 'account_user_address_delete', True)]
         return context
+
 
 class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = UserCart
@@ -157,7 +160,7 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_object(self, queryset=None):
         if not self.kwargs.get('pk'):
-            return UserCart.objects.get(user=self.request.user)
+            return self.request.user.cart
         return super().get_object(queryset)
 
     def test_func(self):
@@ -167,7 +170,7 @@ class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
-                                            PageLocation('Shopping Cart', 'account_user_cart_detail', True)]
+                                         PageLocation('Shopping Cart', 'account_user_cart_detail', True)]
         context['has_down_suggestions'] = True
         return context
 
@@ -217,7 +220,7 @@ def user_cart_update_view(request):
             if book.stock >= quantity:
                 user_cart.books.add(book)
                 user_cart.save()
-                book_number = get_object_or_404(UserCartBooksNumber, book=book)
+                book_number = UserCartBooksNumber.objects.get(cart=user_cart, book=book)
                 book_number.number = quantity
                 book_number.save()
                 book.stock -= quantity
@@ -230,8 +233,8 @@ def user_cart_update_view(request):
             number = get_object_or_404(UserCartBooksNumber, pk=post['number'])
             book = number.book
 
-            if not book.is_published():
-                return HttpResponseBadRequest('409 <h1>The book is not published!</h1>')
+            if number.cart.user != request.user:
+                return HttpResponseForbidden('<h1>403 Forbidden!</h1>')
 
             book.stock += number.number
             if book.stock >= quantity:
@@ -243,52 +246,13 @@ def user_cart_update_view(request):
             else:
                 return HttpResponse('<h1>409 The book has not enough stock!', status=409)
 
-    # elif post.get('add'):
-    #     number = get_object_or_404(UserCartBooksNumber, pk=post.get('number_id'))
-
-    #     if number.cart.user != request.user:
-    #         return HttpResponseForbidden('<h1>403 Forbidden</h1>')
-
-    #     book = number.book
-    #     if book.is_available():
-    #         number.number += 1
-    #         number.save()
-    #         book.stock -= 1
-    #         book.save()
-    #         return redirect(url)
-    #     else:
-    #         return HttpResponse('<h1>409 The book has not enough stock!', status=409)
-
-    # elif post.get('reduce'):
-    #     number = get_object_or_404(UserCartBooksNumber, pk=post.get('reduce'))
-
-    #     if number.cart.user != request.user:
-    #         return HttpResponseForbidden('<h1>403 Forbidden</h1>')
-    #     number.number -= 1
-    #     number.save()
-    #     number.book.stock += 1
-    #     number.book.save()
-    #     return redirect(url)
-
-    elif post.get('delete'):
-        number = get_object_or_404(UserCartBooksNumber, pk=post.get('delete'))
-        book = number.book
-        cart = number.cart
-        if cart.user != request.user:
-            return HttpResponseForbidden('<h1>403 Forbidden</h1>')
-        book.stock += number.number
-        book.save()
-        cart.books.remove(book)
-        cart.save()
-        return redirect(url)
-
     elif post.get('book_add'):
-        book = get_object_or_404(Book, pk=post.get('book_add'))
+        book = get_object_or_404(Book, pk=post['book_add'])
+        user_cart = request.user.cart
 
         if not book.is_published():
             return HttpResponseBadRequest('The book is not published!')
 
-        user_cart = request.user.cart
         if book.is_available():
             user_cart.books.add(book)
             user_cart.save()
@@ -297,6 +261,20 @@ def user_cart_update_view(request):
             return redirect(url)
         else:
             return HttpResponse('<h1>409 The book has not enough stock!', status=409)
+
+    elif post.get('delete'):
+        number = get_object_or_404(UserCartBooksNumber, pk=post['delete'])
+        book = number.book
+        cart = number.cart
+
+        if cart.user != request.user:
+            return HttpResponseForbidden('<h1>403 Forbidden</h1>')
+
+        book.stock += number.number
+        book.save()
+        cart.books.remove(book)
+        cart.save()
+        return redirect(url)
 
     else:
         return HttpResponse('<h1>409 Error when adding the book to user cart!</h1>', status=409)
@@ -307,18 +285,12 @@ def user_cart_update_view(request):
 def user_wish_update_view(request):
     try:
         url = request.META['HTTP_REFERER']
-    except ValueError:
+    except KeyError:
         url = request.user.wish_list.get_absolute_url()
         
     post = request.POST
 
-    if post.get('wish_id'):
-        wish = get_object_or_404(UserWish, pk=post['wish_id'])
-
-        if not wish.user == request.user:
-            return HttpResponseForbidden('<h1>403 Forbidden<h1>')
-    else:
-        wish = request.user.wish_list
+    wish = request.user.wish_list
 
     book_id = post.get('book_id')
     book = get_object_or_404(Book, pk=book_id)
