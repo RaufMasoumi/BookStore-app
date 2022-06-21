@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, pre_save, m2m_changed
 from django.dispatch import receiver
 import uuid
 # Create your models here.
@@ -113,16 +113,15 @@ class Book(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        if self.status == 'p':
-            return reverse('book_detail', kwargs={'pk': self.pk})
-        else:
-            return reverse('draft_book_detail', kwargs={'pk': self.pk})
+        path_name = 'book_detail' if self.status == 'p' else 'draft_book_detail'
+        return reverse(path_name, kwargs={'pk': self.pk})
 
     def is_available(self):
         return True if self.stock > 0 else False
 
     def is_published(self):
         return True if self.status == 'p' else False
+
 
 class BookImage(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images')
@@ -132,7 +131,7 @@ class BookImage(models.Model):
         return f'{self.book}\'s image'
 
     def get_absolute_url(self):
-        return reverse('book_detail', kwargs={'pk': self.book.pk})
+        return self.book.get_absolute_url()
 
 
 class Review(models.Model):
@@ -143,7 +142,7 @@ class Review(models.Model):
     review = models.TextField(max_length=250)
     rating = models.FloatField(default=0, blank=True)
     submitted = models.DateTimeField(auto_now_add=True, editable=False)
-    votes = models.IntegerField(default=0)
+    votes = models.IntegerField(default=0, blank=True)
 
     class Meta:
         ordering = ['votes', '-submitted']
@@ -152,7 +151,7 @@ class Review(models.Model):
         return f'{self.review[:20]}...'
 
     def get_absolute_url(self):
-        return reverse('book_detail', kwargs={'pk': self.book.pk})
+        return self.book.get_absolute_url()
 
 
 class ReviewReply(models.Model):
@@ -162,7 +161,7 @@ class ReviewReply(models.Model):
     name = models.CharField(default='guest', max_length=50, blank=True)
     email = models.EmailField(blank=True)
     reply = models.CharField(max_length=250)
-    replied = models.DateTimeField(auto_now_add=True)
+    replied = models.DateTimeField(auto_now_add=True, editable=False)
     votes = models.IntegerField(default=0)
 
     class Meta:
@@ -173,7 +172,8 @@ class ReviewReply(models.Model):
         return f'{self.reply[:20]}... reply for {self.review}...'
 
     def get_absolute_url(self):
-        return reverse('book_detail', kwargs={'pk': self.review.book.pk})
+        return self.review.get_absolute_url()
+
 
 @receiver(m2m_changed, sender=Book.category.through)
 def update_book_category(instance, action, pk_set,  **kwargs):
@@ -183,6 +183,7 @@ def update_book_category(instance, action, pk_set,  **kwargs):
             update_book_category_with_category(instance, Category.objects.get(pk=pk))
         instance.save()
 
+
 @receiver(post_save, sender=Review)
 def update_book_rating(instance, **kwargs):
     book = instance.book
@@ -190,6 +191,23 @@ def update_book_rating(instance, **kwargs):
     ave_rating = sum(ratings) / book.reviews.count()
     book.rating = round(ave_rating, 1)
     book.save()
+
+
+@receiver(pre_save, sender=Review)
+def update_review_name_and_email_by_user(instance, **kwargs):
+    user = instance.author
+    if user:
+        instance.name = user.username
+        instance.email = user.email
+
+
+@receiver(pre_save, sender=ReviewReply)
+def update_review_reply_name_and_email_by_user(instance, **kwargs):
+    user = instance.author
+    if user:
+        instance.name = user.username
+        instance.email = user.email
+
 
 def update_book_category_with_category(instance, category):
     category_parent = category.parent

@@ -101,14 +101,12 @@ class UserCartBooksNumber(models.Model):
 def create_user_cart(instance, created, **kwargs):
     if created or not UserCart.objects.filter(user=instance).exists():
         UserCart.objects.create(user=instance)
-        return
 
 
 @receiver(post_save, sender=get_user_model())
 def create_user_wish(instance, created, **kwargs):
     if created or not UserWish.objects.filter(user=instance).exists():
         UserWish.objects.create(user=instance)
-        return
 
 
 @receiver(m2m_changed, sender=UserCart.books.through)
@@ -124,20 +122,17 @@ def update_user_cart_books_number(instance, action, pk_set, **kwargs):
                 cart=user_cart,
                 book=book
             )
-        return
 
     if action == 'post_remove':
         for i in range(len(pk_list)):
             book = Book.objects.get(pk=pk_list[i])
             book_cart_number = UserCartBooksNumber.objects.get(cart=user_cart, book=book)
             book_cart_number.delete()
-        return
 
     if action == 'post_clear':
         user_cart_numbers = UserCartBooksNumber.objects.filter(cart=user_cart)
         for number in user_cart_numbers:
             number.delete()
-        return
 
 
 @receiver(post_save, sender=UserCartBooksNumber)
@@ -148,7 +143,6 @@ def update_user_cart_books_number_number(instance, created, **kwargs):
             book = Book.objects.get(pk=number.book.pk)
             cart = UserCart.objects.get(pk=number.cart.pk)
             cart.books.remove(book)
-            return
 
 
 @receiver(post_save, sender=SocialAccount)
