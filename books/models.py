@@ -43,7 +43,7 @@ class BookManager(models.Manager):
 class Category(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.SET_NULL, related_name='children')
     title = models.CharField(max_length=100)
-    thumbnail = models.ImageField(upload_to='categories', blank=True)
+    thumbnail = models.ImageField(upload_to='categories', blank=True, max_length=300)
     status = models.BooleanField(default=True, verbose_name='To be displayed?')
     position = models.IntegerField()
     objects = CategoryManager()
