@@ -369,9 +369,3 @@ class UserAddressTests(TestCase):
         self.assertRedirects(delete_response, address_list_path)
         self.assertEqual(UserAddress.objects.count(), 0)
         self.client.logout()
-
-
-
-
-
-

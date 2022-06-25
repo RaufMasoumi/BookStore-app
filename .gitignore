@@ -1,5 +1,5 @@
-docker-compose-prod.yml
-.env
+docker-compose-production.yml
+templates/.env
 __pycache__/
 db.sqlite3
 .DS_Store
