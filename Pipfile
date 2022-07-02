@@ -14,6 +14,8 @@ whitenoise = "*"
 gunicorn = "*"
 requests = "*"
 tzdata = "*"
+cloudinary = "*"
+django-cloudinary-storage = "*"
 
 [dev-packages]
 
