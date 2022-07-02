@@ -168,7 +168,11 @@ MEDIA_ROOT = str(BASE_DIR.joinpath('media'))
 # media files in production
 if not settings.DEBUG:
     MEDIA_URL = '/rauf-bookstore-app/media/'
-    CLOUDINARY_URL = env('DJANGO_CLOUDINARY_URL')
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': env.str('DJANGO_CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': env.str('DJANGO_CLOUDINARY_API_KEY'),
+        'API_SECRET': env.str('DJANGO_CLOUDINARY_API_SECRET')
+    }
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Default primary key field type
