@@ -10,9 +10,9 @@ class HomePageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sales'] = Book.objects.sale()
+        context['sales'] = Book.objects.sale().order_by('time_to_sell')
         context['new_arrivals'] = Book.objects.new()
-        context['bestsellers'] = Book.objects.bestseller()
+        context['bestsellers'] = Book.objects.bestseller().order_by('price')
         context['fast_view_books'] = context['sales'] | context['new_arrivals'] | context['bestsellers']
         return context
 

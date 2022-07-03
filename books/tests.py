@@ -64,7 +64,7 @@ class BookTests(TestCase):
         self.book.refresh_from_db()
         new_category_queryset = self.book.category.all()
         should_contain_values = [self.category1, self.category2, self.category3]
-        self.assertQuerysetEqual(new_category_queryset, should_contain_values)
+        self.assertQuerysetEqual(new_category_queryset, should_contain_values, ordered=False)
 
     def test_update_book_rating_receiver(self):
         self.book.refresh_from_db()
