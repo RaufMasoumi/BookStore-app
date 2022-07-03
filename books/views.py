@@ -403,16 +403,16 @@ def search_by_title_author(queryset, request):
 
 
 def price_limit(queryset, request):
-    more = None
     less = None
+    more = None
     pattern = '\$(\d+) - \$(\d+)'
     amount = re.match(pattern, request.GET['amount'])
     if not amount:
         return queryset, less, more
 
-    more, less = amount.groups()
+    less, more = amount.groups()
 
-    if more and less:
+    if less and more:
         less = int(less)
         more = int(more)
         price_range = (less, more)

@@ -706,7 +706,7 @@ class BookFilteringLimitingShowingTests(TestCase):
         self.client.logout()
 
     def test_price_limit(self):
-        data = {'filter': True, 'use_price': True, 'amount': '$101 - $9'}
+        data = {'filter': True, 'use_price': True, 'amount': '$9 - $101'}
         response = self.client.get(self.path, data)
         books = response.context['category_books']
         price_on_key = response.context['price_on_key']
