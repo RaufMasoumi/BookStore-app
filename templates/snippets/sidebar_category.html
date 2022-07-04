@@ -32,7 +32,7 @@
     {% for category in categories %}
       {% if not category.parent %}
           {% if category.children.active %}
-              <li class="list-group-item clearfix dropdown active">
+              <li class="list-group-item clearfix dropdown">
                   <a href="{{ category.get_absolute_url }}">
                       <i class="fa fa-angle-right"></i>
                       {{ category.title }}
