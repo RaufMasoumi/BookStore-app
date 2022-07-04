@@ -43,7 +43,7 @@
         {% endfor %}
     {% endif %}
 {% elif category %}
-  <ul class="dropdown-menu">
+  <ul class="dropdown-menu" style="display: block;">
     {% for category in category.children.active %}
         <li class="list-group-item dropdown clearfix">
             <a href="{{ category.get_absolute_url }}">
