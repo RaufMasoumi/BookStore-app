@@ -9,18 +9,18 @@ def new_books(request):
 
 def bestseller_books(request):
     books = Book.objects.bestseller()
-    books_dict = {'bestseller_books': books}
+    books_dict = {'bestseller_books': books[:10]}
     return books_dict
 
 
 def mostpopular_books(request):
     books = Book.objects.mostpopular()
-    books_dict = {'mostpopular_books': books}
+    books_dict = {'mostpopular_books': books[:10]}
     return books_dict
 
 
 def active_categories(request):
-    active_categories = Category.objects.active()
-    categories_dict = {'categories': active_categories}
+    categories = Category.objects.active()
+    categories_dict = {'categories': categories}
     return categories_dict
 
