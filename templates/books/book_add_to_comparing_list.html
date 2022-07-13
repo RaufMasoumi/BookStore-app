@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load comparing_url %}
 
 {% block title %}Add to comparing {% endblock %}
 
@@ -189,7 +190,8 @@
           <div class="col-md-8 col-sm-8">
             <ul class="pagination pull-right">
               {% if page_obj.has_previous %}
-                    <li><a href="{% url 'search_results' page_obj.previous_page_number %}">&laquo;</a></li>
+                    {% url 'search_results' page_obj.previous_page_number as url %}
+                    <li><a href="{% make_comparing_url url %}">&laquo;</a></li>
               {% else %}
                 <li><a>&laquo;</a></li>
               {% endif %}
@@ -197,11 +199,13 @@
                   {% if number == page_obj.number %}
                     <li><span>{{ number }}</span></li>
                   {% else %}
-                    <li><a href="{% url 'search_results' number %}">{{ number }}</a></li>
+                    {% url 'search_results' number as url %}
+                    <li><a href="{% make_comparing_url url %}">{{ number }}</a></li>
                   {% endif %}
               {% endfor %}
               {% if page_obj.has_next %}
-                  <li><a href="{% url 'search_results' page_obj.next_page_number %}">&raquo;</a></li>
+                  {% url 'search_results' page_obj.next_page_number as url %}
+                  <li><a href="{% make_comparing_url url %}">&raquo;</a></li>
               {% else %}
                 <li><a>&raquo;</a></li>
               {% endif %}
