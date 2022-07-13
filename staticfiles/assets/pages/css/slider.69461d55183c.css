@@ -97,60 +97,60 @@
 
 /* Carousel Item Background Images */
 .carousel-slider .carousel-item-one {
-    background: url(../../../assets/pages/img/index-sliders/sliderimage6.jpeg);
+    background: url("../../../assets/pages/img/index-sliders/sliderimage6.080f6a7566aa.jpeg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-two {
-    background: url(../../../assets/pages/img/index-sliders/sliderimage8.jpeg);
+    background: url("../../../assets/pages/img/index-sliders/sliderimage8.31439380996f.jpeg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-three {
-    background: url(../../../assets/pages/img/index-sliders/sliderimage9.jpeg);
+    background: url("../../../assets/pages/img/index-sliders/sliderimage9.690baeee719f.jpeg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-four {
-    background: url(../../../assets/pages/img/shop-slider/slide1/sliderimage5.jpeg);
+    background: url("../../../assets/pages/img/shop-slider/slide1/sliderimage5.d4d11ff1e9f5.jpeg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-five {
-    background: url(../../../assets/pages/img/shop-slider/slide2/sliderimage2.webp);
+    background: url("../../../assets/pages/img/shop-slider/slide2/sliderimage2.d597bb19c2e9.webp");
     background-size: cover;
 }
 
 .carousel-slider .carousel-item-six {
-    background: url(../../../assets/pages/img/shop-slider/slide3/sliderimage1.jpeg);
+    background: url("../../../assets/pages/img/shop-slider/slide3/sliderimage1.a099f8324dcf.jpeg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-seven {
-    background: url(../../../assets/pages/img/shop-slider/slide4/sliderimage4.jpeg);
+    background: url("../../../assets/pages/img/shop-slider/slide4/sliderimage4.27081091f386.jpeg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-eight {
-    background: url(../../../assets/pages/img/frontend-slider/bg9.jpg);
+    background: url("../../../assets/pages/img/frontend-slider/bg9.e2a6dbf8ff19.jpg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-nine {
-    background: url(../../../assets/pages/img/frontend-slider/bg1.jpg);
+    background: url("../../../assets/pages/img/frontend-slider/bg1.059c68202630.jpg");
     background-size: cover;
     background-position: center center;
 }
 
 .carousel-slider .carousel-item-ten {
-    background: url(../../../assets/pages/img/frontend-slider/bg2.jpg);
+    background: url("../../../assets/pages/img/frontend-slider/bg2.3c3bf535bb66.jpg");
     background-size: cover;
     background-position: center center;
 }

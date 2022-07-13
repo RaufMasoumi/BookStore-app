@@ -35,6 +35,7 @@ DEBUG = env.bool('DJANGO_DEBUG', default=False)
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS',
                          default=['localhost', '127.0.0.1', 'rauf-book-store-app.herokuapp.com'])
 
+ADMINS = [('Rauf', 'raouf.rm93@gmail.com')]
 
 # Application definition
 
