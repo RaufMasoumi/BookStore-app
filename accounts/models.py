@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
-from django.conf.global_settings import MEDIA_ROOT
+from config.settings import MEDIA_ROOT
 from allauth.socialaccount.models import SocialAccount
 from decimal import Decimal
 import requests
