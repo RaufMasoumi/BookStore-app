@@ -274,7 +274,7 @@ var Layout = function () {
         var setColor = function (color) {
             $('#style-color').attr("href", "../../static/assets/corporate/css/themes/" + color + ".css");
             $('.corporate .site-logo img').attr("src", "../../static/assets/corporate/img/logos/logo-corp-" + color + ".png");
-            $('.ecommerce .site-logo img').attr("src", "../../static/assets/corporate/img/logos/logo-shop-" + color + ".png");
+            $('.ecommerce .site-logo img').attr("src", "../../static/assets/corporate/img/logos/shop-logo-custom.JPEG");
         }
 
         $('.icon-color', panel).click(function () {
