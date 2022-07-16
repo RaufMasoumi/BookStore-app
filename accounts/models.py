@@ -4,9 +4,11 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
-from config.settings import MEDIA_ROOT
+from config.settings import MEDIA_ROOT, MEDIA_URL
 from allauth.socialaccount.models import SocialAccount
 from decimal import Decimal
+from cloudinary.uploader import upload
+import re
 import requests
 import uuid
 
@@ -149,11 +151,23 @@ def update_user_cart_books_number_number(instance, created, **kwargs):
 def update_user_profile_image(instance, **kwargs):
     if instance.user.image:
         return
-    response = requests.get(instance.extra_data['picture'])
+    image_url = instance.extra_data['picture']
     user = instance.user
-    path = f'{MEDIA_ROOT}/accounts/pictures/{user.username}.png'
-    with open(path, 'wb') as image:
-        image.write(response.content)
-    user.image = path.split('media')[1]
+    image_name = f'{user.username}.png'
+
+    # development
+    if MEDIA_URL == '/media/':
+        response = requests.get(image_url)
+        path = f'{MEDIA_ROOT}/accounts/pictures/' + image_name
+        with open(path, 'wb') as image:
+            image.write(response.content)
+        user.image = path.split('media')[1]
+
+    # production
+    elif MEDIA_URL == '/rauf-bookstore-app/media/':
+        public_id = re.sub(r'[?&#\\%<>+/\s+]', '_', repr(user.username)[1:-1])
+        upload(image_url, public_id=public_id, folder='rauf-bookstore-app/media/accounts/pictures/', format='png')
+        user.image = '/accounts/pictures/' + public_id + '.png'
+
     user.save()
     return
