@@ -21,6 +21,7 @@ def mostpopular_books(request):
 
 def active_categories(request):
     categories = Category.objects.active()
-    categories_dict = {'categories': categories}
+    display_categories = [categories[0]]
+    categories_dict = {'categories': categories, 'display_categories': display_categories}
     return categories_dict
 

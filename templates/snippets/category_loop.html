@@ -43,17 +43,33 @@
         {% endfor %}
     {% endif %}
 {% elif category %}
-  <ul class="dropdown-menu" style="display: block;">
-    {% for category in category.children.active %}
-        <li class="list-group-item dropdown clearfix">
-            <a href="{{ category.get_absolute_url }}">
-                <i class="fa fa-angle-right"></i>
-                {{ category.title }}
-            </a>
-            {% if category.children.active %}
-                {% include 'snippets/category_loop.html' %}
-            {% endif %}
-        </li>
-    {% endfor %}
-  </ul>
+  {% if category in display_categories %}
+      <ul class="dropdown-menu" style="display: block;">
+        {% for category in category.children.active %}
+            <li class="list-group-item dropdown clearfix">
+                <a href="{{ category.get_absolute_url }}">
+                    <i class="fa fa-angle-right"></i>
+                    {{ category.title }}
+                </a>
+                {% if category.children.active %}
+                    {% include 'snippets/category_loop.html' %}
+                {% endif %}
+            </li>
+        {% endfor %}
+      </ul>
+  {% else %}
+      <ul class="dropdown-menu">
+        {% for category in category.children.active %}
+            <li class="list-group-item dropdown clearfix">
+                <a href="{{ category.get_absolute_url }}">
+                    <i class="fa fa-angle-right"></i>
+                    {{ category.title }}
+                </a>
+                {% if category.children.active %}
+                    {% include 'snippets/category_loop.html' %}
+                {% endif %}
+            </li>
+        {% endfor %}
+      </ul>
+  {% endif %}
 {% endif %}
