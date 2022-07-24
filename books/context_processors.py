@@ -1,4 +1,4 @@
-from .models import Book, Category
+from .models import Book
 
 
 def new_books(request):
@@ -18,10 +18,4 @@ def mostpopular_books(request):
     books_dict = {'mostpopular_books': books[:10]}
     return books_dict
 
-
-def active_categories(request):
-    categories = Category.objects.active()
-    display_categories = [Category.objects.filter(status=True, parent=None).first()]
-    categories_dict = {'categories': categories, 'display_categories': display_categories}
-    return categories_dict
 

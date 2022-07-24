@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 
 import django.core.mail.backends.console
-from django.conf import settings
 from environs import Env
 
 env = Env()
@@ -67,9 +66,11 @@ INSTALLED_APPS = [
     'crispy_forms',
 
     # local
-    'accounts',
-    'books',
-    'pages',
+    'accounts.apps.AccountsConfig',
+    'books.apps.BooksConfig',
+    'categories.apps.CategoriesConfig',
+    'pages.apps.PagesConfig',
+
 ]
 
 MIDDLEWARE = [
@@ -103,7 +104,7 @@ TEMPLATES = [
                 'books.context_processors.new_books',
                 'books.context_processors.bestseller_books',
                 'books.context_processors.mostpopular_books',
-                'books.context_processors.active_categories',
+                'categories.context_processors.active_categories',
             ],
         },
     },
@@ -167,7 +168,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = str(BASE_DIR.joinpath('media'))
 
 # media files in production
-if not settings.DEBUG:
+if not DEBUG:
     MEDIA_URL = '/rauf-bookstore-app/media/'
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': env.str('DJANGO_CLOUDINARY_CLOUD_NAME'),
