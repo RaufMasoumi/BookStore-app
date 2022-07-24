@@ -55,9 +55,12 @@ By joining all of these technologies together in one project, BookStore now has 
 And now lets dive into project codes to see the actual show!
 This project uses almost all the django features (not just models, views and ...)  to being a really 'django project' such as: Signals, Custom context processors, Model managers, Model Indexes, Custom permissions etc.
 
-The project has three django apps such as:
-- Accounts - for user account and other related features
-- Books - for the actual content 
+The project has six django apps such as:
+- Accounts - For user accounts and other related features
+- Carts - For user carts and wishlists
+- Categories - For book categories
+- Books - For books
+- Reviews - For book reviews and review replies
 - Pages - for traditional pages such as home
 
 
@@ -95,7 +98,7 @@ In this project, the django class based views have been preferred instead of fun
 ### Signal receivers
 This app also has many of very useful and necessary signal receivers and this is the part that actually caries the 'super dynamic' nickname for the BookStore!
 
-Sometimes, some processes need to be done automatically and there is no need to user to do them or programmer to repeat them everywhere in the code. So some of these receivers are helping the user and some of them are helping the programmer. For instance if a user log in with a social account(like Google), no need to set the profile image, and it will be set for the user automatically by the update_user_profile_image signal receiver. The other instance is when a user sets the number of an in-cart-book to 1, so that book will be automatically deleted from the cart by the update_user_cart_books_number_number signal receiver and no need to add some code in the views after requests and also no need to be worried about creation of a bug in this part of process!
+Sometimes, some processes need to be done automatically and there is no need to user to do them or programmer to repeat them everywhere in the code. So some of these receivers are helping the user and some of them are helping the programmer. For instance if a user log in with a social account(like Google), no need to set the profile image, and it will be set for the user automatically by the update_user_profile_image signal receiver. The other instance is when a user sets the number of an in-cart-book to 0 (or lower), so that book will be automatically deleted from the cart by the update_user_cart_books_number_number signal receiver and no need to add some code in the views after requests and also no need to be worried about creation of a bug in this part of process!
 
 
 ### Templates
