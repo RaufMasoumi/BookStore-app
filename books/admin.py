@@ -1,10 +1,7 @@
 from django.contrib import admin
-from .models import Book, BookImage, Review, ReviewReply
+from reviews.admin import ReviewInline
+from .models import Book, BookImage
 # Register your models here.
-
-
-class ReviewInline(admin.TabularInline):
-    model = Review
 
 
 class BookImageInline(admin.StackedInline):
@@ -55,15 +52,3 @@ class BookImageAdmin(admin.ModelAdmin):
 
 
 admin.site.register(BookImage, BookImageAdmin)
-
-
-class ReviewReplyInline(admin.TabularInline):
-    model = ReviewReply
-
-
-class ReviewAdmin(admin.ModelAdmin):
-    inlines = [ReviewReplyInline]
-    list_display = ('review', 'book', 'author')
-
-
-admin.site.register(Review, ReviewAdmin)

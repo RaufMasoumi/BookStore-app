@@ -67,8 +67,10 @@ INSTALLED_APPS = [
 
     # local
     'accounts.apps.AccountsConfig',
+    'carts.apps.CartsConfig',
     'books.apps.BooksConfig',
     'categories.apps.CategoriesConfig',
+    'reviews.apps.ReviewsConfig',
     'pages.apps.PagesConfig',
 
 ]

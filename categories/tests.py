@@ -46,7 +46,7 @@ class CategoryTests(TestCase):
         self.assertContains(response, 'Categories List')
         self.assertContains(response, self.category.title)
         self.assertNotContains(response, 'Hey i should not be here.')
-        self.assertTemplateUsed(response, 'books/category/category_list.html')
+        self.assertTemplateUsed(response, 'categories/category_list.html')
         self.client.logout()
 
     def test_category_books_list_view(self):
@@ -56,7 +56,7 @@ class CategoryTests(TestCase):
         self.assertContains(response, self.category.title)
         self.assertContains(response, self.book.title)
         self.assertNotContains(response, 'Hi there I should not be here.')
-        self.assertTemplateUsed(response, 'books/category/category_books_list.html')
+        self.assertTemplateUsed(response, 'categories/category_books_list.html')
 
     def test_category_create_view_with_permissions(self):
         self.client.force_login(self.user)
@@ -66,7 +66,7 @@ class CategoryTests(TestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertContains(get_response, 'Create Category')
         self.assertNotContains(get_response, 'Hello I should not be here.')
-        self.assertTemplateUsed(get_response, 'books/category/category_create.html')
+        self.assertTemplateUsed(get_response, 'categories/category_create.html')
         post_data = {'title': 'A new Category', 'position': 2}
         post_response = self.client.post(path, post_data)
         self.assertEqual(post_response.status_code, 302)
@@ -86,7 +86,7 @@ class CategoryTests(TestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertContains(get_response, 'Update Category')
         self.assertNotContains(get_response, 'Hi there I should not be here.')
-        self.assertTemplateUsed(get_response, 'books/category/category_update.html')
+        self.assertTemplateUsed(get_response, 'categories/category_update.html')
         post_data = {'title': 'A test Category(updated)', 'position': 2}
         post_response = self.client.post(path, post_data)
         self.assertEqual(post_response.status_code, 302)
@@ -105,7 +105,7 @@ class CategoryTests(TestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertContains(get_response, 'Delete Category')
         self.assertNotContains(get_response, 'Hello I should not here!')
-        self.assertTemplateUsed(get_response, 'books/category/category_delete.html')
+        self.assertTemplateUsed(get_response, 'categories/category_delete.html')
         delete_response = self.client.delete(path)
         self.assertEqual(delete_response.status_code, 302)
         self.assertRedirects(delete_response, reverse('category_list'))

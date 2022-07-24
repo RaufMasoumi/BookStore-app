@@ -30,7 +30,8 @@ urlpatterns = [
     path('books/', include('books.urls')),
     path('accounts/', include('accounts.urls')),
     path('categories/', include('categories.urls')),
-
+    path('reviews/', include('reviews.urls')),
+    path('carts/', include('carts.urls')),
 ]
 
 if DEBUG:

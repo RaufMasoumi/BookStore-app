@@ -1,19 +1,12 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
+from carts.admin import UserCartInline, UserWishInline
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import UserAddress, UserCart, UserWish, UserCartBooksNumber
+from .models import UserAddress
 # Register your models here.
 
 CustomUser = get_user_model()
-
-
-class UserCartInline(admin.TabularInline):
-    model = UserCart
-
-
-class UserWishInline(admin.TabularInline):
-    model = UserWish
 
 
 class UserAddressInline(admin.TabularInline):
@@ -40,8 +33,6 @@ class UserAddressAdmin(admin.ModelAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(UserAddress, UserAddressAdmin)
-admin.site.register(UserCart)
-admin.site.register(UserWish)
-admin.site.register(UserCartBooksNumber)
+
 
 

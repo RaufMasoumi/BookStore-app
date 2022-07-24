@@ -10,13 +10,13 @@ from .models import Category
 
 class CategoryListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     model = Category
-    template_name = 'books/category/category_list.html'
+    template_name = 'categories/category_list.html'
     login_url = 'account_login'
-    permission_required = 'books.category_list'
+    permission_required = 'categories.category_list'
 
     
 class CategoryBooksListView(ListView):
-    template_name = 'books/category/category_books_list.html'
+    template_name = 'categories/category_books_list.html'
     context_object_name = 'category_books'
 
     def get_queryset(self):
@@ -51,25 +51,25 @@ class CategoryBooksListView(ListView):
 class CategoryCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     model = Category
     fields = '__all__'
-    template_name = 'books/category/category_create.html'
+    template_name = 'categories/category_create.html'
     login_url = 'account_login'
-    permission_required = 'books.add_category'
+    permission_required = 'categories.add_category'
 
 
 class CategoryUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Category
     fields = '__all__'
-    template_name = 'books/category/category_update.html'
+    template_name = 'categories/category_update.html'
     login_url = 'account_login'
-    permission_required = 'books.change_category'
+    permission_required = 'categories.change_category'
 
 
 class CategoryDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = Category
-    template_name = 'books/category/category_delete.html'
+    template_name = 'categories/category_delete.html'
     login_url = 'account_login'
     success_url = reverse_lazy('category_list')
-    permission_required = 'books.delete_category'
+    permission_required = 'categories.delete_category'
 
 
 def make_active_category_set(category):

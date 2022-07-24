@@ -14,7 +14,7 @@
                 <a style="color: red" href="{% url 'category_delete' category.pk %}">Delete</a>
             </p>
             {% if category.children.all %}
-                {% include 'books/category/category_loop.html' %}
+                {% include 'categories/category_loop.html' %}
             {% endif %}
             </li>
         {% endif %}
