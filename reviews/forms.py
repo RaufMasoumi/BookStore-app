@@ -1,6 +1,6 @@
-from socket import fromshare
 from django import forms
 from .models import Review, ReviewReply
+
 
 class ReviewForm(forms.ModelForm):
     class Meta:
