@@ -29,9 +29,8 @@
             <th class="goods-page-price">Unit price</th>
             <th class="goods-page-total" colspan="2">Total</th>
           </tr>
-          {% for book in cart.books.all %}
           {% for number in cart.books_numbers.all %}
-          {% if number.book == book %}
+          {% with number.book as book %}
           <tr>
             <td class="goods-page-image">
               <a href="{{ book.cover.url }}" class="fancybox-button"><img src="{{ book.cover.url }}" alt="{{ book.title }}"></a>
@@ -50,7 +49,7 @@
                     <div class="product-quantity">
                         <input id="product-quantity" name="quantity" value="{{ number.number }}" readonly class="form-control input-sm">
                     </div>
-                      <button class="btn btn-primary" name="number" value="{{ number.pk }}" type="submit">update</button>
+                      <button class="btn btn-primary" name="number_pk" value="{{ number.pk }}" type="submit">update</button>
                   </form>
             </td>
             <td class="goods-page-price">
@@ -67,12 +66,11 @@
             <td class="del-goods-col">
               <form method="post" action="{% url 'account_user_cart_update' %}">
                   {% csrf_token %}
-                  <button class="del-goods" name="delete" value="{{ number.id }}">&nbsp;</button>
+                  <button class="del-goods" name="delete_book_pk" value="{{ book.pk }}">&nbsp;</button>
               </form>
             </td>
           </tr>
-          {% endif %}
-          {% endfor %}
+          {% endwith %}
           {% endfor %}
         </table>
         </div>

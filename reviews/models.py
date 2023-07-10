@@ -48,12 +48,13 @@ class ReviewReply(models.Model):
 
 
 @receiver(post_save, sender=Review)
-def update_book_rating(instance, **kwargs):
-    book = instance.book
-    ratings = [review.rating for review in book.reviews.all()]
-    ave_rating = sum(ratings) / book.reviews.count()
-    book.rating = round(ave_rating, 1)
-    book.save()
+def update_book_rating(instance, created, **kwargs):
+    if created:
+        book = instance.book
+        ratings = [review.rating for review in book.reviews.all()]
+        ave_rating = sum(ratings) / len(ratings)
+        book.rating = round(ave_rating, 1)
+        book.save()
 
 
 @receiver(pre_save, sender=Review)

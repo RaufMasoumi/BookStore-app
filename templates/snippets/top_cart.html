@@ -26,7 +26,7 @@
               {% endif %}
               <form method="post" action="{% url 'account_user_cart_update' %}">
                   {% csrf_token %}
-                  <button type="submit" class="del-goods" name="delete" value="{{ number.id }}">&nbsp;</button>
+                  <button type="submit" class="del-goods" name="delete_book_pk" value="{{ book.id }}">&nbsp;</button>
               </form>
             </li>
             {% endif %}

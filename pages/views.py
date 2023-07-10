@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from books.models import Book
 from books.views import PageLocation
+from accounts.views import ACCOUNT_PAGE_LOCATION_LIST
 # Create your views here.
 
 
@@ -22,7 +23,8 @@ class AboutPageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), PageLocation('About', 'about', True)]
+        about_location = [PageLocation('About', 'about', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST + about_location
         return context
 
 
@@ -31,7 +33,7 @@ class AccountPageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST
         return context
 
 
@@ -44,8 +46,8 @@ class ContactsPageView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
-                                         PageLocation('Contacts', 'contacts', True)]
+        contacts_location = [PageLocation('Contacts', 'contacts', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST + contacts_location
         return context
 
 
@@ -54,8 +56,8 @@ class FaqPageView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
-                                         PageLocation('Frequently Asked Questions', 'faq', True)]
+        faq_location = [PageLocation('Frequently Asked Questions', 'faq', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST + faq_location
         return context
 
 
@@ -64,8 +66,8 @@ class PrivacyPolicyPageView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
-                                         PageLocation('Privacy and Policy', 'privacy', True)]
+        privacy_location = [PageLocation('Privacy and Policy', 'privacy', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST + privacy_location
         return context
 
 
@@ -74,6 +76,6 @@ class TermsConditionsPageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
-                                         PageLocation('Terms and Conditions', 'terms', True)]
+        terms_location = [PageLocation('Terms and Conditions', 'terms', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST + terms_location
         return context

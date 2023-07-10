@@ -78,3 +78,4 @@ def make_active_category_set(category):
         active_category_set.add(category)
         category = category.parent
     return active_category_set
+

@@ -40,7 +40,7 @@ def make_mostpopular(modeladmin, request, queryset):
 
 class BookAdmin(admin.ModelAdmin):
     inlines = [BookImageInline, ReviewInline]
-    list_display = ['title', 'author', 'price', 'status']
+    list_display = ['title', 'author', 'price', 'status', 'stock']
     actions = [make_new, make_sale, make_bestseller, make_mostpopular, make_draft, make_published]
 
 

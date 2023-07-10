@@ -51,7 +51,7 @@ class UserCartTests(TestCase):
         user_cart_path = self.cart.get_absolute_url()
         no_response = self.client.get(path)
         self.assertEqual(no_response.status_code, 405)
-        book_add_response = self.client.post(path, {'book_add': self.book.pk})
+        book_add_response = self.client.post(path, {'book_pk': self.book.pk})
         self.assertEqual(book_add_response.status_code, 302)
         self.assertRedirects(book_add_response, user_cart_path)
         self.assertEqual(self.cart.books.count(), 1)
@@ -65,7 +65,7 @@ class UserCartTests(TestCase):
         self.assertEqual(book_number.number, 1)
         old_stock = self.book.stock
         old_number = book_number.number
-        delete_response = self.client.post(path, {'delete': book_number.pk})
+        delete_response = self.client.post(path, {'delete_book_pk': self.book.pk})
         self.assertEqual(delete_response.status_code, 302)
         self.assertRedirects(delete_response, user_cart_path)
         self.book.refresh_from_db()
@@ -75,7 +75,7 @@ class UserCartTests(TestCase):
         self.assertEqual(self.cart.books.count(), 0)
         quantity = 5
         old_stock = self.book.stock
-        quantity_book_data = {'quantity': quantity, 'book': self.book.pk}
+        quantity_book_data = {'quantity': quantity, 'book_pk': self.book.pk}
         quantity_book_response = self.client.post(path, quantity_book_data)
         self.assertEqual(quantity_book_response.status_code, 302)
         self.assertRedirects(quantity_book_response, user_cart_path)
@@ -88,7 +88,7 @@ class UserCartTests(TestCase):
         self.assertEqual(new_stock, old_stock - quantity)
         self.assertEqual(book_number.number, quantity)
         quantity = 10
-        quantity_number_data = {'quantity': quantity, 'number': book_number.pk}
+        quantity_number_data = {'quantity': quantity, 'number_pk': book_number.pk}
         quantity_number_response = self.client.post(path, quantity_number_data)
         self.assertEqual(quantity_number_response.status_code, 302)
         self.assertRedirects(quantity_number_response, user_cart_path)

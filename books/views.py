@@ -6,7 +6,6 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponseBadRequest
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
-from categories.models import Category
 from reviews.forms import ReviewForm
 from .models import Book
 from .forms import BookImageFormSet
@@ -15,20 +14,21 @@ import re
 
 BOOK_DISPLAY_FIELDS = ('author', 'pages', 'subject', 'rating', 'publisher', 'age_range', 'grade_range', 'page_size',
                        'length', 'width', 'summary')
+# key: value -> field name: human-readable field name
+BOOK_DISPLAY_FIELDS_DICT = {field: field.replace('_', ' ').capitalize() for field in BOOK_DISPLAY_FIELDS}
+
 # key: value -> order-by query: human-readable name
 ORDERING_DICT = {'title': 'Name (A - Z)', '-title': 'Name (Z - A)', 'price': 'Price (Low > High)',
                  '-price': 'Price (High > Low)', 'rating': 'Rating (Highest)', '-rating': 'Rating (Lowest)'}
 
 
-class BookDetailView(DetailView):
-    queryset = Book.objects.published()
+class BaseBookDetailView(DetailView):
     context_object_name = 'book'
-    template_name = 'books/book_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        book_fields = {field.replace('_', ' ').capitalize(): getattr(self.object, field, '')
-                       for field in BOOK_DISPLAY_FIELDS}
+        book_fields = {BOOK_DISPLAY_FIELDS_DICT[field]: getattr(self.object, field, '')
+                       for field in BOOK_DISPLAY_FIELDS_DICT.keys()}
         active_category_queryset = self.object.category.active()
         book_fields['Category'] = active_category_queryset
         review_form = ReviewForm(initial={'book': self.object.pk})
@@ -36,41 +36,31 @@ class BookDetailView(DetailView):
             PageLocation('Home', 'home'), PageLocation('Books', 'home'),
             PageLocation(self.object.title, self.object.get_absolute_url(), True)
         ]
-        self.object.is_in_cart = is_book_in_cart(self.object, self.request.user)
+        self.object.is_in_cart = self.object.is_in_cart(self.request.user)
         context['page_location_list'] = page_location_list
         context['active_category_set'] = active_category_queryset
         context['has_down_suggestions'] = True
         context['book_fields'] = book_fields
         context['review_form'] = review_form
+        return context
+
+
+class BookDetailView(BaseBookDetailView):
+    queryset = Book.objects.published()
+    template_name = 'books/book_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         self.object.views += 1
         self.object.save()
         return context
 
 
-class DraftBookDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+class DraftBookDetailView(LoginRequiredMixin, PermissionRequiredMixin, BaseBookDetailView):
     queryset = Book.objects.draft()
-    context_object_name = 'book'
     template_name = 'books/draft_book_detail.html'
     login_url = 'account_login'
     permission_required = 'books.special_status'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        book_fields = {field.replace('_', ' ').capitalize(): getattr(self.object, field, '')
-                       for field in BOOK_DISPLAY_FIELDS}
-        active_category_queryset = self.object.category.active()
-        book_fields['Category'] = active_category_queryset
-        review_form = ReviewForm(initial={'book': self.object.pk})
-        page_location_list = [
-            PageLocation('Home', 'home'), PageLocation('Books', 'home'),
-            PageLocation(self.object.title, self.object.get_absolute_url(), True)
-        ]
-        context['page_location_list'] = page_location_list
-        context['active_category_set'] = active_category_queryset
-        context['has_down_suggestions'] = True
-        context['book_fields'] = book_fields
-        context['review_form'] = review_form
-        return context
 
 
 class BookCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -87,9 +77,7 @@ class BookCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        formset = BookImageFormSet(self.request.POST, self.request.FILES, instance=self.object)
-        if formset.is_valid():
-            formset.save()
+        save_image_formset(self.request, self.object)
         return response
 
 
@@ -107,10 +95,8 @@ class BookUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        formset = BookImageFormSet(self.request.POST, self.request.FILES, instance=self.object)
-        if formset.is_valid():
-            formset.save()
-        return response 
+        save_image_formset(self.request, self.object)
+        return response
 
 
 class BookDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
@@ -164,13 +150,10 @@ class SearchResultsView(ListView):
         context['paginate_by'] = self.get_paginate_by()
         get = self.request.GET
         if get.get('come_from_comparing'):
-            pattern_list, books = get_books_from_comparing(get)
-            books_get_dict = {}
-            pattern = 'book-'
-            for index in range(len(books)):
-                books_get_dict[pattern_list[index]] = books[index].pk
+            books_get_dict = make_books_get_dict(*get_books_from_comparing(get))
+            new_pattern = 'book-' + str(len(books_get_dict.keys()) + 1)
             context['books_comparing_get_dict'] = books_get_dict
-            context['new_book_comparing_get_pattern'] = pattern + str(len(books)+1)
+            context['new_book_comparing_get_pattern'] = new_pattern
         return context
 
 
@@ -179,7 +162,7 @@ class BookComparingView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        comparing_dict = {field.replace('_', ' ').capitalize(): [] for field in BOOK_DISPLAY_FIELDS}
+        comparing_dict = {BOOK_DISPLAY_FIELDS_DICT[field]: [] for field in BOOK_DISPLAY_FIELDS_DICT.keys()}
         get = self.request.GET
         pattern_list, books = get_books_from_comparing(get)
 
@@ -191,16 +174,14 @@ class BookComparingView(TemplateView):
                     books.remove(book)
                     pattern_list.pop()
 
-        for field in BOOK_DISPLAY_FIELDS:
+        for field, human_readable_field in BOOK_DISPLAY_FIELDS_DICT.items():
             for book in books:
-                human_readable_field = field.replace('_', ' ').capitalize()
                 comparing_dict[human_readable_field].append(getattr(book, field, ''))
 
-        books_get_dict = {}
-        for index in range(len(books)):
-            book = books[index]
-            book.is_in_cart = is_book_in_cart(book, self.request.user)
-            books_get_dict[pattern_list[index]] = book.pk
+        for book in books:
+            book.is_in_cart = book.is_in_cart(self.request.user)
+
+        books_get_dict = make_books_get_dict(pattern_list, books)
 
         context['comparing_dict'] = comparing_dict
         context['books'] = books
@@ -326,13 +307,16 @@ class PageLocation:
         self.view_name = view_name
         self.is_active = is_active
 
+    def __str__(self):
+        return self.title
+
     def make_full_url(self):
         return reverse(self.view_name)
 
 
 def is_book_in_cart(book: Book, user) -> bool:
     if isinstance(book, Book) and user.is_authenticated:
-        return True if user.cart.books.filter(pk=book.pk).exists() else False
+        return user.cart.books.filter(pk=book.pk).exists()
     return False
 
 
@@ -350,3 +334,17 @@ def get_books_from_comparing(get):
                     pattern_list.append(get_pattern)
                     books.append(book)
     return pattern_list, books
+
+
+def make_books_get_dict(pattern_list: list, books: list):
+    get_dict = {}
+    for item in zip(pattern_list, books):
+        pattern, book = item
+        get_dict[pattern] = book.pk
+    return get_dict
+
+
+def save_image_formset(request, obj):
+    formset = BookImageFormSet(request.POST, request.FILES, instance=obj)
+    if formset.is_valid():
+        formset.save()

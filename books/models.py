@@ -1,9 +1,9 @@
 from django.db import models
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, pre_save, m2m_changed
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 from categories.models import Category
+from accounts.models import CustomUser
 import uuid
 # Create your models here.
 
@@ -33,7 +33,6 @@ class BookManager(models.Manager):
 
     def mostpopular(self):
         return self.filter(mostpopular=True, status='p')
-
 
 
 class Book(models.Model):
@@ -96,6 +95,11 @@ class Book(models.Model):
     def is_published(self):
         return True if self.status == 'p' else False
 
+    def is_in_cart(self, user: CustomUser):
+        if user.is_authenticated:
+            return user.cart.books.filter(pk=self.pk).exists()
+        return False
+
 
 class BookImage(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='images')
@@ -113,7 +117,8 @@ def update_book_category(instance, action, pk_set,  **kwargs):
     if action == 'post_add':
         pk_list = list(pk_set)
         for pk in pk_list:
-            update_book_category_with_category(instance, Category.objects.get(pk=pk))
+            category = Category.objects.get(pk=pk)
+            update_book_category_with_category(instance, category)
         instance.save()
 
 

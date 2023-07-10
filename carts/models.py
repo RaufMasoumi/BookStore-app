@@ -1,8 +1,9 @@
 from django.db import models
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, m2m_changed, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.forms import ValidationError
 from books.models import Book
 from decimal import Decimal
 import uuid
@@ -47,6 +48,21 @@ class UserCartBooksNumber(models.Model):
     def __str__(self):
         return f'{self.cart.user.username}\'s cart number of {self.book.title}'
 
+    def clean(self):
+        if not self.book.is_published():
+            raise ValidationError('Book is not published!')
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        self.clean()
+        if UserCartBooksNumber.objects.filter(pk=self.pk).exists():
+            self.old_number = UserCartBooksNumber.objects.get(pk=self.pk).number
+
+        return super().save(
+            force_insert, force_update, using, update_fields
+        )
+
 
 class UserWish(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -61,13 +77,10 @@ class UserWish(models.Model):
 
 
 @receiver(post_save, sender=get_user_model())
-def create_user_cart(instance, created, **kwargs):
+def create_user_cart_wish(instance, created, **kwargs):
     if created or not UserCart.objects.filter(user=instance).exists():
         UserCart.objects.create(user=instance)
 
-
-@receiver(post_save, sender=get_user_model())
-def create_user_wish(instance, created, **kwargs):
     if created or not UserWish.objects.filter(user=instance).exists():
         UserWish.objects.create(user=instance)
 
@@ -79,23 +92,20 @@ def update_user_cart_books_number(instance, action, pk_set, **kwargs):
         pk_list = list(pk_set)
 
     if action == 'post_add':
-        for i in range(len(pk_list)):
-            book = Book.objects.get(pk=pk_list[i])
+        for pk in pk_list:
+            book = Book.objects.get(pk=pk)
             UserCartBooksNumber.objects.create(
                 cart=user_cart,
                 book=book
             )
 
     if action == 'post_remove':
-        for i in range(len(pk_list)):
-            book = Book.objects.get(pk=pk_list[i])
-            book_cart_number = UserCartBooksNumber.objects.get(cart=user_cart, book=book)
-            book_cart_number.delete()
+        for pk in pk_list:
+            book = Book.objects.get(pk=pk)
+            book.carts_numbers.get(cart=user_cart).delete()
 
     if action == 'post_clear':
-        user_cart_numbers = UserCartBooksNumber.objects.filter(cart=user_cart)
-        for number in user_cart_numbers:
-            number.delete()
+        user_cart.books_numbers.all().delete()
 
 
 @receiver(post_save, sender=UserCartBooksNumber)
@@ -103,6 +113,24 @@ def update_user_cart_books_number_number(instance, created, **kwargs):
     if not created:
         number = instance
         if number.number == 0:
-            book = Book.objects.get(pk=number.book.pk)
-            cart = UserCart.objects.get(pk=number.cart.pk)
-            cart.books.remove(book)
+            number.cart.books.remove(number.book)
+
+
+@receiver(post_save, sender=UserCartBooksNumber)
+def update_book_stock_by_cart_numbers(instance, created, **kwargs):
+    number = instance.number
+    book = instance.book
+    if created:
+        book.stock -= number
+        book.save()
+    elif getattr(instance, 'old_number') and instance.old_number != number:
+        book.stock += instance.old_number
+        book.stock -= number
+    book.save()
+
+
+@receiver(post_delete, sender=UserCartBooksNumber)
+def rollback_book_stock_by_cart_numbers(instance, **kwargs):
+    book = instance.book
+    book.stock += instance.number
+    book.save()

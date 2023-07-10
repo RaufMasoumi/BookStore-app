@@ -22,7 +22,7 @@
           {% if book.is_available %}
               <form action="{% url 'account_user_cart_update' %}" method="post">
                   {% csrf_token %}
-                  <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
+                  <button type="submit" name="book_pk" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
               </form>
           {% else %}
               <button class="btn btn-default add2cart">Unavailable</button>
@@ -66,7 +66,7 @@
       {% if book.is_available %}
         <form action="{% url 'account_user_cart_update' %}" method="post">
           {% csrf_token %}
-          <button type="submit" name="book_add" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
+          <button type="submit" name="book_pk" value="{{ book.id }}" class="btn btn-default add2cart">Add to cart</button>
         </form>
       {% else %}
         <button class="btn btn-default add2cart">Unavailable</button>

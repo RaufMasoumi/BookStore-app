@@ -73,15 +73,15 @@
                           <div class="product-quantity">
                               <input id="product-quantity" name="quantity" type="text" value="{{ number.number }}" readonly class="form-control input-sm">
                           </div>
-                              <button class="btn btn-primary" name="number" value="{{ number.id }}" type="submit">Edit cart</button>
-                              | <button class="btn btn-danger" name="delete" value="{{ number.id }}" type="submit">Delete from cart</button>
+                              <button class="btn btn-primary" name="number_pk" value="{{ number.id }}" type="submit">Edit cart</button>
+                              | <button class="btn btn-danger" name="delete_book_pk" value="{{ book.id }}" type="submit">Delete from cart</button>
                           {% endif %}
                           {% endfor %}
                       {% else %}
                           <div class="product-quantity">
                               <input id="product-quantity" name="quantity" type="text" value="1" readonly class="form-control input-sm">
                           </div>
-                          <button class="btn btn-primary" name="book" value="{{ book.id }}" type="submit">Add to cart</button>
+                          <button class="btn btn-primary" name="book_pk" value="{{ book.id }}" type="submit">Add to cart</button>
                       {% endif %}
                   </form>
                 {% else %}

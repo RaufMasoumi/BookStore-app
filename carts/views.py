@@ -1,58 +1,59 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.views.generic import DetailView
 from books.models import Book
 from books.views import PageLocation
+from accounts.views import ACCOUNT_PAGE_LOCATION_LIST, IsUserItselfTestMixin
 from .models import UserCart, UserWish, UserCartBooksNumber
+from .forms import UserCartNumberByNumberForm, UserCartNumberByBookForm, UserCartBookDeleteForm
 # Create your views here.
 
 
-class UserCartDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = UserCart
-    context_object_name = 'cart'
+class BaseUserCartWishDetailView(LoginRequiredMixin, IsUserItselfTestMixin, DetailView):
     login_url = 'account_login'
-    template_name = 'carts/user_cart_detail.html'
+    queryset_field_name = ''
+
+    def get_queryset_field_name(self):
+        if self.queryset_field_name:
+            return self.queryset_field_name
+        else:
+            return self.context_object_name
 
     def get_object(self, queryset=None):
         if not self.kwargs.get('pk'):
-            return self.request.user.cart
+            return getattr(self.request.user, self.get_queryset_field_name(), None)
         return super().get_object(queryset)
-
-    def test_func(self):
-        obj = self.get_object()
-        return obj == self.request.user.cart
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'), 
-                                         PageLocation('Shopping Cart', 'account_user_cart_detail', True)]
         context['has_down_suggestions'] = True
         return context
 
 
-class UserWishDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
-    model = UserWish
-    context_object_name = 'wish_list'
-    login_url = 'account_login'
-    template_name = 'carts/user_wishlist_detail.html'
-
-    def get_object(self, queryset=None):
-        if not self.kwargs.get('pk'):
-            return UserWish.objects.get(user=self.request.user)
-        return super().get_object(queryset)
-
-    def test_func(self):
-        obj = self.get_object()
-        return obj == self.request.user.wish_list
+class UserCartDetailView(BaseUserCartWishDetailView):
+    model = UserCart
+    context_object_name = 'cart'
+    template_name = 'carts/user_cart_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_location_list'] = [PageLocation('Home', 'home'), PageLocation('Account', 'account'),
-                                         PageLocation('WishList', 'account_user_wishlist_detail', True)]
-        context['has_down_suggestions'] = True
+        cart_location = [PageLocation('Shopping Cart', 'account_user_cart_detail', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST + cart_location
+        return context
+
+
+class UserWishDetailView(BaseUserCartWishDetailView):
+    model = UserWish
+    context_object_name = 'wish_list'
+    template_name = 'carts/user_wishlist_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        wish_list_location = [PageLocation('WishList', 'account_user_wishlist_detail', True)]
+        context['page_location_list'] = ACCOUNT_PAGE_LOCATION_LIST + wish_list_location
         return context
 
 
@@ -65,77 +66,40 @@ def user_cart_update_view(request):
         url = request.user.cart.get_absolute_url()
 
     post = request.POST
-    if post.get('quantity') and not post.get('delete'):
-        quantity = int(post.get('quantity'))
-
-        if post.get('book'):
-            book = get_object_or_404(Book, pk=post['book'])
-            user_cart = request.user.cart
-
-            if not book.is_published():
-                return HttpResponseBadRequest('The book is not published!')
-
-            if book.stock >= quantity:
-                user_cart.books.add(book)
-                user_cart.save()
-                book_number = UserCartBooksNumber.objects.get(cart=user_cart, book=book)
-                book_number.number = quantity
-                book_number.save()
-                book.stock -= quantity
-                book.save()
-                return redirect(url)
-            else:
-                return HttpResponse('<h1>409 The book has not enough stock!</h1>', status=409)
-
-        elif post.get('number'):
-            number = get_object_or_404(UserCartBooksNumber, pk=post['number'])
-            book = number.book
-
-            if number.cart.user != request.user:
-                return HttpResponseForbidden('<h1>403 Forbidden!</h1>')
-
-            book.stock += number.number
-            if book.stock >= quantity:
-                number.number = quantity
-                number.save()
-                book.stock -= quantity
-                book.save()
-                return redirect(url)
-            else:
-                return HttpResponse('<h1>409 The book has not enough stock!', status=409)
-
-    elif post.get('book_add'):
-        book = get_object_or_404(Book, pk=post['book_add'])
-        user_cart = request.user.cart
-
-        if not book.is_published():
-            return HttpResponseBadRequest('The book is not published!')
-
-        if book.is_available():
-            user_cart.books.add(book)
-            user_cart.save()
-            book.stock -= 1
-            book.save()
-            return redirect(url)
-        else:
-            return HttpResponse('<h1>409 The book has not enough stock!', status=409)
-
-    elif post.get('delete'):
-        number = get_object_or_404(UserCartBooksNumber, pk=post['delete'])
-        book = number.book
-        cart = number.cart
-
-        if cart.user != request.user:
+    by_number_form = UserCartNumberByNumberForm(post)
+    if by_number_form.is_valid():
+        cleaned_data = by_number_form.cleaned_data
+        number = get_object_or_404(UserCartBooksNumber, pk=cleaned_data.get('number_pk'))
+        if number.cart.user != request.user:
             return HttpResponseForbidden('<h1>403 Forbidden</h1>')
+        number.number = cleaned_data.get('quantity')
+        number.save()
 
-        book.stock += number.number
-        book.save()
-        cart.books.remove(book)
+    by_book_form = UserCartNumberByBookForm(post)
+    if by_book_form.is_valid():
+        cleaned_data = by_book_form.cleaned_data
+        book = get_object_or_404(Book, pk=cleaned_data.get('book_pk'))
+        if not book.is_published():
+            return HttpResponseForbidden('<h1>403 Forbidden. The book is not published!</h1>')
+        cart = request.user.cart
+        cart.books.add(book)
         cart.save()
-        return redirect(url)
+        new_number = book.carts_numbers.get(cart=cart)
+        new_number.refresh_from_db()
+        quantity = cleaned_data.get('quantity')
+        if quantity != 1:
+            new_number.number = quantity
+            new_number.save()
 
-    else:
-        return HttpResponse('<h1>409 Error when adding the book to user cart!</h1>', status=409)
+    book_delete_form = UserCartBookDeleteForm(post)
+    if book_delete_form.is_valid():
+        book = get_object_or_404(Book, pk=book_delete_form.cleaned_data.get('delete_book_pk'))
+        cart = request.user.cart
+        if cart.books.filter(pk=book.pk).exists:
+            cart.books.remove(book)
+            cart.save()
+
+    return redirect(url)
 
 
 @require_POST
