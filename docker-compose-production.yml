@@ -14,15 +14,7 @@ services:
     depends_on:
       - postgres
     environment:
-      - DJANGO_DEBUG=True
-      - DJANGO_SECRET_KEY=django-insecure-$$+d(qasmikc#h%zxi&_zso-jxth=6%nu$$88-h&4p6n63!go1zo
       - DATABASE_URL=postgresql://raufmasoumi:secret@postgres:5432/BookStore
-      - DJANGO_SECURE_SSL_REDIRECT=False
-      - DJANGO_SECURE_HSTS_PRELOAD=False
-      - DJANGO_SECURE_HSTS_SECONDS=0
-      - DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS=False
-      - DJANGO_CSRF_COOKIE_SECURE=False
-      - DJANGO_SESSION_COOKIE_SECURE=False
 
   postgres:
     image: postgres:latest
