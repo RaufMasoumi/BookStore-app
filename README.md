@@ -2,7 +2,7 @@
 ## _A big django book store web application_
 
 
-![GitHub last commit](https://img.shields.io/github/last-commit/RaufMasoumi/BookStore-app?logo=github) ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/RaufMasoumi/BookStore-app?color=yellow&logo=python&logoColor=yellow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/RaufMasoumi/BookStore-app/django?color=important&logo=django) ![Lines of code](https://img.shields.io/tokei/lines/github/RaufMasoumi/BookStore-app?color=success) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/RaufMasoumi/BookStore-app?color=orange)
+![GitHub last commit](https://img.shields.io/github/last-commit/RaufMasoumi/BookStore-app?logo=github) ![GitHub Pipenv locked Python version](https://img.shields.io/github/pipenv/locked/python-version/RaufMasoumi/BookStore-app?color=yellow&logo=python&logoColor=yellow) ![GitHub Pipenv locked dependency version](https://img.shields.io/github/pipenv/locked/dependency-version/RaufMasoumi/BookStore-app/django?color=important&logo=django) ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/RaufMasoumi/BookStore-app?color=orange)
 
 BookStore is a big sample bookstore Django project that provides all the features you need to buy a book.
 
@@ -12,7 +12,7 @@ The nicknames that describe the BookStore:
 - Easy-to-use
 - Super dynamic
 
-The project was deployed to Heroku and you can check it now at [rauf-book-store-app.herokuapp.com](https://rauf-book-store-app.herokuapp.com) (For the best experience please add this site to your browser's trusted sites list).
+The project was deployed to Back4app and you can check it now at [bookstore-raoufrm93.b4a.run](https://bookstore-raoufrm93.b4a.run/) (For the best experience please add this site to your browser's trusted sites list).
 
 The first idea and the base of this project was written from [Django For Professionals](https://djangoforprofessionals.com/) book.
 
@@ -147,7 +147,7 @@ touch .env
 
 Then generate a new django secret key:
 ```sh
-python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
 Copy codes below to .env and replace your secret key:
