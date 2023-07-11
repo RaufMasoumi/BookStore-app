@@ -226,7 +226,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')   # for heroku
 CSRF_COOKIE_SECURE = env.bool('DJANGO_CSRF_COOKIE_SECURE', default=True)
 SESSION_COOKIE_SECURE = env.bool('DJANGO_SESSION_COOKIE_SECURE', default=True)
 CSRF_TRUSTED_ORIGINS = [
-    'https://bookstore-raoufrm93.b4a.run/'
+    'https://*.b4a.run/',
+    'https://*.containers.back4app.com'
 ]
 
 # Additional
