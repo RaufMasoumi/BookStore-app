@@ -203,6 +203,7 @@ ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_UNIQ_EMAIL = True
 ACCOUNT_EMAIL_REQUIRED = None
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = env.str('ACCOUNT_DEFAULT_HTTP_PROTOCOL', default='https')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'admin@djangobookstore.com'
 SOCIALACCOUNT_PROVIDERS = {
