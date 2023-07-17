@@ -44,7 +44,7 @@ BookStore to being a web application with high self-confidence uses:
 - [Postgresql](https://www.postgresql.org) - A powerful, open source object-relational database
 - [Docker](https://www.docker.com/) - A technology for OS-level virtualization
 - [Docker Compose](https://docs.docker.com/compose/) - A tool for defining and running multi-container Docker applications
-- [Heroku](https://www.heroku.com/) - A cloud platform as a service
+- [Back4App](https://www.back4app.com/) - A CAAS (container as a service) platform.
 - [Cloudinary](https://cloudinary.com/) - A technology for uploading files
 - Front-end technologies
 
